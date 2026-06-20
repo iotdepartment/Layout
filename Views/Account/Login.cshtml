@@ -1,0 +1,40 @@
+﻿@model Layout.Models.ViewModels.LoginViewModel
+
+@{
+    Layout = "_LayoutLogin";
+    ViewData["Title"] = "Iniciar Sesión";
+}
+
+<!-- Título simplificado sin márgenes excesivos -->
+<h2 class="text-center mb-4 fw-bold text-secondary">@ViewData["Title"]</h2>
+
+<form asp-controller="Account" asp-action="Login" method="post">
+
+    <!-- Resumen de errores de validación del lado del servidor -->
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger p-2 small mb-3 text-center" role="alert"></div>
+
+    <!-- Campo Email -->
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label fw-semibold text-muted">Correo Electrónico</label>
+        <input asp-for="Email" class="form-control form-control-lg" placeholder="ejemplo@correo.com" />
+        <span asp-validation-for="Email" class="text-danger small mt-1 d-block"></span>
+    </div>
+
+    <!-- Campo Password -->
+    <div class="mb-4">
+        <label asp-for="Password" class="form-label fw-semibold text-muted">Contraseña</label>
+        <input asp-for="Password" type="password" class="form-control form-control-lg" placeholder="••••••••" />
+        <span asp-validation-for="Password" class="text-danger small mt-1 d-block"></span>
+    </div>
+
+    <!-- Botón de Envío -->
+    <div class="d-grid">
+        <button type="submit" class="btn btn-primary btn-lg shadow-sm">Entrar</button>
+    </div>
+
+</form>
+
+@section Scripts {
+    <!-- Validación del lado del cliente sin recargar la página -->
+    <partial name="_ValidationScriptsPartial" />
+}

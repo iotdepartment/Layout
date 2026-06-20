@@ -1,0 +1,256 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<Layout.Models.ApplicationUser> SignInManager
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Sistema Layout</title>
+
+    <!-- Bootstrap 5 y Bootstrap Icons -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <!-- Estilos personalizados integrados -->
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --sidebar-bg: #1e293b;
+            --sidebar-hover: #334155;
+            --topbar-height: 60px;
+            --bg-main: #f8fafc;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Contenedor del Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: var(--sidebar-bg);
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-brand {
+            height: var(--topbar-height);
+            display: flex;
+            align-items: center;
+            padding: 0 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-menu {
+            padding: 1rem 0;
+            height: calc(100vh - var(--topbar-height));
+            overflow-y: auto;
+        }
+
+        .nav-custom-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: #94a3b8;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+
+            .nav-custom-link:hover, .nav-custom-link.active {
+                color: #fff;
+                background-color: var(--sidebar-hover);
+            }
+
+            .nav-custom-link.active {
+                border-left-color: #0ea5e9;
+                background-color: rgba(14, 165, 233, 0.1);
+            }
+
+            .nav-custom-link i {
+                font-size: 1.2rem;
+                width: 25px;
+                margin-right: 10px;
+            }
+
+        /* Contenedor de contenido principal */
+        .main-wrapper {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* Barra de navegación superior */
+        .topbar {
+            height: var(--topbar-height);
+            background-color: #fff;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 990;
+        }
+
+        .content-body {
+            padding: 2rem 1.5rem;
+            flex-grow: 1;
+        }
+
+        footer {
+            background-color: #fff;
+            border-top: 1px solid #e2e8f0;
+            padding: 1rem 1.5rem;
+            font-size: 0.875rem;
+        }
+
+        /* Ajustes Responsivos */
+        @@media (max-width: 991.98px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+                .sidebar.show {
+                    transform: translateX(0);
+                }
+
+            .main-wrapper {
+                margin-left: 0;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+
+    <!-- SIDEBAR (Barra Lateral) -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <a class="text-white fw-bold fs-5 text-decoration-none d-flex align-items-center" asp-controller="Home" asp-action="Index">
+                <i class="bi bi-layers-half text-info me-2"></i> LayoutSystem
+            </a>
+        </div>
+        <div class="sidebar-menu">
+            <a class="nav-custom-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" asp-controller="Home" asp-action="Index">
+                <i class="bi bi-house-door"></i> Inicio
+            </a>
+
+            <!-- CAMBIADO: text-muted por text-white-50 -->
+            <div class="text-uppercase text-white-50 px-4 pt-3 pb-2 small fw-bold" style="font-size: 0.75rem; letter-spacing: 0.05em;">Gestión</div>
+
+            <a class="nav-custom-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Solicitudes" && ViewContext.RouteData.Values["Action"]?.ToString() == "Create" ? "active" : "")" asp-controller="Solicitudes" asp-action="Create">
+                <i class="bi bi-file-earmark-plus"></i> Nueva Solicitud
+            </a>
+            <a class="nav-custom-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Solicitudes" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" asp-controller="Solicitudes" asp-action="Index">
+                <i class="bi bi-list-task"></i> Lista de Solicitudes
+            </a>
+
+            <!-- CAMBIADO: text-muted por text-white-50 -->
+            <div class="text-uppercase text-white-50 px-4 pt-3 pb-2 small fw-bold" style="font-size: 0.75rem; letter-spacing: 0.05em;">Seguridad</div>
+
+            <a class="nav-custom-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["Action"]?.ToString() == "Privacy" ? "active" : "")" asp-controller="Home" asp-action="Privacy">
+                <i class="bi bi-shield-lock"></i> Privacidad
+            </a>
+        </div>
+    </div>
+
+
+    <!-- MAIN WRAPPER (Contenido Superior e Interno) -->
+    <div class="main-wrapper">
+
+        <!-- TOPBAR (Barra Superior) -->
+        <header class="topbar">
+            <button class="btn btn-light d-lg-none" type="button" id="sidebarToggle">
+                <i class="bi bi-list fs-4"></i>
+            </button>
+
+            <div class="d-none d-lg-block">
+                <span class="text-muted small">Panel de Control Operativo</span>
+            </div>
+
+            <!-- Autenticación / Perfil -->
+            <div class="d-flex align-items-center">
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <div class="dropdown">
+                        <button class="btn btn-light dropdown-toggle d-flex align-items-center gap-2" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 0.85rem;">
+                                @(User.Identity?.Name?.Substring(0, 1).ToUpper() ?? "U")
+                            </div>
+                            <span class="d-none d-sm-inline small fw-semibold">@User.Identity?.Name</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2" aria-labelledby="userMenu">
+                            <li><h6 class="dropdown-header">Mi Cuenta</h6></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger d-flex align-items-center gap-2" asp-controller="Account" asp-action="Logout">
+                                    <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                }
+                else
+                {
+                    <a class="btn btn-primary btn-sm px-3" asp-controller="Account" asp-action="Login">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar Sesión
+                    </a>
+                }
+            </div>
+        </header>
+
+        <!-- CUERPO DE LAS VISTAS -->
+        <main class="content-body" role="main">
+            @RenderBody()
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="text-muted">
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
+                <div>&copy; 2026 - LayoutSystem - Todos los derechos reservados.</div>
+                <div>
+                    <a asp-controller="Home" asp-action="Privacy" class="text-muted text-decoration-none me-3">Privacidad</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Scripts Básicos -->
+
+    
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!-- Lógica de interactividad móvil para el Sidebar -->
+    <script>
+        document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('show');
+        });
+
+        // Cerrar sidebar si se hace clic fuera en pantallas móviles
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.getElementById('sidebarToggle');
+            if (window.innerWidth < 992 && sidebar.classList.contains('show')) {
+                if (!sidebar.contains(event.target) && !toggle.contains(event.target)) {
+                    sidebar.classList.remove('show');
+                }
+            }
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
