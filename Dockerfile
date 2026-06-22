@@ -27,4 +27,6 @@ RUN dotnet publish "./Layout.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+# Cambia los permisos de la carpeta wwwroot para que el usuario de la app pueda escribir
+RUN mkdir -p /app/wwwroot/uploads && chmod -R 777 /app/wwwroot/uploads
 ENTRYPOINT ["dotnet", "Layout.dll"]

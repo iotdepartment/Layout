@@ -149,7 +149,8 @@
                     // Reactivar botón si hubo fallos de negocio
                     btnGuardar.disabled = false;
                     btnText.innerText = "Guardar Solicitud";
-                    btnSpinner.addClass('d-none');
+                    // ✅ CORREGIDO: Se cambió .addClass por .classList.add
+                    btnSpinner.classList.add('d-none');
                 }
 
             } catch (error) {
@@ -161,6 +162,7 @@
 
                 btnGuardar.disabled = false;
                 btnText.innerText = "Guardar Solicitud";
+                // ✅ Aquí ya estaba bien, por lo que todo funcionará correctamente
                 btnSpinner.classList.add('d-none');
             }
         });
