@@ -1,4 +1,4 @@
-# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
+﻿# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
 # This stage is used when running from VS in fast mode (Default for Debug configuration)
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
@@ -27,6 +27,17 @@ RUN dotnet publish "./Layout.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-# Cambia los permisos de la carpeta wwwroot para que el usuario de la app pueda escribir
+
+# ⬇️ SOLUCIÓN AQUÍ: Cambiamos temporalmente a ROOT para tener privilegios administrativos
+USER root
+
+# Creamos la carpeta uploads y le damos permisos de lectura, escritura y ejecución totales
 RUN mkdir -p /app/wwwroot/uploads && chmod -R 777 /app/wwwroot/uploads
+
+# Le transferimos la propiedad completa de la carpeta al usuario 'app' (UID 1654 por defecto en .NET)
+RUN chown -R app:app /app/wwwroot/uploads
+
+# ⬆️ REGRESAMOS LA SEGURIDAD: Volvemos al usuario sin privilegios para ejecutar la aplicación
+USER app
+
 ENTRYPOINT ["dotnet", "Layout.dll"]
