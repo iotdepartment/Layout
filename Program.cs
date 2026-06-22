@@ -10,25 +10,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// 🔐 Identity (Corregido y simplificado para .NET 9)
-builder.Services.AddIdentityCore<ApplicationUser>(options =>
+// 🔐 Identity (SOLUCIÓN: Rutas absolutas explícitas para eliminar el error CS0411 de raíz)
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequireDigit = true;
     options.Password.RequiredLength = 6;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = true;
 })
-.AddRoles<IdentityRole>() // Asigna los roles explícitamente
 .AddEntityFrameworkStores<AppDbContext>()
 .AddDefaultTokenProviders();
-
-// Configuración adicional de los servicios de SignIn necesarios para SignInManager
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultScheme = IdentityConstants.ApplicationScheme;
-    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-})
-.AddIdentityCookies();
 
 // 🍪 Cookies
 builder.Services.ConfigureApplicationCookie(options =>
