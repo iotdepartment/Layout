@@ -2,6 +2,7 @@
 using Layout.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,16 +10,25 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// 🔐 Identity
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+// 🔐 Identity (Corregido y simplificado para .NET 9)
+builder.Services.AddIdentityCore<ApplicationUser>(options =>
 {
     options.Password.RequireDigit = true;
     options.Password.RequiredLength = 6;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = true;
 })
+.AddRoles<IdentityRole>() // Asigna los roles explícitamente
 .AddEntityFrameworkStores<AppDbContext>()
 .AddDefaultTokenProviders();
+
+// Configuración adicional de los servicios de SignIn necesarios para SignInManager
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+})
+.AddIdentityCookies();
 
 // 🍪 Cookies
 builder.Services.ConfigureApplicationCookie(options =>
@@ -32,66 +42,7 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-
-//// ✅ 🌱 SEED AUTOMÁTICO
-//using (var scope = app.Services.CreateScope())
-//{
-//    var services = scope.ServiceProvider;
-
-//    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-//    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-
-//    // 🔹 Roles del sistema
-//    string[] roles = { "Usuario", "Aprobador", "Administrador" };
-
-//    foreach (var role in roles)
-//    {
-//        if (!await roleManager.RoleExistsAsync(role))
-//        {
-//            await roleManager.CreateAsync(new IdentityRole(role));
-//        }
-//    }
-
-//    // 🔹 Admin (también puede aprobar)
-//    string adminEmail = "admin@test.com";
-//    var adminUser = await userManager.FindByEmailAsync(adminEmail);
-
-//    if (adminUser == null)
-//    {
-//        adminUser = new ApplicationUser
-//        {
-//            UserName = adminEmail,
-//            Email = adminEmail,
-//            NombreCompleto = "Administrador Sistema",
-//            EmailConfirmed = true
-//        };
-
-//        await userManager.CreateAsync(adminUser, "Admin123!");
-//        await userManager.AddToRoleAsync(adminUser, "Administrador");
-//        await userManager.AddToRoleAsync(adminUser, "Aprobador");
-//    }
-
-//    // 🔹 Usuario normal
-//    string userEmail = "user@test.com";
-//    var normalUser = await userManager.FindByEmailAsync(userEmail);
-
-//    if (normalUser == null)
-//    {
-//        normalUser = new ApplicationUser
-//        {
-//            UserName = userEmail,
-//            Email = userEmail,
-//            NombreCompleto = "Usuario Prueba",
-//            EmailConfirmed = true
-//        };
-
-//        await userManager.CreateAsync(normalUser, "User123!");
-//        await userManager.AddToRoleAsync(normalUser, "Usuario");
-//    }
-//}
-
-
-// Pipeline
+// Pipeline de manejo de errores
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -99,11 +50,36 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// =========================================================================
+// 📂 CONFIGURACIÓN DE ARCHIVOS ESTÁTICOS Y DINÁMICOS
+// =========================================================================
+
+// 1. Soporte para los recursos estáticos nativos (CSS, JS de la app)
+app.UseStaticFiles();
+
+// 2. Mapeo físico de la carpeta 'uploads' para contenedores de producción (Docker)
+var uploadsPath = Path.Combine(AppContext.BaseDirectory, "wwwroot", "uploads");
+if (!Directory.Exists(uploadsPath))
+{
+    Directory.CreateDirectory(uploadsPath);
+}
+
+// 3. Exposición de la ruta virtual para que el modal de las solicitudes pueda leer las imágenes
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(uploadsPath),
+    RequestPath = "/uploads"
+});
+// =========================================================================
+
 app.UseRouting();
 
+// El orden de estos dos middlewares es obligatorio en .NET Core
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Optimizador de recursos estáticos nativos en tiempo de compilación (.NET 9)
 app.MapStaticAssets();
 
 app.MapControllerRoute(
