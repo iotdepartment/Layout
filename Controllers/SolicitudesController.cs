@@ -49,7 +49,6 @@ namespace Layout.Controllers
         {
             if (!ModelState.IsValid)
             {
-                // Extraemos los errores del ModelState para enviarlos ordenados al cliente
                 var errores = ModelState.Values
                     .SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage)
@@ -60,12 +59,25 @@ namespace Layout.Controllers
 
             try
             {
+                // 1. Blindaje contra Usuario Null
                 var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return Json(new { success = false, message = "Error de sesión: El usuario no se encuentra autenticado o la sesión expiró." });
+                }
+
                 string imagePath = null;
 
                 if (model.Imagen != null)
                 {
-                    var folder = Path.Combine(_env.WebRootPath, "uploads");
+                    // 2. Blindaje contra WebRootPath Null (Si es null, usamos la ruta base de la app)
+                    string rootPath = _env.WebRootPath;
+                    if (string.IsNullOrEmpty(rootPath))
+                    {
+                        rootPath = Path.Combine(AppContext.BaseDirectory, "wwwroot");
+                    }
+
+                    var folder = Path.Combine(rootPath, "uploads");
                     if (!Directory.Exists(folder))
                         Directory.CreateDirectory(folder);
 
@@ -87,7 +99,7 @@ namespace Layout.Controllers
                     Descripcion = model.Descripcion,
                     Razon = model.Razon,
                     ImagenLayout = imagePath,
-                    UsuarioSolicitanteId = user.Id,
+                    UsuarioSolicitanteId = user.Id, // Ya no tronará porque validamos arriba
                     Estatus = EstatusSolicitud.Pendiente,
                     FechaCreacion = DateTime.Now
                 };
@@ -95,14 +107,15 @@ namespace Layout.Controllers
                 _context.SolicitudesMovimiento.Add(solicitud);
                 await _context.SaveChangesAsync();
 
-                // Retornamos éxito y la URL hacia donde queremos que JavaScript redirija
                 return Json(new { success = true, message = "Solicitud guardada con éxito", redirectUrl = Url.Action("Index", "Home") });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Ocurrió un error en el servidor: " + ex.Message });
+                // Esto te dirá exactamente en qué línea falló si vuelve a ocurrir
+                return Json(new { success = false, message = "Ocurrió un error en el servidor: " + ex.Message, inner = ex.InnerException?.Message, trace = ex.StackTrace });
             }
         }
+
 
         // ✅ GET: Historial de Solicitudes
         [HttpGet]
