@@ -59,37 +59,28 @@ namespace Layout.Controllers
 
             try
             {
-                // 1. Blindaje contra Usuario Null
                 var user = await _userManager.GetUserAsync(User);
                 if (user == null)
                 {
-                    return Json(new { success = false, message = "Error de sesión: El usuario no se encuentra autenticado o la sesión expiró." });
+                    return Json(new { success = false, message = "Error de sesión: El usuario no está autenticado." });
                 }
 
-                string imagePath = null;
+                string imageBase64 = null;
 
+                // 💡 LA CLAVE: Convertimos la imagen a texto en memoria sin tocar el disco del servidor
                 if (model.Imagen != null)
                 {
-                    // 2. Blindaje contra WebRootPath Null (Si es null, usamos la ruta base de la app)
-                    string rootPath = _env.WebRootPath;
-                    if (string.IsNullOrEmpty(rootPath))
+                    using (var ms = new MemoryStream())
                     {
-                        rootPath = Path.Combine(AppContext.BaseDirectory, "wwwroot");
+                        await model.Imagen.CopyToAsync(ms);
+                        var fileBytes = ms.ToArray();
+
+                        // Obtenemos el tipo de formato (ej: image/png, image/jpeg)
+                        string mimeType = model.Imagen.ContentType;
+
+                        // Creamos la cadena Base64 que se guardará en la base de datos
+                        imageBase64 = $"data:{mimeType};base64,{Convert.ToBase64String(fileBytes)}";
                     }
-
-                    var folder = Path.Combine(rootPath, "uploads");
-                    if (!Directory.Exists(folder))
-                        Directory.CreateDirectory(folder);
-
-                    var fileName = Guid.NewGuid() + Path.GetExtension(model.Imagen.FileName);
-                    var fullPath = Path.Combine(folder, fileName);
-
-                    using (var stream = new FileStream(fullPath, FileMode.Create))
-                    {
-                        await model.Imagen.CopyToAsync(stream);
-                    }
-
-                    imagePath = "/uploads/" + fileName;
                 }
 
                 var solicitud = new SolicitudMovimiento
@@ -98,8 +89,8 @@ namespace Layout.Controllers
                     TipoMovimiento = model.TipoMovimiento,
                     Descripcion = model.Descripcion,
                     Razon = model.Razon,
-                    ImagenLayout = imagePath,
-                    UsuarioSolicitanteId = user.Id, // Ya no tronará porque validamos arriba
+                    ImagenLayout = imageBase64, // 👈 Guardamos el texto en lugar de la ruta física
+                    UsuarioSolicitanteId = user.Id,
                     Estatus = EstatusSolicitud.Pendiente,
                     FechaCreacion = DateTime.Now
                 };
@@ -111,9 +102,9 @@ namespace Layout.Controllers
             }
             catch (Exception ex)
             {
-                // Esto te dirá exactamente en qué línea falló si vuelve a ocurrir
-                return Json(new { success = false, message = "Ocurrió un error en el servidor: " + ex.Message, inner = ex.InnerException?.Message, trace = ex.StackTrace });
+                return Json(new { success = false, message = "Ocurrió un error en el servidor: " + ex.Message });
             }
+
         }
 
 
