@@ -5,6 +5,7 @@ namespace Layout.Models
     public class SolicitudMovimiento
     {
         public int Id { get; set; }
+        public string Folio { get; set; }
 
         public int AreaId { get; set; }
         public Area Area { get; set; }
@@ -31,6 +32,13 @@ namespace Layout.Models
 
         // relación 1-1
         public SolicitudAprobacionDetalle? DetalleAprobacion { get; set; }
+
+        // relación 1-1
+        public SolicitudInventarioTemporal InventarioTemporal { get; set; }
+
+        // relación 1-1
+        public SolicitudMovimientosTecnicos? MovimientosTecnicos { get; set; }
+
 
         public ICollection<SolicitudHistorial>? Historial { get; set; }
     }

@@ -28,7 +28,10 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 // MVC
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+});
 
 var app = builder.Build();
 

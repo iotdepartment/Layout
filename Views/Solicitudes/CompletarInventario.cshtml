@@ -1,0 +1,137 @@
+﻿@model Layout.Models.ViewModels.SolicitudInventarioViewModel
+
+<div asp-validation-summary="All" class="text-danger"></div>
+<form asp-action="CompletarInventario" method="post">
+    @Html.AntiForgeryToken()
+
+
+    <input type="hidden" asp-for="SolicitudId" />
+
+    <!-- VALIDACION -->
+    <div class="mb-3">
+        <input type="checkbox" id="chkValidacion" asp-for="AplicaValidacion" />
+        <label>Número de Validación</label>
+        <input id="txtValidacion" asp-for="NumeroValidacion" class="form-control" readonly />
+    </div>
+
+    <!-- RESPONSABLE -->
+    <div class="mb-3">
+        <input type="checkbox" id="chkResponsable" asp-for="AplicaResponsable" />
+        <label>Responsable Inventario</label>
+        <input id="txtResponsable" asp-for="ResponsableInventario" class="form-control" readonly />
+    </div>
+
+    <!-- MANDRIL -->
+    <div class="mb-3">
+        <input type="checkbox" id="chkMandril" asp-for="AplicaMandril" />
+        <label>Mandril / Kanban / NP</label>
+        <input id="txtMandril" asp-for="MandrilKanbanNP" class="form-control" readonly />
+    </div>
+
+    <!-- PALLETS -->
+    <div class="mb-3">
+        <input type="checkbox" id="chkPallets" asp-for="AplicaPallets" />
+        <label># Pallets</label>
+        <input id="txtPallets" asp-for="NumeroPallets" class="form-control" readonly />
+    </div>
+
+    <!-- RAZON -->
+    <div class="mb-3">
+        <input type="checkbox" id="chkRazon" asp-for="AplicaRazon" />
+        <label>Razón</label>
+        <textarea id="txtRazon" asp-for="RazonInventario" class="form-control" readonly></textarea>
+    </div>
+
+    <!-- FECHA -->
+    <div class="mb-3">
+        <input type="checkbox" id="chkFecha" asp-for="AplicaFecha" />
+        <label>Fecha compromiso</label>
+        <input id="txtFecha" asp-for="FechaCompromiso" type="date" class="form-control" readonly />
+    </div>
+
+    <hr />
+
+    <h5 class="mt-4">Movimientos Técnicos</h5>
+
+    <div class="form-check mb-2">
+        <input class="form-check-input" asp-for="MovimientoRed" />
+        <label class="form-check-label">
+            Network movement (IT)
+        </label>
+    </div>
+
+    <div class="form-check mb-2">
+        <input class="form-check-input" asp-for="MovimientoIoT" />
+        <label class="form-check-label">
+            System Movement (IoT)
+        </label>
+    </div>
+
+    <div class="form-check mb-2">
+        <input class="form-check-input" asp-for="MovimientoProgramacion" />
+        <label class="form-check-label">
+            Programming Movements
+        </label>
+    </div>
+
+    <div class="form-check mb-2">
+        <input class="form-check-input" asp-for="MovimientoElectrico" />
+        <label class="form-check-label">
+            Electrical Movements
+        </label>
+    </div>
+
+    <div class="form-check mb-2">
+        <input class="form-check-input" asp-for="MovimientoEHS" />
+        <label class="form-check-label">
+            EHS Equipment Relocation
+        </label>
+    </div>
+
+    <div class="form-check mb-2">
+        <input class="form-check-input" asp-for="CambioNomenclatura" />
+        <label class="form-check-label">
+            Cambio de nomenclatura
+        </label>
+    </div>
+
+    <div class="form-check mb-3">
+        <input class="form-check-input" asp-for="RequierePCR" />
+        <label class="form-check-label">
+            Requiere PCR
+        </label>
+    </div>
+
+    <button type="submit" class="btn btn-success">Guardar</button>
+
+</form>
+
+@section Scripts {
+<script>
+
+function toggleInput(checkId, inputId) {
+    const chk = document.getElementById(checkId);
+    const input = document.getElementById(inputId);
+
+    // estado inicial
+    input.readOnly = !chk.checked;
+
+    chk.addEventListener("change", function () {
+        input.readOnly = !this.checked;
+
+        if (!this.checked) {
+            input.value = "";
+        }
+    });
+}
+
+// ✅ inicializar todos
+toggleInput("chkValidacion", "txtValidacion");
+toggleInput("chkResponsable", "txtResponsable");
+toggleInput("chkMandril", "txtMandril");
+toggleInput("chkPallets", "txtPallets");
+toggleInput("chkRazon", "txtRazon");
+toggleInput("chkFecha", "txtFecha");
+
+</script>
+}

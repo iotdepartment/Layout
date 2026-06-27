@@ -4,6 +4,7 @@ using Layout.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Layout.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260625233505_UpdateRelacionInventarioYFolio")]
+    partial class UpdateRelacionInventarioYFolio
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -232,18 +235,22 @@ namespace Layout.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("MandrilKanbanNP")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("NumeroPallets")
                         .HasColumnType("int");
 
                     b.Property<string>("NumeroValidacion")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RazonInventario")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ResponsableInventario")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("SolicitudId")
@@ -318,46 +325,6 @@ namespace Layout.Migrations
                     b.HasIndex("UsuarioSolicitanteId");
 
                     b.ToTable("SolicitudesMovimiento");
-                });
-
-            modelBuilder.Entity("Layout.Models.SolicitudMovimientosTecnicos", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("CambioNomenclatura")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("MovimientoEHS")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("MovimientoElectrico")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("MovimientoIoT")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("MovimientoProgramacion")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("MovimientoRed")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("RequierePCR")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("SolicitudId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SolicitudId")
-                        .IsUnique();
-
-                    b.ToTable("SolicitudMovimientosTecnicos");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -568,17 +535,6 @@ namespace Layout.Migrations
                     b.Navigation("UsuarioSolicitante");
                 });
 
-            modelBuilder.Entity("Layout.Models.SolicitudMovimientosTecnicos", b =>
-                {
-                    b.HasOne("Layout.Models.SolicitudMovimiento", "Solicitud")
-                        .WithOne("MovimientosTecnicos")
-                        .HasForeignKey("Layout.Models.SolicitudMovimientosTecnicos", "SolicitudId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Solicitud");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -643,8 +599,6 @@ namespace Layout.Migrations
 
                     b.Navigation("InventarioTemporal")
                         .IsRequired();
-
-                    b.Navigation("MovimientosTecnicos");
                 });
 #pragma warning restore 612, 618
         }
