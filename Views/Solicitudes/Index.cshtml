@@ -7,34 +7,165 @@
 
 <!-- Estilos adicionales integrados en el scope de la vista -->
 <style>
-    .text-truncate-3 {
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
+    /* ==========================================================================
+       ESTILOS AVANZADOS PARA TARJETAS MODERNAS Y TEXTO EN CARRUSEL
+       ========================================================================== */
+
+    /* Contenedor que restringe el texto a una sola línea con puntos suspensivos */
+    .marquee-container {
         overflow: hidden;
+        white-space: nowrap;
+        position: relative;
+        width: 100%;
     }
 
-    .text-truncate-2 {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
+    .marquee-text {
+        display: inline-block;
+        padding-left: 0;
+        text-overflow: ellipsis;
         overflow: hidden;
+        width: 100%;
+        transition: transform 0.1s linear;
     }
 
+    /* Efecto carrusel horizontal fluido: se activa solo al pasar el cursor sobre la tarjeta */
+    .dynamic-card:hover .marquee-text {
+        overflow: visible;
+        width: auto;
+        animation: lateral-scroll 10s linear infinite;
+    }
+
+    @@keyframes lateral-scroll {
+        0%
+
+    {
+        transform: translate3d(0, 0, 0);
+    }
+
+    100% {
+        transform: translate3d(-50%, 0, 0);
+    }
+
+    }
+
+    /* Diseño moderno de tarjetas con bordes redondeados y comportamiento suave */
     .dynamic-card {
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         cursor: pointer;
+        border-radius: 14px !important;
+        background: #ffffff;
     }
 
         .dynamic-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 .5rem 1rem rgba(0,0,0,.1) !important;
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.08) !important;
         }
 
+    /* Sutil degradado superior para dar profundidad visual al encabezado */
+    .card-header-gradient {
+        background: linear-gradient(180deg, rgba(248,249,250,0.4) 0%, rgba(255,255,255,0) 100%);
+        border-top-left-radius: 14px !important;
+        border-top-right-radius: 14px !important;
+    }
+
+    /* Base limpia y consistente para el pie de la tarjeta */
+    .card-footer-clean {
+        background-color: #fcfcfc !important;
+        border-bottom-left-radius: 14px !important;
+        border-bottom-right-radius: 14px !important;
+    }
+
+    /* Evita que los botones y enlaces del pie activen por accidente el modal trasero */
     .prevent-modal-trigger {
         position: relative;
-        z-index: 2;
+        z-index: 5;
     }
+
+    /* Divisor estético entre las secciones internas del cuerpo */
+    .divider-dashed {
+        border-top: 1px dashed #e3e6f0;
+        margin: 10px 0;
+    }
+
+    /* ==========================================================================
+       ESTILOS AVANZADOS PARA EL MODAL PREMIUM
+       ========================================================================== */
+
+    /* Redondeado moderno y sombra suave para el contenedor del modal */
+    #modalDetalle .modal-content {
+        border-radius: 20px !important;
+        overflow: hidden;
+    }
+
+    /* Encabezado con un sutil gradiente y tipografía limpia */
+    #modalDetalle .modal-header {
+        background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.04) !important;
+    }
+
+    /* Estilo para los títulos de sección en mayúsculas pequeñas */
+    #modalDetalle .modal-label-caps {
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        color: #6c757d;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    /* Bloques contenedores estilizados para la descripción y justificación */
+    #modalDetalle .content-panel-box {
+        background-color: #fcfcfc;
+        border: 1px solid #f1f3f9;
+        padding: 16px;
+        border-radius: 12px;
+        color: #495057;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    /* Panel informativo del dictamen con un diseño de tarjeta integrada limpia */
+    #modalDetalle .dictamen-card-info {
+        background-color: #f4f7fe;
+        border: 1px solid #e1e9f8;
+        border-radius: 14px;
+        padding: 18px;
+    }
+
+    /* Efecto hover suave para la imagen del layout adjunto */
+    #modalDetalle .img-preview-layout {
+        max-height: 280px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 1px solid #e3e6f0;
+    }
+
+        #modalDetalle .img-preview-layout:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1) !important;
+        }
+
+    /* Área de comentarios del administrador estilizada */
+    #modalDetalle .textarea-dictamen {
+        border-radius: 12px;
+        padding: 12px;
+        border: 1px solid #d1d3e2;
+        transition: border-color 0.15s ease-in-out;
+    }
+
+        #modalDetalle .textarea-dictamen:focus {
+            border-color: #4e73df;
+            box-shadow: 0 0 0 0.2rem rgba(78,115,223,0.1);
+        }
+
+    /* Pie de página limpio */
+    #modalDetalle .modal-footer {
+        background-color: #fcfcfc;
+        border-top: 1px solid rgba(0, 0, 0, 0.04) !important;
+    }
+
+
 </style>
 
 <!-- Genera el token de seguridad necesario para las peticiones Fetch -->
@@ -46,14 +177,14 @@
             <h2 class="fw-bold text-secondary mb-1">Peticiones Realizadas</h2>
             <p class="text-muted small mb-0">Listado completo de movimientos solicitados en el sistema</p>
         </div>
-        <a asp-action="Create" class="btn btn-primary shadow-sm">
+        <a asp-action="Create" class="btn btn-primary shadow-sm rounded-pill px-4">
             <i class="bi bi-plus-lg me-2"></i>Nueva Solicitud
         </a>
     </div>
 
     @if (!Model.Any())
     {
-        <div class="alert alert-info text-center p-5 shadow-sm border-0" role="alert">
+        <div class="alert alert-info text-center p-5 shadow-sm border-0 rounded-4" role="alert">
             <i class="bi bi-inbox fs-1 d-block mb-3 text-muted"></i>
             <h4 class="alert-heading fw-bold">No hay solicitudes registradas</h4>
             <p class="text-muted mb-0">Las peticiones que tú o tu equipo realicen aparecerán en este panel.</p>
@@ -65,7 +196,7 @@
             @foreach (var item in Model)
             {
                 <div class="col-12 col-md-6 col-xl-4">
-                    <div class="card h-100 shadow-sm border-0 dynamic-card btn-detalle-solicitud"
+                    <div class="card h-100 shadow-sm border btn-detalle-solicitud dynamic-card"
                          data-id="@item.Id"
                          data-area="@(item.Area?.Nombre ?? "Sin Área")"
                          data-estatus="@item.Estatus.ToString()"
@@ -78,81 +209,93 @@
                          data-fecharevision="@(item.FechaRevision?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")"
                          data-comentarios="@(item.ComentariosRevision ?? "Sin comentarios adicionales")">
 
-                        <div class="card-header bg-white border-bottom-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
-                            <span class="badge bg-light text-dark border px-2.5 py-1.5 fw-semibold">
-                                <i class="bi bi-geo-alt me-1"></i>@(item.Area?.Nombre ?? "Sin Área")
+                        <!-- Encabezado de la Tarjeta -->
+                        <div class="card-header card-header-gradient border-bottom-0 pt-3 pb-2 d-flex justify-content-between align-items-center">
+                            <span class="badge bg-light text-secondary border px-2.5 py-1.5 fw-semibold rounded-pill">
+                                <i class="bi bi-geo-alt me-1 text-primary"></i>@(item.Area?.Nombre ?? "Sin Área")
                             </span>
 
-                            @* SWITCH DE ESTADOS CON COLORES EN BADGES *@
                             @switch (item.Estatus)
                             {
                                 case EstatusSolicitud.Pendiente:
-                                    <span class="badge bg-warning text-dark px-2.5 py-1.5 fw-semibold">Pendiente</span>
+                                    <span class="badge bg-warning text-dark px-2.5 py-1.5 fw-semibold rounded-pill">Pendiente</span>
                                     break;
                                 case EstatusSolicitud.Aprobado:
                                 case EstatusSolicitud.EnProceso:
-                                    <span class="badge bg-info text-dark px-2.5 py-1.5 fw-semibold">En Proceso</span>
+                                    <span class="badge bg-info text-dark px-2.5 py-1.5 fw-semibold rounded-pill">En Proceso</span>
                                     break;
                                 case EstatusSolicitud.Rechazado:
-                                    <span class="badge bg-danger px-2.5 py-1.5 fw-semibold">Rechazada</span>
+                                    <span class="badge bg-danger px-2.5 py-1.5 fw-semibold rounded-pill">Rechazada</span>
                                     break;
                                 case EstatusSolicitud.Finalizado:
-                                    <span class="badge bg-success px-2.5 py-1.5 fw-semibold">Finalizada</span>
+                                    <span class="badge bg-success px-2.5 py-1.5 fw-semibold rounded-pill">Finalizada</span>
                                     break;
                             }
                         </div>
 
-                        <div class="card-body py-3">
-                            <h5 class="card-title fw-bold text-primary mb-2">
-                                @item.TipoMovimiento.ToString()
+                        <!-- Cuerpo de la Tarjeta -->
+                        <div class="card-body py-2">
+                            <h5 class="card-title fw-bold text-primary mb-3 d-flex align-items-center">
+                                <i class="bi bi-arrow-right-circle me-2 fs-6"></i>@item.TipoMovimiento.ToString()
                             </h5>
 
-                            <p class="card-text text-secondary text-truncate-3 small mb-3">
-                                <strong>Descripción:</strong> @item.Descripcion
-                            </p>
+                            <!-- Fila de Descripción en modo Carrusel/Truncado -->
+                            <div class="mb-2">
+                                <small class="text-uppercase text-muted fw-bold d-block" style="font-size: 0.65rem; letter-spacing: 0.5px;">Descripción</small>
+                                <div class="marquee-container text-secondary small">
+                                    <span class="marquee-text">@item.Descripcion</span>
+                                </div>
+                            </div>
 
-                            <p class="card-text text-muted text-truncate-2 small mb-0">
-                                <strong>Justificación:</strong> @item.Razon
-                            </p>
+                            <div class="divider-dashed"></div>
+
+                            <!-- Fila de Justificación en modo Carrusel/Truncado -->
+                            <div class="mb-2">
+                                <small class="text-uppercase text-muted fw-bold d-block" style="font-size: 0.65rem; letter-spacing: 0.5px;">Justificación</small>
+                                <div class="marquee-container text-muted small">
+                                    <span class="marquee-text">@item.Razon</span>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="card-footer bg-light border-top-0 d-flex justify-content-between align-items-center py-2.5">
-                            <small class="text-muted fw-medium">
-                                <i class="bi bi-calendar3 me-1"></i>@item.FechaCreacion.ToString("dd/MM/yyyy HH:mm")
+                        <!-- Pie de la Tarjeta -->
+                        <div class="card-footer card-footer-clean border-top-0 d-flex justify-content-between align-items-center py-2.5">
+                            <small class="text-muted fw-medium small">
+                                <i class="bi bi-calendar3 me-1 text-secondary"></i>@item.FechaCreacion.ToString("dd/MM/yyyy HH:mm")
                             </small>
 
                             <div class="prevent-modal-trigger d-flex gap-2 align-items-center">
-                                @* BOTÓN ESTANDARIZADO: VER LAYOUT *@
+                                @* BOTÓN: VER LAYOUT *@
                                 @if (!string.IsNullOrEmpty(item.ImagenLayout))
                                 {
-                                    <a href="@item.ImagenLayout" target="_blank" class="btn btn-sm btn-outline-secondary px-2.5 py-1 fw-semibold d-inline-flex align-items-center" title="Ver croquis adjunto" onclick="event.stopPropagation();">
+                                    <a href="@item.ImagenLayout" target="_blank" class="btn btn-sm btn-outline-secondary px-2.5 py-1 fw-semibold d-inline-flex align-items-center rounded-pill" title="Ver croquis adjunto" onclick="event.stopPropagation();">
                                         <i class="bi bi-image me-1"></i>Ver Layout
                                     </a>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-white text-muted border px-2.5 py-1.5 small fw-normal italic">
+                                    <span class="badge bg-white text-muted border px-2.5 py-1.5 small fw-normal italic rounded-pill">
                                         Sin Layout
                                     </span>
                                 }
 
-                                @* BOTÓN ESTANDARIZADO: COMPLETAR INFO *@
+                                @* BOTÓN: COMPLETAR INFO *@
                                 @if (item.Estatus == EstatusSolicitud.EnProceso || item.Estatus == EstatusSolicitud.Aprobado)
                                 {
                                     <a asp-action="CompletarInventario"
                                        asp-controller="Solicitudes"
                                        asp-route-id="@item.Id"
-                                       class="btn btn-sm btn-primary px-2.5 py-1 shadow-sm fw-semibold d-inline-flex align-items-center"
+                                       class="btn btn-sm btn-primary px-2.5 py-1 shadow-sm fw-semibold d-inline-flex align-items-center rounded-pill"
                                        onclick="event.stopPropagation();"
                                        title="Llenar datos de inventario y movimientos técnicos">
                                         <i class="bi bi-pencil-square me-1"></i>Completar Info
                                     </a>
                                 }
-                                @* BADGE ESTANDARIZADO: PENDIENTE *@
+                                @* BADGE: COMPLETADO *@
                                 else if (item.Estatus == EstatusSolicitud.Finalizado)
                                 {
-                                    <span class="badge bg-light text-secondary border px-2.5 py-1.5 small fw-semibold d-inline-flex align-items-center" title="Información técnica registrada con éxito">
-                                        <i class="bi bi-clock-history me-1"></i>Completado
+                                    <span class="badge bg-light text-success border px-2.5 py-1.5 small fw-semibold d-inline-flex align-items-center rounded-pill" title="Información técnica registrada con éxito">
+                                        <i class="bi bi-check-circle-fill me-1"></i>Completado
                                     </span>
                                 }
                             </div>
@@ -164,107 +307,119 @@
     }
 </div>
 
-<!-- MODAL DE DETALLES DE LA SOLICITUD -->
+
+<!-- MODAL DE DETALLES DE LA SOLICITUD - DISEÑO REDISEÑADO -->
 <div class="modal fade" id="modalDetalle" tabindex="-1" aria-labelledby="modalDetalleLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
+        <div class="modal-content border-0 shadow-lg">
 
             <!-- Encabezado del Modal -->
-            <div class="modal-header bg-light border-bottom-0 py-3">
-                <h5 class="modal-title fw-bold text-secondary" id="modalDetalleLabel">
-                    <i class="bi bi-file-earmark-text me-2 text-primary"></i>Detalle de la Solicitud
+            <div class="modal-header py-3 px-4 align-items-center">
+                <h5 class="modal-title fw-bold text-secondary d-flex align-items-center mb-0" id="modalDetalleLabel">
+                    <i class="bi bi-file-earmark-text me-2 text-primary fs-4"></i>Detalle de la Solicitud
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <!-- Cuerpo del Modal -->
             <div class="modal-body p-4">
-                <div class="row g-3">
+                <div class="row g-4">
 
-                    <!-- Datos Rápidos superiores -->
-                    <div class="col-md-6">
-                        <label class="text-uppercase text-muted fw-bold small d-block">Tipo de Movimiento</label>
-                        <span id="modalTipo" class="fs-5 fw-bold text-primary"></span>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="text-uppercase text-muted fw-bold small d-block">Área</label>
-                        <span id="modalArea" class="badge bg-light text-dark border fs-6 px-2.5 py-1"></span>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="text-uppercase text-muted fw-bold small d-block">Estatus</label>
-                        <span id="modalEstatus" class="badge fs-6 px-2.5 py-1 fw-semibold"></span>
+                    <!-- Fila de Metadatos Superiores (Distribución Flexible Antisolapamiento) -->
+                    <div class="col-12 col-md-5">
+                        <span class="modal-label-caps">Tipo de Movimiento</span>
+                        <span id="modalTipo" class="fs-5 fw-bold text-primary d-block"></span>
                     </div>
 
-                    <hr class="my-3 text-muted opacity-25">
+                    <!-- col-md-auto hace que la columna mida exactamente lo que mida el texto de la sección -->
+                    <div class="col-12 col-sm-6 col-md-auto flex-grow-1">
+                        <span class="modal-label-caps">Área Asignada</span>
+                        <span id="modalArea" class="badge bg-light text-dark border fs-6 px-3 py-1.5 rounded-pill fw-semibold text-nowrap d-inline-block"></span>
+                    </div>
+
+                    <div class="col-6 col-sm-6 col-md-auto">
+                        <span class="modal-label-caps">Estatus Actual</span>
+                        <span id="modalEstatus" class="badge fs-6 px-3 py-1.5 rounded-pill fw-semibold shadow-xs text-nowrap d-inline-block"></span>
+                    </div>
+
+                    <div class="col-12 my-1">
+                        <hr class="text-muted opacity-25 m-0">
+                    </div>
 
                     <!-- Descripción de la Solicitud -->
                     <div class="col-12">
-                        <label class="text-uppercase text-muted fw-bold small d-block">Descripción</label>
-                        <p id="modalDescripcion" class="text-secondary bg-light p-3 rounded border-start border-primary border-3"></p>
+                        <span class="modal-label-caps">Descripción Detallada</span>
+                        <p id="modalDescripcion" class="content-panel-box border-start border-primary border-4 mb-0"></p>
                     </div>
 
                     <!-- Justificación / Razón -->
                     <div class="col-12">
-                        <label class="text-uppercase text-muted fw-bold small d-block">Justificación / Razón</label>
-                        <p id="modalRazon" class="text-secondary bg-light p-3 rounded"></p>
+                        <span class="modal-label-caps">Justificación / Razón de Petición</span>
+                        <p id="modalRazon" class="content-panel-box mb-0"></p>
                     </div>
 
-                    <!-- Panel Informativo de Revisión (Aprobado / En Proceso / Finalizado / Rechazado) -->
+                    <!-- Panel Informativo del Dictamen (Se muestra dinámicamente) -->
                     <div id="seccionRevision" class="col-12 d-none">
-                        <div class="card bg-light border-0 p-3 mt-2">
-                            <h6 class="fw-bold text-secondary mb-3">
-                                <i class="bi bi-shield-check me-2"></i>Información del Dictamen técnico
+                        <div class="dictamen-card-info mt-1">
+                            <h6 class="fw-bold text-primary mb-3 d-flex align-items-center" style="font-size: 0.9rem;">
+                                <i class="bi bi-shield-check me-2 fs-5"></i>Información del Dictamen Técnico
                             </h6>
-                            <div class="row g-2 small">
-                                <div class="col-sm-4">
-                                    <strong>Dictaminó:</strong> <span id="modalAprobador"></span>
+                            <div class="row g-3 small">
+                                <div class="col-12 col-sm-6">
+                                    <span class="text-muted d-block mb-0.5">Dictaminó:</span>
+                                    <span id="modalAprobador" class="fw-bold text-dark fs-6"></span>
                                 </div>
-                                <div class="col-sm-4">
-                                    <strong>Fecha de Dictamen:</strong> <span id="modalFechaRevision"></span>
+                                <div class="col-12 col-sm-6">
+                                    <span class="text-muted d-block mb-0.5">Fecha de Dictamen:</span>
+                                    <span id="modalFechaRevision" class="fw-bold text-dark fs-6"></span>
                                 </div>
                                 <div class="col-12 mt-2">
-                                    <strong>Comentarios del revisor:</strong>
-                                    <p id="modalComentarios" class="mb-0 text-muted italic mt-1"></p>
+                                    <span class="text-muted d-block mb-1 fw-medium">Comentarios del Revisor:</span>
+                                    <p id="modalComentarios" class="mb-0 text-secondary bg-white p-2.5 rounded border border-light shadow-xs text-wrap"></p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Visualización del Croquis Adjunto -->
-                    <div id="seccionCroquis" class="col-12 text-center d-none">
-                        <hr class="my-3 text-muted opacity-25">
-                        <label class="text-uppercase text-muted fw-bold small d-block text-start mb-2">Layout Adjunto</label>
-                        <img id="modalImagen" src=""
-                             class="img-fluid rounded border shadow-sm"
-                             style="max-height:250px; cursor:pointer;" />
+                    <div id="seccionCroquis" class="col-12 d-none">
+                        <div class="my-1">
+                            <hr class="text-muted opacity-25 m-0">
+                        </div>
+                        <span class="modal-label-caps text-start mb-2">Layout / Croquis Adjunto</span>
+                        <div class="text-center bg-light p-2 rounded-3 border border-light">
+                            <img id="modalImagen" src="" class="img-fluid rounded-3 shadow-sm img-preview-layout" alt="Layout de movimiento" />
+                        </div>
                     </div>
 
-                    <!-- Panel de Dictamen (Solo para peticiones en estado Pendiente) -->
+                    <!-- Panel de Dictamen (Para Administradores en solicitudes Pendientes) -->
                     <div id="seccionFormularioRevision" class="col-12 d-none">
-                        <hr class="my-3 text-muted opacity-25">
-                        <label class="text-uppercase text-danger fw-bold small d-block mb-2">Panel de Dictamen (Administrador)</label>
-                        <textarea id="txtComentariosRevision" class="form-control" rows="2" placeholder="Escribe aquí los motivos de la aprobación o rechazo..."></textarea>
+                        <div class="my-1">
+                            <hr class="text-muted opacity-25 m-0">
+                        </div>
+                        <span class="modal-label-caps text-danger mb-2">Panel de Dictamen (Uso Administrativo)</span>
+                        <textarea id="txtComentariosRevision" class="form-control textarea-dictamen" rows="2" placeholder="Escribe aquí de manera detallada los motivos de la aprobación o rechazo técnico..."></textarea>
                     </div>
                 </div>
             </div>
 
-            <!-- PIE DEL MODAL CON BOTONES DE ACCIÓN -->
-            <div class="modal-footer bg-light border-top-0 py-2.5">
-                <small class="text-muted me-auto fw-medium">
-                    <i class="bi bi-clock me-1"></i>Creado el: <span id="modalFecha"></span>
+            <!-- Pie del Modal con Botones de Acción -->
+            <div class="modal-footer py-2.5 px-4">
+                <small class="text-muted me-auto fw-medium d-flex align-items-center">
+                    <i class="bi bi-clock me-1.5 text-secondary"></i>Creado el: <span id="modalFecha" class="ms-1 fw-bold"></span>
                 </small>
 
-                <!-- Botones para Administradores (Se muestran con JS si el estatus original es Pendiente) -->
+                <!-- Botones de Control para Administradores -->
                 <div id="bloqueAccionesAdmin" class="d-none">
-                    <button type="button" id="btnRechazar" class="btn btn-danger px-3 me-1 fw-semibold">
-                        <i class="bi bi-x-circle me-1"></i>Rechazar
+                    <button type="button" id="btnRechazar" class="btn btn-outline-danger rounded-pill px-3.5 me-1 fw-semibold btn-sm shadow-xs">
+                        <i class="bi bi-x-circle me-1.5"></i>Rechazar
                     </button>
-                    <button type="button" id="btnAprobar" class="btn btn-success px-3 me-3 fw-semibold">
-                        <i class="bi bi-check-circle me-1"></i>Aprobar Movimiento
+                    <button type="button" id="btnAprobar" class="btn btn-success rounded-pill px-4 me-2 fw-semibold btn-sm shadow-sm">
+                        <i class="bi bi-check-circle me-1.5"></i>Aprobar Movimiento
                     </button>
                 </div>
 
-                <button type="button" class="btn btn-secondary px-4 fw-semibold" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary rounded-pill px-4 fw-semibold btn-sm shadow-xs" data-bs-dismiss="modal">Cerrar</button>
             </div>
 
         </div>
@@ -447,7 +602,7 @@
                     if (result.success) {
 
                         if (result.redirectUrl) {
-                            window.location.href = result.redirectUrl; // ✅ ir a formulario
+                            window.location.href = result.redirectUrl; 
                             return;
                         }
 
