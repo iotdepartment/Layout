@@ -26,7 +26,8 @@ namespace Layout.Controllers
             _env = env;
         }
 
-        // ✅ GET
+        // METODO PARA LA VISTA DE CREAR
+        [HttpGet]
         public IActionResult Create()
         {
             var vm = new SolicitudCreateViewModel
@@ -42,7 +43,7 @@ namespace Layout.Controllers
             return View(vm);
         }
 
-        // ✅ POST (Modificado para responder peticiones AJAX / FETCH)
+        // CREAR EL REGISTRO DE LAS NUEVAS SOLICITUDES DE MOVIMIENTOS DE LAYOUT
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(SolicitudCreateViewModel model)
@@ -108,6 +109,37 @@ namespace Layout.Controllers
 
                 await _context.SaveChangesAsync();
 
+                // =============================
+                // ✅ GUARDAR INVENTARIO
+                // =============================
+
+                var inventario = new SolicitudInventarioTemporal
+                {
+                    SolicitudId = solicitud.Id,
+
+                    AplicaValidacion = model.AplicaValidacion,
+                    NumeroValidacion = model.AplicaValidacion ? model.NumeroValidacion : null,
+
+                    AplicaResponsable = model.AplicaResponsable,
+                    ResponsableInventario = model.AplicaResponsable ? model.ResponsableInventario : null,
+
+                    AplicaMandril = model.AplicaMandril,
+                    MandrilKanbanNP = model.AplicaMandril ? model.MandrilKanbanNP : null,
+
+                    AplicaPallets = model.AplicaPallets,
+                    NumeroPallets = model.AplicaPallets ? model.NumeroPallets : null,
+
+                    AplicaRazon = model.AplicaRazonInventario,
+                    RazonInventario = model.AplicaRazonInventario ? model.RazonInventario : null,
+
+                    AplicaFecha = model.AplicaFecha,
+                    FechaCompromiso = model.AplicaFecha ? model.FechaCompromiso : null
+                };
+
+                _context.SolicitudesInventario.Add(inventario);
+
+                await _context.SaveChangesAsync();
+
 
                 return Json(new
                 {
@@ -125,11 +157,8 @@ namespace Layout.Controllers
                 });
             }
         }
-        
-        
 
-
-        // ✅ GET: Historial de Solicitudes
+        // METODO PARA MOSTRAR LA LISTA DE LAS SOLICITUDES REALIZADAS
         [HttpGet]
         public async Task<IActionResult> Index()
         {
@@ -137,13 +166,14 @@ namespace Layout.Controllers
             // Puedes ordenar por FechaCreacion para ver las más recientes primero
             var solicitudes = await _context.SolicitudesMovimiento
                 .Include(s => s.Area)
+                .Include(s => s.InventarioTemporal)
                 .OrderByDescending(s => s.FechaCreacion)
                 .ToListAsync();
 
             return View(solicitudes);
         }
 
-
+        // VALIDA SI LA SOLICITUD ES ACEPTADA O RECHAZADA POR EL USUARIO APROBADOR O ADMINISTRADOR
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Aprobador,Administrador")]
@@ -196,51 +226,31 @@ namespace Layout.Controllers
             });
         }
 
+        // MUESTRA LA VISTA DEL FORMULARIO PARA LLENAR LA INFORMACIÓN EXTRA
         [Authorize(Roles = "Aprobador,Administrador")]
         public async Task<IActionResult> CompletarInventario(int id)
         {
             var solicitud = await _context.SolicitudesMovimiento
-                .Include(s => s.InventarioTemporal)
                 .Include(s => s.MovimientosTecnicos)
                 .FirstOrDefaultAsync(s => s.Id == id);
 
             if (solicitud == null)
                 return NotFound();
 
-            // 🔒 CONTROL DE SEGURIDAD (Opcional pero recomendado): 
-            // Si la solicitud no está en proceso, no debería poder editar el inventario técnico.
+            // 🔒 SOLO SI ESTÁ EN PROCESO
             if (solicitud.Estatus != EstatusSolicitud.EnProceso)
-            {
                 return RedirectToAction("Index");
-            }
 
             var vm = new SolicitudInventarioViewModel
             {
                 SolicitudId = id
             };
 
-            // ✅ INVENTARIO (Tu lógica original intacta para precarga)
-            if (solicitud.InventarioTemporal != null)
-            {
-                var inv = solicitud.InventarioTemporal;
-                vm.AplicaValidacion = inv.AplicaValidacion;
-                vm.NumeroValidacion = inv.NumeroValidacion;
-                vm.AplicaResponsable = inv.AplicaResponsable;
-                vm.ResponsableInventario = inv.ResponsableInventario;
-                vm.AplicaMandril = inv.AplicaMandril;
-                vm.MandrilKanbanNP = inv.MandrilKanbanNP;
-                vm.AplicaPallets = inv.AplicaPallets;
-                vm.NumeroPallets = inv.NumeroPallets;
-                vm.AplicaRazon = inv.AplicaRazon;
-                vm.RazonInventario = inv.RazonInventario;
-                vm.AplicaFecha = inv.AplicaFecha;
-                vm.FechaCompromiso = inv.FechaCompromiso;
-            }
-
-            // ✅ MOVIMIENTOS TÉCNICOS (Tu lógica original intacta para precarga)
+            // ✅ SOLO TÉCNICOS
             if (solicitud.MovimientosTecnicos != null)
             {
                 var tech = solicitud.MovimientosTecnicos;
+
                 vm.MovimientoRed = tech.MovimientoRed;
                 vm.MovimientoIoT = tech.MovimientoIoT;
                 vm.MovimientoProgramacion = tech.MovimientoProgramacion;
@@ -253,103 +263,17 @@ namespace Layout.Controllers
             return View(vm);
         }
 
+        // COMPLETA LA INFORMACIÓN UNA VEZ CONFIRMADA/ACEPTADA LA SOLICITUD DE MOVIMIENTO DE LAYOUT PARA EL FORMULARIO DE INFORMACIÓN
         [HttpPost]
         [Authorize(Roles = "Aprobador,Administrador")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CompletarInventario(SolicitudInventarioViewModel model)
         {
-            // ✅ VALIDACIÓN CONDICIONAL (INVENTARIO)
-            if (model.AplicaValidacion && string.IsNullOrWhiteSpace(model.NumeroValidacion))
-                ModelState.AddModelError("NumeroValidacion", "Requerido");
-
-            if (model.AplicaResponsable && string.IsNullOrWhiteSpace(model.ResponsableInventario))
-                ModelState.AddModelError("ResponsableInventario", "Requerido");
-
-            if (model.AplicaMandril && string.IsNullOrWhiteSpace(model.MandrilKanbanNP))
-                ModelState.AddModelError("MandrilKanbanNP", "Requerido");
-
-            if (model.AplicaPallets && model.NumeroPallets == null)
-                ModelState.AddModelError("NumeroPallets", "Requerido");
-
-            if (model.AplicaRazon && string.IsNullOrWhiteSpace(model.RazonInventario))
-                ModelState.AddModelError("RazonInventario", "Requerido");
-
-            if (model.AplicaFecha && model.FechaCompromiso == null)
-                ModelState.AddModelError("FechaCompromiso", "Requerido");
-
             if (!ModelState.IsValid)
                 return View(model);
 
-            // ✅ LIMPIAR PRIMERO
-            if (!model.AplicaValidacion) model.NumeroValidacion = null;
-            if (!model.AplicaResponsable) model.ResponsableInventario = null;
-            if (!model.AplicaMandril) model.MandrilKanbanNP = null;
-            if (!model.AplicaPallets) model.NumeroPallets = null;
-            if (!model.AplicaRazon) model.RazonInventario = null;
-            if (!model.AplicaFecha) model.FechaCompromiso = null;
-
-            // ✅ DESPUÉS VALIDAR
-            if (model.AplicaValidacion && string.IsNullOrWhiteSpace(model.NumeroValidacion))
-                ModelState.AddModelError("NumeroValidacion", "Requerido");
-
             // =====================================================
-            // ✅ INVENTARIO (TU MISMO CÓDIGO)
-            // =====================================================
-
-            var existente = await _context.SolicitudesInventario
-                .FirstOrDefaultAsync(x => x.SolicitudId == model.SolicitudId);
-
-            if (existente != null)
-            {
-                // UPDATE
-                existente.AplicaValidacion = model.AplicaValidacion;
-                existente.NumeroValidacion = model.NumeroValidacion;
-
-                existente.AplicaResponsable = model.AplicaResponsable;
-                existente.ResponsableInventario = model.ResponsableInventario;
-
-                existente.AplicaMandril = model.AplicaMandril;
-                existente.MandrilKanbanNP = model.MandrilKanbanNP;
-
-                existente.AplicaPallets = model.AplicaPallets;
-                existente.NumeroPallets = model.NumeroPallets;
-
-                existente.AplicaRazon = model.AplicaRazon;
-                existente.RazonInventario = model.RazonInventario;
-
-                existente.AplicaFecha = model.AplicaFecha;
-                existente.FechaCompromiso = model.FechaCompromiso;
-            }
-            else
-            {
-                // INSERT
-                var entity = new SolicitudInventarioTemporal
-                {
-                    SolicitudId = model.SolicitudId,
-
-                    AplicaValidacion = model.AplicaValidacion,
-                    NumeroValidacion = model.NumeroValidacion,
-
-                    AplicaResponsable = model.AplicaResponsable,
-                    ResponsableInventario = model.ResponsableInventario,
-
-                    AplicaMandril = model.AplicaMandril,
-                    MandrilKanbanNP = model.MandrilKanbanNP,
-
-                    AplicaPallets = model.AplicaPallets,
-                    NumeroPallets = model.NumeroPallets,
-
-                    AplicaRazon = model.AplicaRazon,
-                    RazonInventario = model.RazonInventario,
-
-                    AplicaFecha = model.AplicaFecha,
-                    FechaCompromiso = model.FechaCompromiso
-                };
-
-                _context.SolicitudesInventario.Add(entity);
-            }
-
-            // =====================================================
-            // ✅ 🔥 MOVIMIENTOS TÉCNICOS (LO NUEVO)
+            // ✅ 🔥 MOVIMIENTOS TÉCNICOS (ÚNICOQUE SE GUARDA)
             // =====================================================
 
             var tecnicoExistente = await _context.Set<SolicitudMovimientosTecnicos>()
@@ -385,25 +309,25 @@ namespace Layout.Controllers
             }
 
             // =====================================================
-            // ✅ 🔥 REGLA DE NEGOCIO: FINALIZAR SOLICITUD PRINCIPAL
+            // ✅ 🔥 FINALIZAR SOLICITUD
             // =====================================================
-            var solicitudPrincipal = await _context.SolicitudesMovimiento.FindAsync(model.SolicitudId);
+
+            var solicitudPrincipal = await _context.SolicitudesMovimiento
+                .FindAsync(model.SolicitudId);
+
             if (solicitudPrincipal != null)
             {
-                // Cambiamos el estado de EnProceso a Finalizado
                 solicitudPrincipal.Estatus = EstatusSolicitud.Finalizado;
             }
 
             // =====================================================
-            // ✅ GUARDAR TODO
+            // ✅ GUARDAR
             // =====================================================
 
             await _context.SaveChangesAsync();
 
             return RedirectToAction("Index");
         }
-
-
 
     }
 }

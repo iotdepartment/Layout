@@ -1,28 +1,9 @@
 ﻿namespace Layout.Models.ViewModels
 {
+    //ESTA INFORMAICÓN LLENADA POR EL USUARIO APROBADOR 
     public class SolicitudInventarioViewModel
     {
         public int SolicitudId { get; set; }
-
-        // 🟦 INVENTARIO
-
-        public bool AplicaValidacion { get; set; }
-        public string? NumeroValidacion { get; set; }
-
-        public bool AplicaResponsable { get; set; }
-        public string? ResponsableInventario { get; set; }
-
-        public bool AplicaMandril { get; set; }
-        public string? MandrilKanbanNP { get; set; }
-
-        public bool AplicaPallets { get; set; }
-        public int? NumeroPallets { get; set; }
-
-        public bool AplicaRazon { get; set; }
-        public string? RazonInventario { get; set; }
-
-        public bool AplicaFecha { get; set; }
-        public DateTime? FechaCompromiso { get; set; }
 
         // 🟨 MOVIMIENTOS TÉCNICOS (estos están bien ✅)
 

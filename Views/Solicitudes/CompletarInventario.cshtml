@@ -7,49 +7,6 @@
 
     <input type="hidden" asp-for="SolicitudId" />
 
-    <!-- VALIDACION -->
-    <div class="mb-3">
-        <input type="checkbox" id="chkValidacion" asp-for="AplicaValidacion" />
-        <label>Número de Validación</label>
-        <input id="txtValidacion" asp-for="NumeroValidacion" class="form-control" readonly />
-    </div>
-
-    <!-- RESPONSABLE -->
-    <div class="mb-3">
-        <input type="checkbox" id="chkResponsable" asp-for="AplicaResponsable" />
-        <label>Responsable Inventario</label>
-        <input id="txtResponsable" asp-for="ResponsableInventario" class="form-control" readonly />
-    </div>
-
-    <!-- MANDRIL -->
-    <div class="mb-3">
-        <input type="checkbox" id="chkMandril" asp-for="AplicaMandril" />
-        <label>Mandril / Kanban / NP</label>
-        <input id="txtMandril" asp-for="MandrilKanbanNP" class="form-control" readonly />
-    </div>
-
-    <!-- PALLETS -->
-    <div class="mb-3">
-        <input type="checkbox" id="chkPallets" asp-for="AplicaPallets" />
-        <label># Pallets</label>
-        <input id="txtPallets" asp-for="NumeroPallets" class="form-control" readonly />
-    </div>
-
-    <!-- RAZON -->
-    <div class="mb-3">
-        <input type="checkbox" id="chkRazon" asp-for="AplicaRazon" />
-        <label>Razón</label>
-        <textarea id="txtRazon" asp-for="RazonInventario" class="form-control" readonly></textarea>
-    </div>
-
-    <!-- FECHA -->
-    <div class="mb-3">
-        <input type="checkbox" id="chkFecha" asp-for="AplicaFecha" />
-        <label>Fecha compromiso</label>
-        <input id="txtFecha" asp-for="FechaCompromiso" type="date" class="form-control" readonly />
-    </div>
-
-    <hr />
 
     <h5 class="mt-4">Movimientos Técnicos</h5>
 

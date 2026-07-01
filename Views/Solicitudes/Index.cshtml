@@ -7,6 +7,49 @@
 
 <!-- Estilos adicionales integrados en el scope de la vista -->
 <style>
+
+    /* Grid específico para los datos de inventario */
+    .inventory-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+    }
+
+    /* Celda individual de información técnica */
+    .inventory-cell {
+        background-color: #ffffff;
+        border: 1px solid #eef1f6;
+        border-radius: 12px;
+        padding: 12px 14px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: all 0.2s ease;
+    }
+
+        .inventory-cell:hover {
+            border-color: #d1dff8;
+            background-color: #fafbfe;
+        }
+
+    /* Estilo para los textos internos de la celda */
+    .inventory-cell-title {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #858796;
+        margin-bottom: 6px;
+    }
+
+    .inventory-cell-value {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #3a3b45;
+        word-break: break-word;
+    }
+
+
     /* ==========================================================================
        ESTILOS AVANZADOS PARA TARJETAS MODERNAS Y TEXTO EN CARRUSEL
        ========================================================================== */
@@ -207,7 +250,20 @@
                          data-imagen="@item.ImagenLayout"
                          data-aprobador="@(item.UsuarioAprobador?.UserName ?? "N/A")"
                          data-fecharevision="@(item.FechaRevision?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")"
-                         data-comentarios="@(item.ComentariosRevision ?? "Sin comentarios adicionales")">
+                         data-comentarios="@(item.ComentariosRevision ?? "Sin comentarios adicionales")"
+                         data-validacion="@item.InventarioTemporal?.NumeroValidacion"
+                         data-responsable="@item.InventarioTemporal?.ResponsableInventario"
+                         data-mandril="@item.InventarioTemporal?.MandrilKanbanNP"
+                         data-pallets="@item.InventarioTemporal?.NumeroPallets"
+                         data-razoninv="@item.InventarioTemporal?.RazonInventario"
+                         data-fecha-inv="@item.InventarioTemporal?.FechaCompromiso?.ToString("yyyy-MM-dd")"
+                         data-aplica-validacion="@item.InventarioTemporal?.AplicaValidacion"
+                         data-aplica-responsable="@item.InventarioTemporal?.AplicaResponsable"
+                         data-aplica-mandril="@item.InventarioTemporal?.AplicaMandril"
+                         data-aplica-pallets="@item.InventarioTemporal?.AplicaPallets"
+                         data-aplica-razon="@item.InventarioTemporal?.AplicaRazon"
+                         data-aplica-fecha="@item.InventarioTemporal?.AplicaFecha">
+
 
                         <!-- Encabezado de la Tarjeta -->
                         <div class="card-header card-header-gradient border-bottom-0 pt-3 pb-2 d-flex justify-content-between align-items-center">
@@ -307,7 +363,6 @@
     }
 </div>
 
-
 <!-- MODAL DE DETALLES DE LA SOLICITUD - DISEÑO REDISEÑADO -->
 <div class="modal fade" id="modalDetalle" tabindex="-1" aria-labelledby="modalDetalleLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -357,6 +412,80 @@
                         <span class="modal-label-caps">Justificación / Razón de Petición</span>
                         <p id="modalRazon" class="content-panel-box mb-0"></p>
                     </div>
+
+                    <!-- SECCIÓN DE INVENTARIO PREMIUM -->
+                    <div id="seccionInventario" class="col-12 d-none">
+                        <div class="my-2">
+                            <hr class="text-muted opacity-25" />
+                        </div>
+
+                        <span class="modal-label-caps mb-3">
+                            <i class="bi bi-boxes me-1.5 text-primary"></i>Información Técnica de Inventario
+                        </span>
+
+                        <!-- Caja contenedora principal -->
+                        <div class="content-panel-box p-3 bg-light border-0">
+                            <div class="inventory-grid">
+
+                                <!-- 1. Validación -->
+                                <div class="inventory-cell shadow-xs">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <span class="inventory-cell-title">Desviación</span>
+                                        <!-- Este contenedor se llenará con JS: un badge verde con palomita o un badge gris N/A -->
+                                        <span id="badgeValidacion"></span>
+                                    </div>
+                                    <span id="modalValidacion" class="inventory-cell-value text-secondary">—</span>
+                                </div>
+
+                                <!-- 2. Responsable -->
+                                <div class="inventory-cell shadow-xs">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <span class="inventory-cell-title">Responsable</span>
+                                        <span id="badgeResponsable"></span>
+                                    </div>
+                                    <span id="modalResponsable" class="inventory-cell-value text-secondary">—</span>
+                                </div>
+
+                                <!-- 3. Mandril / NP -->
+                                <div class="inventory-cell shadow-xs">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <span class="inventory-cell-title">Mandriles/ Kanban / No. Parte </span>
+                                        <span id="badgeMandril"></span>
+                                    </div>
+                                    <span id="modalMandril" class="inventory-cell-value text-secondary">—</span>
+                                </div>
+
+                                <!-- 4. Número de Pallets -->
+                                <div class="inventory-cell shadow-xs">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <span class="inventory-cell-title">Cantidad Pallets</span>
+                                        <span id="badgePallets"></span>
+                                    </div>
+                                    <span id="modalPallets" class="inventory-cell-value text-secondary">—</span>
+                                </div>
+
+                                <!-- 5. Razón de Inventario -->
+                                <div class="inventory-cell shadow-xs">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <span class="inventory-cell-title">Razón de Inventario</span>
+                                        <span id="badgeRazonInv"></span>
+                                    </div>
+                                    <span id="modalRazonInv" class="inventory-cell-value text-secondary">—</span>
+                                </div>
+
+                                <!-- 6. Fecha Compromiso -->
+                                <div class="inventory-cell shadow-xs">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <span class="inventory-cell-title">Fecha Compromiso</span>
+                                        <span id="badgeFechaInv"></span>
+                                    </div>
+                                    <span id="modalFechaInv" class="inventory-cell-value text-secondary">—</span>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
 
                     <!-- Panel Informativo del Dictamen (Se muestra dinámicamente) -->
                     <div id="seccionRevision" class="col-12 d-none">
@@ -475,92 +604,157 @@
 
             let solicitudIdActual = null;
 
-            document.querySelectorAll('.btn-detalle-solicitud').forEach(card => {
-                card.addEventListener('click', function () {
+        document.querySelectorAll('.btn-detalle-solicitud').forEach(card => {
+            card.addEventListener('click', function (event) {
+                // Medida de seguridad: Evita abrir el modal si el usuario hizo clic en botones internos
+                if (event.target.closest('.prevent-modal-trigger')) {
+                    return;
+                }
 
-                    // 🔹 Datos
-                    solicitudIdActual = this.getAttribute('data-id');
-                    const area = this.getAttribute('data-area');
-                    const estatus = this.getAttribute('data-estatus');
-                    const tipo = this.getAttribute('data-tipo');
-                    const descripcion = this.getAttribute('data-descripcion');
-                    const razon = this.getAttribute('data-razon');
-                    const fecha = this.getAttribute('data-fecha');
-                    const imagen = this.getAttribute('data-imagen');
-                    const aprobador = this.getAttribute('data-aprobador');
-                    const fechaRevision = this.getAttribute('data-fecharevision');
-                    const comentarios = this.getAttribute('data-comentarios');
+                // 🔹 Datos Generales
+                solicitudIdActual = this.getAttribute('data-id');
+                const area = this.getAttribute('data-area');
+                const estatus = this.getAttribute('data-estatus');
+                const tipo = this.getAttribute('data-tipo');
+                const descripcion = this.getAttribute('data-descripcion');
+                const razon = this.getAttribute('data-razon');
+                const fecha = this.getAttribute('data-fecha');
+                const imagen = this.getAttribute('data-imagen');
+                const aprobador = this.getAttribute('data-aprobador');
+                const fechaRevision = this.getAttribute('data-fecharevision');
+                const comentarios = this.getAttribute('data-comentarios');
 
-                    // 🔹 Contenido
-                    document.getElementById('modalTipo').innerText = tipo;
-                    document.getElementById('modalArea').innerText = area;
-                    document.getElementById('modalDescripcion').innerText = descripcion;
-                    document.getElementById('modalRazon').innerText = razon;
-                    document.getElementById('modalFecha').innerText = fecha;
+                // Banderas de validación (Evaluando 'True' proveniente del backend de C#)
+                const aplicaValidacion = this.getAttribute('data-aplica-validacion') === 'True';
+                const aplicaResponsable = this.getAttribute('data-aplica-responsable') === 'True';
+                const aplicaMandril = this.getAttribute('data-aplica-mandril') === 'True';
+                const aplicaPallets = this.getAttribute('data-aplica-pallets') === 'True';
+                const aplicaRazon = this.getAttribute('data-aplica-razon') === 'True';
+                const aplicaFecha = this.getAttribute('data-aplica-fecha') === 'True';
 
-                    // 🔹 Estatus
-                    const badge = document.getElementById('modalEstatus');
-                    badge.innerText = estatus;
-                    badge.className = "badge fs-6 px-2.5 py-1";
+                // Valores textuales
+                const validacion = this.getAttribute('data-validacion');
+                const responsable = this.getAttribute('data-responsable');
+                const mandril = this.getAttribute('data-mandril');
+                const pallets = this.getAttribute('data-pallets');
+                const razonInv = this.getAttribute('data-razoninv');
+                const fechaInv = this.getAttribute('data-fecha-inv');
 
-                    if (estatus === "Pendiente") {
-                        badge.classList.add("bg-warning", "text-dark");
-                    } else if (estatus === "Aprobado") {
-                        badge.classList.add("bg-success");
-                    } else {
-                        badge.classList.add("bg-danger");
+                // ==================================================================
+                // 🔹 RENDERIZADO PREMIUM DE INVENTARIO (CON PALOMITAS / N/A)
+                // ==================================================================
+                const seccionInventario = document.getElementById('seccionInventario');
+
+                // El bloque se muestra si la solicitud está EnProceso o Finalizada (y existen datos técnicos creados o mapeados)
+                if (estatus === "EnProceso" || estatus === "Finalizado" || validacion || responsable || mandril || pallets || razonInv || fechaInv) {
+
+                    // Función auxiliar interna para inyectar las palomitas y formatear los textos correspondientes
+                    function procesarCeldaTecnica(idBadge, idTexto, aplica, valorReal) {
+                        const elBadge = document.getElementById(idBadge);
+                        const elTexto = document.getElementById(idTexto);
+
+                        if (aplica) {
+                            elBadge.innerHTML = '<span class="badge bg-success-subtle text-success rounded-pill px-2 py-0.5 small shadow-xs"><i class="bi bi-check-lg"></i></span>';
+                            elTexto.innerText = (valorReal && valorReal !== "null" && valorReal !== "") ? valorReal : "Sin especificar";
+                            elTexto.classList.remove("text-muted", "fst-italic");
+                        } else {
+                            elBadge.innerHTML = '<span class="badge bg-light text-muted border rounded-pill px-2 py-0.5 small">N/A</span>';
+                            elTexto.innerText = "No aplica";
+                            elTexto.classList.add("text-muted", "fst-italic");
+                        }
                     }
 
-                    // 🔹 Panel revisión
-                    const seccionRevision = document.getElementById('seccionRevision');
+                    // Procesamos las 6 celdas técnicas de forma simétrica
+                    procesarCeldaTecnica("badgeValidacion", "modalValidacion", aplicaValidacion, validacion);
+                    procesarCeldaTecnica("badgeResponsable", "modalResponsable", aplicaResponsable, responsable);
+                    procesarCeldaTecnica("badgeMandril", "modalMandril", aplicaMandril, mandril);
+                    procesarCeldaTecnica("badgePallets", "modalPallets", aplicaPallets, pallets);
+                    procesarCeldaTecnica("badgeRazonInv", "modalRazonInv", aplicaRazon, razonInv);
+                    procesarCeldaTecnica("badgeFechaInv", "modalFechaInv", aplicaFecha, fechaInv);
 
-                    if (estatus !== "Pendiente") {
-                        document.getElementById('modalAprobador').innerText = aprobador;
-                        document.getElementById('modalFechaRevision').innerText = fechaRevision;
-                        document.getElementById('modalComentarios').innerText = comentarios;
+                    seccionInventario.classList.remove('d-none');
+                } else {
+                    seccionInventario.classList.add('d-none');
+                }
 
-                        seccionRevision.classList.remove('d-none');
+                // 🔹 Inyección del Contenido Base
+                document.getElementById('modalTipo').innerText = tipo;
+                document.getElementById('modalArea').innerText = area;
+                document.getElementById('modalDescripcion').innerText = descripcion;
+                document.getElementById('modalRazon').innerText = razon;
+                document.getElementById('modalFecha').innerText = fecha;
+
+                // ==================================================================
+                // 🔹 CONTROL MÁQUINA DE ESTADOS (BADGES, PANELES ADMIN Y REVISIÓN)
+                // ==================================================================
+                const badge = document.getElementById('modalEstatus');
+                const seccionRevision = document.getElementById('seccionRevision');
+                const bloqueAdmin = document.getElementById('bloqueAccionesAdmin');
+                const formRevision = document.getElementById('seccionFormularioRevision');
+
+                // Mapeo correcto de nombres estéticos y reseteo de clases base
+                badge.innerText = estatus === "EnProceso" ? "En Proceso" : estatus === "Finalizado" ? "Finalizada" : estatus;
+                badge.className = "badge fs-6 px-3 py-1.5 rounded-pill fw-semibold shadow-xs text-nowrap d-inline-block";
+
+                if (estatus === "Pendiente") {
+                    // Estatus visual
+                    badge.classList.add("bg-warning", "text-dark");
+
+                    // Paneles activos (Uso administrativo para dictamen)
+                    bloqueAdmin.classList.remove('d-none');
+                    formRevision.classList.remove('d-none');
+                    document.getElementById('txtComentariosRevision').value = '';
+
+                    // Paneles ocultos
+                    seccionRevision.classList.add('d-none');
+                }
+                else {
+                    // Asignación de colores según los nuevos estados avanzados o rechazo
+                    if (estatus === "EnProceso" || estatus === "Aprobado") {
+                        badge.classList.add("bg-info", "text-dark");
+                    } else if (estatus === "Finalizado") {
+                        badge.classList.add("bg-success", "text-white");
                     } else {
-                        seccionRevision.classList.add('d-none');
+                        badge.classList.add("bg-danger", "text-white");
                     }
 
-                    // 🔹 Panel admin
-                    const bloqueAdmin = document.getElementById('bloqueAccionesAdmin');
-                    const formRevision = document.getElementById('seccionFormularioRevision');
+                    // Renderizado de datos del dictamen histórico realizado
+                    document.getElementById('modalAprobador').innerText = aprobador;
+                    document.getElementById('modalFechaRevision').innerText = fechaRevision;
+                    document.getElementById('modalComentarios').innerText = comentarios;
 
-                    if (estatus === "Pendiente") {
-                        bloqueAdmin.classList.remove('d-none');
-                        formRevision.classList.remove('d-none');
-                        document.getElementById('txtComentariosRevision').value = '';
-                    } else {
-                        bloqueAdmin.classList.add('d-none');
-                        formRevision.classList.add('d-none');
-                    }
+                    // Paneles activos / ocultos correspondientes
+                    seccionRevision.classList.remove('d-none');
+                    bloqueAdmin.classList.add('d-none');
+                    formRevision.classList.add('d-none');
+                }
 
-                    // 🔹 Imagen + Lightbox
-                    const seccionCroquis = document.getElementById('seccionCroquis');
-                    const modalImagen = document.getElementById('modalImagen');
+                // ==================================================================
+                // 🔹 GESTIÓN DEL CROQUIS / LAYOUT ADJUNTO
+                // ==================================================================
+                const seccionCroquis = document.getElementById('seccionCroquis');
+                const modalImagen = document.getElementById('modalImagen');
 
-                    if (imagen && imagen.trim() !== "") {
+                if (imagen && imagen.trim() !== "") {
+                    modalImagen.src = imagen;
 
-                        modalImagen.src = imagen;
+                    // Transfiere la imagen seleccionada al Lightbox global
+                    modalImagen.onclick = function (e) {
+                        e.stopPropagation();
+                        lightbox.style.display = "flex";
+                        lightboxImg.src = this.src;
+                    };
 
-                        // ✅ click imagen → abrir lightbox
-                        modalImagen.onclick = function (e) {
-                            e.stopPropagation();
-                            lightbox.style.display = "flex";
-                            lightboxImg.src = this.src;
-                        };
+                    seccionCroquis.classList.remove('d-none');
+                } else {
+                    seccionCroquis.classList.add('d-none');
+                }
 
-                        seccionCroquis.classList.remove('d-none');
-
-                    } else {
-                        seccionCroquis.classList.add('d-none');
-                    }
-
-                    bsModal.show();
-                });
+                // 10. Despliegue en pantalla del modal
+                bsModal.show();
             });
+        });
+
 
             // ✅ cerrar lightbox
             lightbox.onclick = function () {
