@@ -26,6 +26,10 @@ namespace Layout.Models.ViewModels
         [Required]
         public string Razon { get; set; } = string.Empty;
 
+        public DateTime? FechaInicioMovimiento { get; set; }
+
+        public DateTime? FechaFinMovimiento { get; set; }
+
         public IFormFile? Imagen { get; set; }
 
         // ========================
@@ -47,7 +51,6 @@ namespace Layout.Models.ViewModels
         public bool AplicaRazonInventario { get; set; }
         public string? RazonInventario { get; set; }
 
-        public bool AplicaFecha { get; set; }
-        public DateTime? FechaCompromiso { get; set; }
+      
     }
 }

@@ -40,28 +40,52 @@
                         </div>
                     </div>
 
-                    <!-- Descripción -->
-                    <div class="mb-3">
-                        <label asp-for="Descripcion" class="form-label fw-bold small text-secondary">Descripción de la Solicitud</label>
-                        <textarea asp-for="Descripcion" class="form-control form-control-modern" rows="3" placeholder="Detalla brevemente la solicitud..."></textarea>
-                        <span asp-validation-for="Descripcion" class="text-danger small"></span>
-                    </div>
-
                     <!-- Razón -->
                     <div class="mb-3">
-                        <label asp-for="Razon" class="form-label fw-bold small text-secondary">Razón / Justificación</label>
+                        <label asp-for="Razon" class="form-label fw-bold small text-secondary">Motivos para solicitar el movimiento de Layout:</></label>
                         <textarea asp-for="Razon" class="form-control form-control-modern" rows="3" placeholder="¿Por qué se requiere este movimiento?"></textarea>
                         <span asp-validation-for="Razon" class="text-danger small"></span>
                     </div>
 
+                    <!-- Descripción -->
+                    <div class="mb-3">
+                        <label asp-for="Descripcion" class="form-label fw-bold small text-secondary">Detallar el movimiento requerido:</label>
+                        <textarea asp-for="Descripcion" class="form-control form-control-modern" rows="3" placeholder="Detalla brevemente la solicitud..."></textarea>
+                        <span asp-validation-for="Descripcion" class="text-danger small"></span>
+                    </div>
+
                     <!-- Imagen -->
-                    <div class="mb-4">
-                        <label asp-for="Imagen" class="form-label fw-bold small text-secondary">Dibujo o Croquis (Imagen)</label>
-                        <input type="file" asp-for="Imagen" class="form-control form-control-modern" accept="image/*" />
+                    <small class="bg-danger-subtle text-danger fw-bold">En revision</small>
+                    <div class="mb-4 border-3 border-dark border" disabled>
+                       
+                        <label asp-for="Imagen" class="form-label fw-bold small text-secondary" >Dibujo o Croquis (Imagen)</label>
+                        <input  type="file" asp-for="Imagen" class="form-control form-control-modern" accept="image/*" />
                         <div class="form-text small">Archivos sugeridos: PNG, JPG, JPEG.</div>
                         <span asp-validation-for="Imagen" class="text-danger small"></span>
                     </div>
+                    <div class="row">
 
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="FechaInicioMovimiento" class="fw-semibold">
+                                Fecha a partir de
+                            </label>
+
+                            <input asp-for="FechaInicioMovimiento"
+                                   type="date"
+                                   class="form-control" />
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="FechaFinMovimiento" class="fw-semibold">
+                                Fecha de terminación
+                            </label>
+
+                            <input asp-for="FechaFinMovimiento"
+                                   type="date"
+                                   class="form-control" />
+                        </div>
+
+                    </div>
 
 
                     <hr class="mt-4" />
@@ -105,13 +129,7 @@
                         <textarea id="txtRazonInv" asp-for="RazonInventario" class="form-control" readonly></textarea>
                     </div>
 
-                    <!-- FECHA -->
-                    <div class="mb-3">
-                        <input type="checkbox" id="chkFecha" asp-for="AplicaFecha" />
-                        <label class="fw-semibold">Fecha compromiso</label>
-                        <input id="txtFecha" asp-for="FechaCompromiso" type="date" class="form-control" readonly />
-                    </div>
-
+                  
                     <!-- Botones -->
                     <div class="d-flex justify-content-end gap-2 border-top pt-3">
                         <a asp-controller="Home" asp-action="Index" class="btn btn-light px-4">Cancelar</a>
@@ -166,7 +184,58 @@
 
             // Limpiar alertas previas
             alertContainer.innerHTML = '';
+                    // ====================================
+        // VALIDACIONES CONDICIONALES INVENTARIO
+        // ====================================
 
+        const errores = [];
+
+        if ($("#chkValidacion").is(":checked") &&
+            !$("#txtValidacion").val().trim()) {
+            errores.push("Debe capturar el Número de Validación.");
+        }
+
+        if ($("#chkResponsable").is(":checked") &&
+            !$("#txtResponsable").val().trim()) {
+            errores.push("Debe capturar el Responsable de Inventario.");
+        }
+
+        if ($("#chkMandril").is(":checked") &&
+            !$("#txtMandril").val().trim()) {
+            errores.push("Debe capturar Mandril / Kanban / NP.");
+        }
+
+        if ($("#chkPallets").is(":checked") &&
+            !$("#txtPallets").val().trim()) {
+            errores.push("Debe capturar el número de pallets.");
+        }
+
+        if ($("#chkRazonInv").is(":checked") &&
+            !$("#txtRazonInv").val().trim()) {
+            errores.push("Debe capturar la Razón de Inventario.");
+        }
+
+        if (errores.length > 0) {
+
+            let html = `
+                <div class="alert alert-danger">
+                    <strong>Favor de completar la información requerida:</strong>
+                    <ul class="mb-0 mt-2">
+            `;
+
+            errores.forEach(e => {
+                html += `<li>${e}</li>`;
+            });
+
+            html += `
+                    </ul>
+                </div>
+            `;
+
+            alertContainer.innerHTML = html;
+
+            return false;
+        }
             // Forzar gatillo de validación nativa de jQuery Validation de ASP.NET Core
             if (!$(form).valid()) {
                 return false;

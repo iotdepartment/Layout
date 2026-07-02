@@ -4,6 +4,7 @@ using Layout.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Layout.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260702011040_MoverFechasASolicitudMovimiento")]
+    partial class MoverFechasASolicitudMovimiento
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -337,14 +340,14 @@ namespace Layout.Migrations
                     b.Property<bool>("MovimientoElectrico")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("MovimientoITIoT")
+                    b.Property<bool>("MovimientoIoT")
                         .HasColumnType("bit");
 
                     b.Property<bool>("MovimientoProgramacion")
                         .HasColumnType("bit");
 
-                    b.Property<string>("NumeroPCR")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool>("MovimientoRed")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("RequierePCR")
                         .HasColumnType("bit");

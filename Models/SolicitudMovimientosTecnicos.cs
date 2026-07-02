@@ -7,12 +7,17 @@
         public int SolicitudId { get; set; }
         public SolicitudMovimiento Solicitud { get; set; }
 
-        public bool MovimientoRed { get; set; }          // IT
-        public bool MovimientoIoT { get; set; }          // IoT
-        public bool MovimientoProgramacion { get; set; } // PLC
-        public bool MovimientoElectrico { get; set; }    // energía
-        public bool MovimientoEHS { get; set; }          // seguridad
-        public bool CambioNomenclatura { get; set; }          // seguridad
-        public bool RequierePCR { get; set; }            // proceso
+        // ✅ Nuevo campo unificado
+        public bool MovimientoITIoT { get; set; }
+        public bool MovimientoProgramacion { get; set; }
+        public bool MovimientoElectrico { get; set; }
+        public bool MovimientoEHS { get; set; }
+
+        public bool CambioNomenclatura { get; set; }
+
+        public bool RequierePCR { get; set; }
+
+        // ✅ Nuevo campo
+        public string? NumeroPCR { get; set; }
     }
 }

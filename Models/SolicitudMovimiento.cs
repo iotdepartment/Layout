@@ -26,19 +26,22 @@ namespace Layout.Models
         public EstatusSolicitud Estatus { get; set; } = EstatusSolicitud.Pendiente;
 
         public DateTime FechaCreacion { get; set; } = DateTime.Now;
+
         public DateTime? FechaRevision { get; set; }
 
         public string? ComentariosRevision { get; set; }
 
-        // relación 1-1
+        // ✅ NUEVO
+        public DateTime? FechaInicioMovimiento { get; set; }
+
+        // ✅ NUEVO
+        public DateTime? FechaFinMovimiento { get; set; }
+
         public SolicitudAprobacionDetalle? DetalleAprobacion { get; set; }
 
-        // relación 1-1
         public SolicitudInventarioTemporal InventarioTemporal { get; set; }
 
-        // relación 1-1
         public SolicitudMovimientosTecnicos? MovimientosTecnicos { get; set; }
-
 
         public ICollection<SolicitudHistorial>? Historial { get; set; }
     }

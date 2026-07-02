@@ -1,94 +1,161 @@
 ﻿@model Layout.Models.ViewModels.SolicitudInventarioViewModel
 
-<div asp-validation-summary="All" class="text-danger"></div>
-<form asp-action="CompletarInventario" method="post">
-    @Html.AntiForgeryToken()
+<style>
+    .transition {
+        transition: all 0.2s ease-in-out;
+    }
 
+    .hover-shadow-sm:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 .125rem .25rem rgba(0,0,0,.075) !important;
+        background-color: #ffffff !important;
+        border-color: #0d6efd !important; /* Color primario al enfocar */
+    }
 
-    <input type="hidden" asp-for="SolicitudId" />
+</style>
+<div asp-validation-summary="All" class="mb-4 d-none" role="alert"></div>
 
+<div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card-body p-4">
+        <form asp-action="CompletarInventario" method="post" novalidate>
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="SolicitudId" />
 
-    <h5 class="mt-4">Movimientos Técnicos</h5>
+            <!-- Encabezado de Sección -->
+            <div class="d-flex align-items-center mb-4 border-bottom pb-2">
+                <i class="bi bi-gear-wide-connected text-primary fs-4 me-2"></i>
+                <h5 class="card-title mb-0 fw-semibold text-secondary">Movimientos Técnicos</h5>
+            </div>
 
-    <div class="form-check mb-2">
-        <input class="form-check-input" asp-for="MovimientoRed" />
-        <label class="form-check-label">
-            Network movement (IT)
-        </label>
+            <!-- Contenedor Grid para los Checkboxes -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-6 col-lg-4">
+                    <div class="form-check form-switch p-3 border rounded-3 bg-light h-100 hover-shadow-sm transition">
+                        <input class="form-check-input ms-0 me-2 float-start" type="checkbox" asp-for="MovimientoITIoT" />
+                        <label class="form-check-label fw-medium text-dark" asp-for="MovimientoITIoT">
+                            Movement IT / IoT
+                        </label>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="form-check form-switch p-3 border rounded-3 bg-light h-100 hover-shadow-sm transition">
+                        <input class="form-check-input ms-0 me-2 float-start" type="checkbox" asp-for="MovimientoProgramacion" />
+                        <label class="form-check-label fw-medium text-dark" asp-for="MovimientoProgramacion">
+                            Programming Movements
+                        </label>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="form-check form-switch p-3 border rounded-3 bg-light h-100 hover-shadow-sm transition">
+                        <input class="form-check-input ms-0 me-2 float-start" type="checkbox" asp-for="MovimientoElectrico" />
+                        <label class="form-check-label fw-medium text-dark" asp-for="MovimientoElectrico">
+                            Electrical Movements
+                        </label>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="form-check form-switch p-3 border rounded-3 bg-light h-100 hover-shadow-sm transition">
+                        <input class="form-check-input ms-0 me-2 float-start" type="checkbox" asp-for="MovimientoEHS" />
+                        <label class="form-check-label fw-medium text-dark" asp-for="MovimientoEHS">
+                            EHS Equipment Relocation
+                        </label>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="form-check form-switch p-3 border rounded-3 bg-light h-100 hover-shadow-sm transition">
+                        <input class="form-check-input ms-0 me-2 float-start" type="checkbox" asp-for="CambioNomenclatura" />
+                        <label class="form-check-label fw-medium text-dark" asp-for="CambioNomenclatura">
+                            Cambio de nomenclatura
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección Condicional: Requiere PCR -->
+            <div class="card bg-light border-0 rounded-3 p-3 mb-4">
+                <div class="row align-items-center g-3">
+                    <div class="col-md-4">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" asp-for="RequierePCR" id="chkPCR" />
+                            <label class="form-check-label fw-bold text-primary" for="chkPCR">
+                                Requiere PCR
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0 text-muted">
+                                <i class="bi bi-hash"></i>
+                            </span>
+                            <input asp-for="NumeroPCR" id="txtPCR" class="form-control border-start-0 ps-0" placeholder="Número PCR" readonly />
+                        </div>
+                        <span asp-validation-for="NumeroPCR" class="text-danger small mt-1 d-block"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones de Acción Formulario -->
+            <div class="d-flex justify-content-end gap-2 border-top pt-3">
+                <button type="button" class="btn btn-light border px-4">Cancelar</button>
+                <button type="submit" class="btn btn-success px-4">
+                    <i class="bi bi-check-circle me-1"></i> Guardar
+                </button>
+            </div>
+        </form>
     </div>
-
-    <div class="form-check mb-2">
-        <input class="form-check-input" asp-for="MovimientoIoT" />
-        <label class="form-check-label">
-            System Movement (IoT)
-        </label>
-    </div>
-
-    <div class="form-check mb-2">
-        <input class="form-check-input" asp-for="MovimientoProgramacion" />
-        <label class="form-check-label">
-            Programming Movements
-        </label>
-    </div>
-
-    <div class="form-check mb-2">
-        <input class="form-check-input" asp-for="MovimientoElectrico" />
-        <label class="form-check-label">
-            Electrical Movements
-        </label>
-    </div>
-
-    <div class="form-check mb-2">
-        <input class="form-check-input" asp-for="MovimientoEHS" />
-        <label class="form-check-label">
-            EHS Equipment Relocation
-        </label>
-    </div>
-
-    <div class="form-check mb-2">
-        <input class="form-check-input" asp-for="CambioNomenclatura" />
-        <label class="form-check-label">
-            Cambio de nomenclatura
-        </label>
-    </div>
-
-    <div class="form-check mb-3">
-        <input class="form-check-input" asp-for="RequierePCR" />
-        <label class="form-check-label">
-            Requiere PCR
-        </label>
-    </div>
-
-    <button type="submit" class="btn btn-success">Guardar</button>
-
-</form>
+</div>
 
 @section Scripts {
-<script>
+    <script>
 
-function toggleInput(checkId, inputId) {
-    const chk = document.getElementById(checkId);
-    const input = document.getElementById(inputId);
+        document.addEventListener("DOMContentLoaded", function () {
 
-    // estado inicial
-    input.readOnly = !chk.checked;
+            // 1. Controlar la visibilidad de la alerta de validación
+            // Buscamos el div por su atributo de validación de ASP.NET
+            const validationSummary = document.querySelector('[asp-validation-summary]');
 
-    chk.addEventListener("change", function () {
-        input.readOnly = !this.checked;
+            if (validationSummary) {
+                // ASP.NET genera un "<ul><li>" oculto o vacío si no hay errores.
+                // Buscamos si realmente hay algún texto de error dentro de la lista.
+                const hasErrors = validationSummary.innerText.trim().length > 0;
 
-        if (!this.checked) {
-            input.value = "";
-        }
-    });
+                if (!hasErrors) {
+                    validationSummary.classList.add('d-none');
+                } else {
+                    // Si hay errores, nos aseguramos de que sea visible y tenga estilo de alerta
+                    validationSummary.classList.remove('d-none');
+                    validationSummary.classList.add('alert', 'alert-danger');
+                }
+            }
+
+            // 2. Control del Input Condicional (PCR)
+            function initToggleInput(checkId, inputId) {
+                const chk = document.getElementById(checkId);
+                const input = document.getElementById(inputId);
+
+                if (!chk || !input) return;
+
+                // Estado inicial al cargar la página (mantiene el valor si el servidor rechazó el formulario)
+                input.readOnly = !chk.checked;
+
+                // Evento de cambio al hacer clic
+                chk.addEventListener("change", function () {
+                    input.readOnly = !this.checked;
+                    if (!this.checked) {
+                        input.value = "";
+                    } else {
+                        input.focus(); // Enfoca automáticamente el campo al activarse
+                    }
+                });
+            }
+
+            // Inicializar la función
+            initToggleInput("chkPCR", "txtPCR");
+        });
+    </script>
 }
 
-// ✅ inicializar todos
-toggleInput("chkValidacion", "txtValidacion");
-toggleInput("chkResponsable", "txtResponsable");
-toggleInput("chkMandril", "txtMandril");
-toggleInput("chkPallets", "txtPallets");
-toggleInput("chkRazon", "txtRazon");
-toggleInput("chkFecha", "txtFecha");
-
-</script>
-}

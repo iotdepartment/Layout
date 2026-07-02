@@ -94,10 +94,12 @@ namespace Layout.Controllers
                     Razon = model.Razon,
                     ImagenLayout = imagePath,
                     UsuarioSolicitanteId = user.Id,
+
+                    FechaInicioMovimiento = model.FechaInicioMovimiento,
+                    FechaFinMovimiento = model.FechaFinMovimiento,
+
                     Estatus = EstatusSolicitud.Pendiente,
                     FechaCreacion = DateTime.Now,
-
-                    // ✅ valor temporal
                     Folio = $"NM-TEMP-{Guid.NewGuid()}"
                 };
 
@@ -131,9 +133,6 @@ namespace Layout.Controllers
 
                     AplicaRazon = model.AplicaRazonInventario,
                     RazonInventario = model.AplicaRazonInventario ? model.RazonInventario : null,
-
-                    AplicaFecha = model.AplicaFecha,
-                    FechaCompromiso = model.AplicaFecha ? model.FechaCompromiso : null
                 };
 
                 _context.SolicitudesInventario.Add(inventario);
@@ -162,15 +161,49 @@ namespace Layout.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            // Obtenemos las solicitudes incluyendo los datos del Área relacionada
-            // Puedes ordenar por FechaCreacion para ver las más recientes primero
             var solicitudes = await _context.SolicitudesMovimiento
                 .Include(s => s.Area)
                 .Include(s => s.InventarioTemporal)
+                .Include(s => s.UsuarioAprobador)
                 .OrderByDescending(s => s.FechaCreacion)
                 .ToListAsync();
 
             return View(solicitudes);
+        }
+
+        [Authorize(Roles = "Aprobador,Administrador")]
+        public async Task<IActionResult> CompletarInventario(int id)
+        {
+            var solicitud = await _context.SolicitudesMovimiento
+                .Include(s => s.MovimientosTecnicos)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (solicitud == null)
+                return NotFound();
+
+            if (solicitud.Estatus != EstatusSolicitud.EnProceso)
+                return RedirectToAction("Index");
+
+            var vm = new SolicitudInventarioViewModel
+            {
+                SolicitudId = id
+            };
+
+            if (solicitud.MovimientosTecnicos != null)
+            {
+                var tech = solicitud.MovimientosTecnicos;
+
+                vm.MovimientoITIoT = tech.MovimientoITIoT;
+                vm.MovimientoProgramacion = tech.MovimientoProgramacion;
+                vm.MovimientoElectrico = tech.MovimientoElectrico;
+                vm.MovimientoEHS = tech.MovimientoEHS;
+                vm.CambioNomenclatura = tech.CambioNomenclatura;
+
+                vm.RequierePCR = tech.RequierePCR;
+                vm.NumeroPCR = tech.NumeroPCR;
+            }
+
+            return View(vm);
         }
 
         // VALIDA SI LA SOLICITUD ES ACEPTADA O RECHAZADA POR EL USUARIO APROBADOR O ADMINISTRADOR
@@ -226,55 +259,20 @@ namespace Layout.Controllers
             });
         }
 
-        // MUESTRA LA VISTA DEL FORMULARIO PARA LLENAR LA INFORMACIÓN EXTRA
-        [Authorize(Roles = "Aprobador,Administrador")]
-        public async Task<IActionResult> CompletarInventario(int id)
-        {
-            var solicitud = await _context.SolicitudesMovimiento
-                .Include(s => s.MovimientosTecnicos)
-                .FirstOrDefaultAsync(s => s.Id == id);
-
-            if (solicitud == null)
-                return NotFound();
-
-            // 🔒 SOLO SI ESTÁ EN PROCESO
-            if (solicitud.Estatus != EstatusSolicitud.EnProceso)
-                return RedirectToAction("Index");
-
-            var vm = new SolicitudInventarioViewModel
-            {
-                SolicitudId = id
-            };
-
-            // ✅ SOLO TÉCNICOS
-            if (solicitud.MovimientosTecnicos != null)
-            {
-                var tech = solicitud.MovimientosTecnicos;
-
-                vm.MovimientoRed = tech.MovimientoRed;
-                vm.MovimientoIoT = tech.MovimientoIoT;
-                vm.MovimientoProgramacion = tech.MovimientoProgramacion;
-                vm.MovimientoElectrico = tech.MovimientoElectrico;
-                vm.MovimientoEHS = tech.MovimientoEHS;
-                vm.CambioNomenclatura = tech.CambioNomenclatura;
-                vm.RequierePCR = tech.RequierePCR;
-            }
-
-            return View(vm);
-        }
-
-        // COMPLETA LA INFORMACIÓN UNA VEZ CONFIRMADA/ACEPTADA LA SOLICITUD DE MOVIMIENTO DE LAYOUT PARA EL FORMULARIO DE INFORMACIÓN
         [HttpPost]
         [Authorize(Roles = "Aprobador,Administrador")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CompletarInventario(SolicitudInventarioViewModel model)
         {
+            if (model.RequierePCR &&
+                string.IsNullOrWhiteSpace(model.NumeroPCR))
+            {
+                ModelState.AddModelError("NumeroPCR",
+                    "Debe especificar el PCR.");
+            }
+
             if (!ModelState.IsValid)
                 return View(model);
-
-            // =====================================================
-            // ✅ 🔥 MOVIMIENTOS TÉCNICOS (ÚNICOQUE SE GUARDA)
-            // =====================================================
 
             var tecnicoExistente = await _context.Set<SolicitudMovimientosTecnicos>()
                 .FirstOrDefaultAsync(x => x.SolicitudId == model.SolicitudId);
@@ -282,35 +280,45 @@ namespace Layout.Controllers
             if (tecnicoExistente != null)
             {
                 // UPDATE
-                tecnicoExistente.MovimientoRed = model.MovimientoRed;
-                tecnicoExistente.MovimientoIoT = model.MovimientoIoT;
+
+                tecnicoExistente.MovimientoITIoT = model.MovimientoITIoT;
                 tecnicoExistente.MovimientoProgramacion = model.MovimientoProgramacion;
                 tecnicoExistente.MovimientoElectrico = model.MovimientoElectrico;
                 tecnicoExistente.MovimientoEHS = model.MovimientoEHS;
+
                 tecnicoExistente.CambioNomenclatura = model.CambioNomenclatura;
+
                 tecnicoExistente.RequierePCR = model.RequierePCR;
+
+                tecnicoExistente.NumeroPCR =
+                    model.RequierePCR
+                        ? model.NumeroPCR
+                        : null;
             }
             else
             {
                 // INSERT
+
                 var tecnico = new SolicitudMovimientosTecnicos
                 {
                     SolicitudId = model.SolicitudId,
-                    MovimientoRed = model.MovimientoRed,
-                    MovimientoIoT = model.MovimientoIoT,
+
+                    MovimientoITIoT = model.MovimientoITIoT,
                     MovimientoProgramacion = model.MovimientoProgramacion,
                     MovimientoElectrico = model.MovimientoElectrico,
                     MovimientoEHS = model.MovimientoEHS,
+
                     CambioNomenclatura = model.CambioNomenclatura,
-                    RequierePCR = model.RequierePCR
+
+                    RequierePCR = model.RequierePCR,
+
+                    NumeroPCR = model.RequierePCR
+                        ? model.NumeroPCR
+                        : null
                 };
 
                 _context.Add(tecnico);
             }
-
-            // =====================================================
-            // ✅ 🔥 FINALIZAR SOLICITUD
-            // =====================================================
 
             var solicitudPrincipal = await _context.SolicitudesMovimiento
                 .FindAsync(model.SolicitudId);
@@ -319,10 +327,6 @@ namespace Layout.Controllers
             {
                 solicitudPrincipal.Estatus = EstatusSolicitud.Finalizado;
             }
-
-            // =====================================================
-            // ✅ GUARDAR
-            // =====================================================
 
             await _context.SaveChangesAsync();
 

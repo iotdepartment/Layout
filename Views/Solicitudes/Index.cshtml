@@ -247,6 +247,8 @@
                          data-descripcion="@item.Descripcion"
                          data-razon="@item.Razon"
                          data-fecha="@item.FechaCreacion.ToString("dd/MM/yyyy HH:mm")"
+                         data-fecha-inicio="@(item.FechaInicioMovimiento?.ToString("yyyy-MM-dd") ?? "")"
+                         data-fecha-fin="@(item.FechaFinMovimiento?.ToString("yyyy-MM-dd") ?? "")"
                          data-imagen="@item.ImagenLayout"
                          data-aprobador="@(item.UsuarioAprobador?.UserName ?? "N/A")"
                          data-fecharevision="@(item.FechaRevision?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")"
@@ -256,13 +258,11 @@
                          data-mandril="@item.InventarioTemporal?.MandrilKanbanNP"
                          data-pallets="@item.InventarioTemporal?.NumeroPallets"
                          data-razoninv="@item.InventarioTemporal?.RazonInventario"
-                         data-fecha-inv="@item.InventarioTemporal?.FechaCompromiso?.ToString("yyyy-MM-dd")"
                          data-aplica-validacion="@item.InventarioTemporal?.AplicaValidacion"
                          data-aplica-responsable="@item.InventarioTemporal?.AplicaResponsable"
                          data-aplica-mandril="@item.InventarioTemporal?.AplicaMandril"
                          data-aplica-pallets="@item.InventarioTemporal?.AplicaPallets"
-                         data-aplica-razon="@item.InventarioTemporal?.AplicaRazon"
-                         data-aplica-fecha="@item.InventarioTemporal?.AplicaFecha">
+                         data-aplica-razon="@item.InventarioTemporal?.AplicaRazon">
 
 
                         <!-- Encabezado de la Tarjeta -->
@@ -294,6 +294,7 @@
                             <h5 class="card-title fw-bold text-primary mb-3 d-flex align-items-center">
                                 <i class="bi bi-arrow-right-circle me-2 fs-6"></i>@item.TipoMovimiento.ToString()
                             </h5>
+
 
                             <!-- Fila de Descripción en modo Carrusel/Truncado -->
                             <div class="mb-2">
@@ -397,19 +398,49 @@
                         <span id="modalEstatus" class="badge fs-6 px-3 py-1.5 rounded-pill fw-semibold shadow-xs text-nowrap d-inline-block"></span>
                     </div>
 
+                    <div class="row my-2">
+
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <span class="modal-label-caps mb-0 me-2">
+                                    Efectivo a partir de:
+                                </span>
+
+                                <span id="modalFechaInicio"
+                                      class="badge bg-light text-dark border px-3 py-2 rounded-pill fw-semibold text-nowrap">
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <span class="modal-label-caps mb-0 me-2">
+                                    Terminación:
+                                </span>
+
+                                <span id="modalFechaFin"
+                                      class="badge bg-light text-dark border px-3 py-2 rounded-pill fw-semibold text-nowrap">
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+                    
+                    
+
                     <div class="col-12 my-1">
                         <hr class="text-muted opacity-25 m-0">
                     </div>
 
                     <!-- Descripción de la Solicitud -->
                     <div class="col-12">
-                        <span class="modal-label-caps">Descripción Detallada</span>
+                        <span class="modal-label-caps">Motivos para solicitar el movimiento de Layout:</span>
                         <p id="modalDescripcion" class="content-panel-box border-start border-primary border-4 mb-0"></p>
                     </div>
 
                     <!-- Justificación / Razón -->
                     <div class="col-12">
-                        <span class="modal-label-caps">Justificación / Razón de Petición</span>
+                        <span class="modal-label-caps">Detallar el movimiento requerido:</span>
                         <p id="modalRazon" class="content-panel-box mb-0"></p>
                     </div>
 
@@ -473,15 +504,7 @@
                                     <span id="modalRazonInv" class="inventory-cell-value text-secondary">—</span>
                                 </div>
 
-                                <!-- 6. Fecha Compromiso -->
-                                <div class="inventory-cell shadow-xs">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <span class="inventory-cell-title">Fecha Compromiso</span>
-                                        <span id="badgeFechaInv"></span>
-                                    </div>
-                                    <span id="modalFechaInv" class="inventory-cell-value text-secondary">—</span>
-                                </div>
-
+                              
                             </div>
                         </div>
                     </div>
@@ -496,7 +519,10 @@
                             <div class="row g-3 small">
                                 <div class="col-12 col-sm-6">
                                     <span class="text-muted d-block mb-0.5">Dictaminó:</span>
-                                    <span id="modalAprobador" class="fw-bold text-dark fs-6"></span>
+                                    <span class="d-flex align-items-center">
+                                        <i class="bi bi-person-circle me-2 text-primary"></i>
+                                        <span id="modalAprobador" class="fw-bold text-dark fs-6"></span>
+                                    </span>
                                 </div>
                                 <div class="col-12 col-sm-6">
                                     <span class="text-muted d-block mb-0.5">Fecha de Dictamen:</span>
@@ -504,7 +530,13 @@
                                 </div>
                                 <div class="col-12 mt-2">
                                     <span class="text-muted d-block mb-1 fw-medium">Comentarios del Revisor:</span>
-                                    <p id="modalComentarios" class="mb-0 text-secondary bg-white p-2.5 rounded border border-light shadow-xs text-wrap"></p>
+                                    <div class="bg-white border-start border-4 border-primary rounded-end p-3 shadow-sm">
+                                        <i class="bi bi-quote text-primary fs-4 opacity-50"></i>
+
+                                        <p id="modalComentarios"
+                                           class="mb-0 fst-italic text-secondary lh-lg">
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -515,7 +547,7 @@
                         <div class="my-1">
                             <hr class="text-muted opacity-25 m-0">
                         </div>
-                        <span class="modal-label-caps text-start mb-2">Layout / Croquis Adjunto</span>
+                        <span class="modal-label-caps text-start mb-2">Layout adjunto detallando el movimiento</span>
                         <div class="text-center bg-light p-2 rounded-3 border border-light">
                             <img id="modalImagen" src="" class="img-fluid rounded-3 shadow-sm img-preview-layout" alt="Layout de movimiento" />
                         </div>
@@ -630,7 +662,6 @@
                 const aplicaMandril = this.getAttribute('data-aplica-mandril') === 'True';
                 const aplicaPallets = this.getAttribute('data-aplica-pallets') === 'True';
                 const aplicaRazon = this.getAttribute('data-aplica-razon') === 'True';
-                const aplicaFecha = this.getAttribute('data-aplica-fecha') === 'True';
 
                 // Valores textuales
                 const validacion = this.getAttribute('data-validacion');
@@ -638,7 +669,8 @@
                 const mandril = this.getAttribute('data-mandril');
                 const pallets = this.getAttribute('data-pallets');
                 const razonInv = this.getAttribute('data-razoninv');
-                const fechaInv = this.getAttribute('data-fecha-inv');
+                const fechaInicio = this.getAttribute('data-fecha-inicio');
+                const fechaFin = this.getAttribute('data-fecha-fin');
 
                 // ==================================================================
                 // 🔹 RENDERIZADO PREMIUM DE INVENTARIO (CON PALOMITAS / N/A)
@@ -646,7 +678,7 @@
                 const seccionInventario = document.getElementById('seccionInventario');
 
                 // El bloque se muestra si la solicitud está EnProceso o Finalizada (y existen datos técnicos creados o mapeados)
-                if (estatus === "EnProceso" || estatus === "Finalizado" || validacion || responsable || mandril || pallets || razonInv || fechaInv) {
+                if (estatus === "EnProceso" || estatus === "Finalizado" || validacion || responsable || mandril || pallets || razonInv) {
 
                     // Función auxiliar interna para inyectar las palomitas y formatear los textos correspondientes
                     function procesarCeldaTecnica(idBadge, idTexto, aplica, valorReal) {
@@ -670,7 +702,6 @@
                     procesarCeldaTecnica("badgeMandril", "modalMandril", aplicaMandril, mandril);
                     procesarCeldaTecnica("badgePallets", "modalPallets", aplicaPallets, pallets);
                     procesarCeldaTecnica("badgeRazonInv", "modalRazonInv", aplicaRazon, razonInv);
-                    procesarCeldaTecnica("badgeFechaInv", "modalFechaInv", aplicaFecha, fechaInv);
 
                     seccionInventario.classList.remove('d-none');
                 } else {
@@ -683,6 +714,11 @@
                 document.getElementById('modalDescripcion').innerText = descripcion;
                 document.getElementById('modalRazon').innerText = razon;
                 document.getElementById('modalFecha').innerText = fecha;
+                document.getElementById('modalFechaInicio').innerText =
+                    fechaInicio || "N/A";
+
+                document.getElementById('modalFechaFin').innerText =
+                    fechaFin || "N/A";
 
                 // ==================================================================
                 // 🔹 CONTROL MÁQUINA DE ESTADOS (BADGES, PANELES ADMIN Y REVISIÓN)
