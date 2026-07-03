@@ -4,6 +4,7 @@ using Layout.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Layout.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260702222904_AgregarImagenesMovimientoTecnico")]
+    partial class AgregarImagenesMovimientoTecnico
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -32,9 +35,6 @@ namespace Layout.Migrations
 
                     b.Property<bool>("Activo")
                         .HasColumnType("bit");
-
-                    b.Property<int?>("AreaId")
-                        .HasColumnType("int");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -77,9 +77,6 @@ namespace Layout.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("TipoFirmaId")
-                        .HasColumnType("int");
-
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
@@ -89,8 +86,6 @@ namespace Layout.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AreaId");
-
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -98,8 +93,6 @@ namespace Layout.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.HasIndex("TipoFirmaId");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -171,43 +164,6 @@ namespace Layout.Migrations
                     b.HasIndex("UsuarioEjecutorId");
 
                     b.ToTable("SolicitudesAprobacion");
-                });
-
-            modelBuilder.Entity("Layout.Models.SolicitudFirma", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Comentarios")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("FechaFirma")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("Firmada")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("SolicitudId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TipoFirmaId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UsuarioFirmanteId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SolicitudId");
-
-                    b.HasIndex("TipoFirmaId");
-
-                    b.HasIndex("UsuarioFirmanteId");
-
-                    b.ToTable("SolicitudesFirma");
                 });
 
             modelBuilder.Entity("Layout.Models.SolicitudHistorial", b =>
@@ -413,23 +369,6 @@ namespace Layout.Migrations
                     b.ToTable("SolicitudMovimientosTecnicos");
                 });
 
-            modelBuilder.Entity("Layout.Models.TipoFirma", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("TiposFirma");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -563,21 +502,6 @@ namespace Layout.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Layout.Models.ApplicationUser", b =>
-                {
-                    b.HasOne("Layout.Models.Area", "Area")
-                        .WithMany()
-                        .HasForeignKey("AreaId");
-
-                    b.HasOne("Layout.Models.TipoFirma", "TipoFirma")
-                        .WithMany()
-                        .HasForeignKey("TipoFirmaId");
-
-                    b.Navigation("Area");
-
-                    b.Navigation("TipoFirma");
-                });
-
             modelBuilder.Entity("Layout.Models.SolicitudAprobacionDetalle", b =>
                 {
                     b.HasOne("Layout.Models.SolicitudMovimiento", "SolicitudMovimiento")
@@ -595,31 +519,6 @@ namespace Layout.Migrations
                     b.Navigation("SolicitudMovimiento");
 
                     b.Navigation("UsuarioEjecutor");
-                });
-
-            modelBuilder.Entity("Layout.Models.SolicitudFirma", b =>
-                {
-                    b.HasOne("Layout.Models.SolicitudMovimiento", "Solicitud")
-                        .WithMany()
-                        .HasForeignKey("SolicitudId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Layout.Models.TipoFirma", "TipoFirma")
-                        .WithMany()
-                        .HasForeignKey("TipoFirmaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Layout.Models.ApplicationUser", "UsuarioFirmante")
-                        .WithMany()
-                        .HasForeignKey("UsuarioFirmanteId");
-
-                    b.Navigation("Solicitud");
-
-                    b.Navigation("TipoFirma");
-
-                    b.Navigation("UsuarioFirmante");
                 });
 
             modelBuilder.Entity("Layout.Models.SolicitudHistorial", b =>

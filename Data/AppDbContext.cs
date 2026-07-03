@@ -16,6 +16,9 @@ namespace Layout.Data
         public DbSet<SolicitudAprobacionDetalle> SolicitudesAprobacion { get; set; }
         public DbSet<SolicitudHistorial> SolicitudesHistorial { get; set; }
         public DbSet<SolicitudInventarioTemporal> SolicitudesInventario { get; set; }
+        public DbSet<TipoFirma> TiposFirma { get; set; }
+
+        public DbSet<SolicitudFirma> SolicitudesFirma { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

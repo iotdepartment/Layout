@@ -264,6 +264,10 @@ namespace Layout.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CompletarInventario(SolicitudInventarioViewModel model)
         {
+            // ==========================================
+            // VALIDACIONES
+            // ==========================================
+
             if (model.RequierePCR &&
                 string.IsNullOrWhiteSpace(model.NumeroPCR))
             {
@@ -271,10 +275,71 @@ namespace Layout.Controllers
                     "Debe especificar el PCR.");
             }
 
+            if (model.ImagenAntes == null)
+            {
+                ModelState.AddModelError("ImagenAntes",
+                    "Debe adjuntar la imagen ANTES.");
+            }
+
+            if (model.ImagenDespues == null)
+            {
+                ModelState.AddModelError("ImagenDespues",
+                    "Debe adjuntar la imagen DESPUÉS.");
+            }
+
             if (!ModelState.IsValid)
                 return View(model);
 
-            var tecnicoExistente = await _context.Set<SolicitudMovimientosTecnicos>()
+            // ==========================================
+            // GUARDAR IMÁGENES
+            // ==========================================
+
+            string? imagenAntesPath = null;
+            string? imagenDespuesPath = null;
+
+            var folder = Path.Combine(_env.WebRootPath, "uploads");
+
+            if (!Directory.Exists(folder))
+            {
+                Directory.CreateDirectory(folder);
+            }
+
+            // Imagen Antes
+            if (model.ImagenAntes != null)
+            {
+                var fileNameAntes = $"{Guid.NewGuid()}{Path.GetExtension(model.ImagenAntes.FileName)}";
+
+                var fullPathAntes = Path.Combine(folder, fileNameAntes);
+
+                using (var stream = new FileStream(fullPathAntes, FileMode.Create))
+                {
+                    await model.ImagenAntes.CopyToAsync(stream);
+                }
+
+                imagenAntesPath = "/uploads/" + fileNameAntes;
+            }
+
+            // Imagen Después
+            if (model.ImagenDespues != null)
+            {
+                var fileNameDespues = $"{Guid.NewGuid()}{Path.GetExtension(model.ImagenDespues.FileName)}";
+
+                var fullPathDespues = Path.Combine(folder, fileNameDespues);
+
+                using (var stream = new FileStream(fullPathDespues, FileMode.Create))
+                {
+                    await model.ImagenDespues.CopyToAsync(stream);
+                }
+
+                imagenDespuesPath = "/uploads/" + fileNameDespues;
+            }
+
+            // ==========================================
+            // MOVIMIENTOS TÉCNICOS
+            // ==========================================
+
+            var tecnicoExistente = await _context
+                .Set<SolicitudMovimientosTecnicos>()
                 .FirstOrDefaultAsync(x => x.SolicitudId == model.SolicitudId);
 
             if (tecnicoExistente != null)
@@ -294,6 +359,9 @@ namespace Layout.Controllers
                     model.RequierePCR
                         ? model.NumeroPCR
                         : null;
+
+                tecnicoExistente.ImagenAntes = imagenAntesPath;
+                tecnicoExistente.ImagenDespues = imagenDespuesPath;
             }
             else
             {
@@ -314,11 +382,18 @@ namespace Layout.Controllers
 
                     NumeroPCR = model.RequierePCR
                         ? model.NumeroPCR
-                        : null
+                        : null,
+
+                    ImagenAntes = imagenAntesPath,
+                    ImagenDespues = imagenDespuesPath
                 };
 
                 _context.Add(tecnico);
             }
+
+            // ==========================================
+            // FINALIZAR SOLICITUD
+            // ==========================================
 
             var solicitudPrincipal = await _context.SolicitudesMovimiento
                 .FindAsync(model.SolicitudId);
@@ -330,7 +405,7 @@ namespace Layout.Controllers
 
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
 
     }

@@ -98,13 +98,76 @@
                 </div>
             </div>
 
+            <hr />
+
+            <h5 class="mb-4">
+                Evidencia Fotográfica
+            </h5>
+
+            <div class="row">
+
+                <!-- IMAGEN ANTES -->
+                <div class="col-md-6">
+
+                    <label asp-for="ImagenAntes" class="form-label fw-semibold">
+                        Imagen Antes
+                    </label>
+
+                    <input asp-for="ImagenAntes"
+                           type="file"
+                           class="form-control"
+                           accept="image/*"
+                           id="imgAntesInput" />
+
+                    <div class="mt-3 text-center d-none"
+                         id="previewAntesContainer">
+
+                        <img id="previewAntes"
+                             class="img-fluid rounded shadow-sm border"
+                             style="max-height:300px; width:100%; object-fit:contain;" />
+
+                    </div>
+
+                </div>
+
+                <!-- IMAGEN DESPUÉS -->
+                <div class="col-md-6">
+
+                    <label asp-for="ImagenDespues" class="form-label fw-semibold">
+                        Imagen Después
+                    </label>
+
+                    <input asp-for="ImagenDespues"
+                           type="file"
+                           class="form-control"
+                           accept="image/*"
+                           id="imgDespuesInput" />
+
+                    <div class="mt-3 text-center d-none"
+                         id="previewDespuesContainer">
+
+                        <img id="previewDespues"
+                             class="img-fluid rounded shadow-sm border"
+                             style="max-height:300px; width:100%; object-fit:contain;" />
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <hr />
+
+
             <!-- Botones de Acción Formulario -->
-            <div class="d-flex justify-content-end gap-2 border-top pt-3">
+            <div class="d-flex justify-content-end gap-2 pt-2">
                 <button type="button" class="btn btn-light border px-4">Cancelar</button>
                 <button type="submit" class="btn btn-success px-4">
                     <i class="bi bi-check-circle me-1"></i> Guardar
                 </button>
             </div>
+
+
         </form>
     </div>
 </div>
@@ -155,6 +218,60 @@
 
             // Inicializar la función
             initToggleInput("chkPCR", "txtPCR");
+
+                    // =========================
+        // PREVIEW IMAGEN ANTES
+        // =========================
+
+        const imgAntesInput = document.getElementById("imgAntesInput");
+        const previewAntes = document.getElementById("previewAntes");
+        const previewAntesContainer = document.getElementById("previewAntesContainer");
+
+        imgAntesInput?.addEventListener("change", function () {
+
+            const archivo = this.files[0];
+
+            if (!archivo) {
+                previewAntesContainer.classList.add("d-none");
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                previewAntes.src = e.target.result;
+                previewAntesContainer.classList.remove("d-none");
+            };
+
+            reader.readAsDataURL(archivo);
+        });
+
+        // =========================
+        // PREVIEW IMAGEN DESPUÉS
+        // =========================
+
+        const imgDespuesInput = document.getElementById("imgDespuesInput");
+        const previewDespues = document.getElementById("previewDespues");
+        const previewDespuesContainer = document.getElementById("previewDespuesContainer");
+
+        imgDespuesInput?.addEventListener("change", function () {
+
+            const archivo = this.files[0];
+
+            if (!archivo) {
+                previewDespuesContainer.classList.add("d-none");
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                previewDespues.src = e.target.result;
+                previewDespuesContainer.classList.remove("d-none");
+            };
+
+            reader.readAsDataURL(archivo);
+        });
         });
     </script>
 }
