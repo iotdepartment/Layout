@@ -6,6 +6,9 @@
         Aprobado = 1,
         Rechazado = 2,
         EnProceso = 3,
-        Finalizado = 4
+
+        PendienteFirmas = 4,
+
+        Finalizado = 5
     }
 }

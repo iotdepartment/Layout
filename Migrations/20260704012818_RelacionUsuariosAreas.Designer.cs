@@ -4,6 +4,7 @@ using Layout.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Layout.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260704012818_RelacionUsuariosAreas")]
+    partial class RelacionUsuariosAreas
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -194,10 +197,6 @@ namespace Layout.Migrations
                     b.Property<string>("UsuarioFirmanteId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("UsuarioRequeridoId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("SolicitudId");
@@ -205,8 +204,6 @@ namespace Layout.Migrations
                     b.HasIndex("TipoFirmaId");
 
                     b.HasIndex("UsuarioFirmanteId");
-
-                    b.HasIndex("UsuarioRequeridoId");
 
                     b.ToTable("SolicitudesFirma");
                 });
@@ -627,19 +624,11 @@ namespace Layout.Migrations
                         .HasForeignKey("UsuarioFirmanteId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("Layout.Models.ApplicationUser", "UsuarioRequerido")
-                        .WithMany()
-                        .HasForeignKey("UsuarioRequeridoId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.Navigation("Solicitud");
 
                     b.Navigation("TipoFirma");
 
                     b.Navigation("UsuarioFirmante");
-
-                    b.Navigation("UsuarioRequerido");
                 });
 
             modelBuilder.Entity("Layout.Models.SolicitudHistorial", b =>

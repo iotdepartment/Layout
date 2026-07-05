@@ -7,10 +7,8 @@ namespace Layout.Models
         public string NombreCompleto { get; set; }
 
         public bool Activo { get; set; } = true;
-
-        // Área a la que pertenece
-        public int? AreaId { get; set; }
-        public Area? Area { get; set; }
+        public ICollection<UsuarioArea> Areas { get; set; }
+    = new List<UsuarioArea>();      
 
         // Tipo de firma que puede realizar
         public int? TipoFirmaId { get; set; }

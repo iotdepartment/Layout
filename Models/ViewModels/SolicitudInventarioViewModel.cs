@@ -1,6 +1,6 @@
 ﻿namespace Layout.Models.ViewModels
 {
-    //ESTA INFORMAICÓN LLENADA POR EL USUARIO APROBADOR 
+    // ESTA INFORMACIÓN ES LLENADA POR EL USUARIO APROBADOR
     public class SolicitudInventarioViewModel
     {
         public int SolicitudId { get; set; }
@@ -16,5 +16,9 @@
 
         public IFormFile? ImagenAntes { get; set; }
         public IFormFile? ImagenDespues { get; set; }
+
+        // NUEVO
+        public List<FirmaSeleccionadaVM> Firmas { get; set; }
+            = new();
     }
-}
+}   

@@ -286,6 +286,11 @@
                                 case EstatusSolicitud.Finalizado:
                                     <span class="badge bg-success px-2.5 py-1.5 fw-semibold rounded-pill">Finalizada</span>
                                     break;
+                                case EstatusSolicitud.PendienteFirmas:
+                                    <span class="badge bg-primary px-2.5 py-1.5 fw-semibold rounded-pill">
+                                        Pendiente Firmas
+                                    </span>
+                                    break;
                             }
                         </div>
 
@@ -336,9 +341,12 @@
                                     </span>
                                 }
 
-                                @* BOTÓN: COMPLETAR INFO *@
+                                @* ==========================================================================
+                                    CONTROL DE ACCIONES Y BADGES DE INVENTARIO / FIRMAS EN EL FOOTER
+                                    ========================================================================== *@
                                 @if (item.Estatus == EstatusSolicitud.EnProceso || item.Estatus == EstatusSolicitud.Aprobado)
                                 {
+                                    <!-- BOTÓN ESTANDARIZADO: COMPLETAR INFO -->
                                     <a asp-action="CompletarInventario"
                                        asp-controller="Solicitudes"
                                        asp-route-id="@item.Id"
@@ -348,13 +356,23 @@
                                         <i class="bi bi-pencil-square me-1"></i>Completar Info
                                     </a>
                                 }
-                                @* BADGE: COMPLETADO *@
+                                else if (item.Estatus == EstatusSolicitud.PendienteFirmas)
+                                {
+                                    <!-- BADGE ESTANDARIZADO: ESPERANDO FIRMAS -->
+                                    <span class="badge bg-light text-primary border px-2.5 py-1.5 small fw-semibold d-inline-flex align-items-center rounded-pill"
+                                          title="La solicitud requiere de firmas digitales para proceder">
+                                        <i class="bi bi-pen-fill me-1"></i>Esperando Firmas
+                                    </span>
+                                }
                                 else if (item.Estatus == EstatusSolicitud.Finalizado)
                                 {
-                                    <span class="badge bg-light text-success border px-2.5 py-1.5 small fw-semibold d-inline-flex align-items-center rounded-pill" title="Información técnica registrada con éxito">
+                                    <!-- BADGE ESTANDARIZADO: COMPLETADO -->
+                                    <span class="badge bg-light text-success border px-2.5 py-1.5 small fw-semibold d-inline-flex align-items-center rounded-pill"
+                                          title="Información técnica registrada con éxito">
                                         <i class="bi bi-check-circle-fill me-1"></i>Completado
                                     </span>
                                 }
+
                             </div>
                         </div>
                     </div>

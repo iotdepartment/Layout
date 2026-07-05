@@ -7,6 +7,11 @@
         public int SolicitudId { get; set; }
         public SolicitudMovimiento Solicitud { get; set; }
 
+        // Usuario que debe firmar
+        public string UsuarioRequeridoId { get; set; }
+        public ApplicationUser UsuarioRequerido { get; set; }
+
+        // Qué firma representa
         public int TipoFirmaId { get; set; }
         public TipoFirma TipoFirma { get; set; }
 

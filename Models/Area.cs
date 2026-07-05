@@ -8,5 +8,7 @@
 
         // Relaciones
         public ICollection<SolicitudMovimiento> Solicitudes { get; set; }
+        public ICollection<UsuarioArea> Usuarios { get; set; }
+    = new List<UsuarioArea>();
     }
 }

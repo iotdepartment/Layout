@@ -1,0 +1,156 @@
+﻿@model Layout.Models.ViewModels.RolCreateViewModel
+@using Microsoft.AspNetCore.Identity
+
+@{
+    var roles = ViewBag.Roles as List<IdentityRole>;
+    ViewData["Title"] = "Alta de Roles";
+}
+
+<style>
+    /* Tabla de Roles Estilizada */
+    .table-roles th {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #858796;
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #e3e6f0;
+    }
+
+    .table-roles td {
+        font-size: 0.9rem;
+        color: #495057;
+        vertical-align: middle;
+    }
+
+    .badge-role-count {
+        font-size: 0.75rem;
+        padding: 4px 8px;
+        background-color: #eaecf4;
+        color: #4e73df;
+        font-weight: 700;
+    }
+</style>
+
+<!-- Inyección manual de estilos de DataTables respetando el alcance de la sección -->
+<script src="cdn.datatables.net/2.3.8/css/dataTables.dataTables.min.css"></script>
+
+
+<div class="row g-4">
+
+    <!-- FORMULARIO -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-white border-bottom-0 pt-3">
+                <h4 class="fw-bold text-secondary mb-0">Alta de Rol</h4>
+            </div>
+
+            <div class="card-body">
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4" role="alert">
+                        <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                <!-- CORRECCIÓN: Etiqueta form estructurada con Tag Helpers y Action POST -->
+                <form asp-action="Create" method="post">
+
+                    <div asp-validation-summary="All" class="text-danger mb-3 small fw-medium"></div>
+
+                    <div class="mb-4">
+                        <label asp-for="Nombre" class="form-label fw-semibold text-secondary">Nombre del Rol</label>
+                        <input asp-for="Nombre" class="form-control rounded-2 py-2" placeholder="Ej. Supervisor, Operador" required />
+                        <span asp-validation-for="Nombre" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex gap-2 pt-2 border-top border-light">
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 fw-semibold shadow-sm">
+                            <i class="bi bi-plus-circle me-1.5"></i>Crear Rol
+                        </button>
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4 fw-semibold">
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLA -->
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-white border-bottom-0 pt-3 d-flex justify-content-between align-items-center">
+                <h4 class="fw-bold text-secondary mb-0">Roles Registrados</h4>
+                <span class="badge rounded-pill badge-role-count">
+                    <i class="bi bi-shield-check me-1"></i> @(roles?.Count ?? 0) Globales
+                </span>
+            </div>
+
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="tablaRoles" class="table table-hover table-roles align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-3">Nombre</th>
+                                <th>Nombre Normalizado</th>
+                                <th class="pe-3">Id de Registro</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (roles != null)
+                            {
+                                foreach (var rol in roles)
+                                {
+                                    <tr>
+                                        <td class="ps-3">
+                                            <span class="badge bg-primary rounded-pill px-2.5 py-1.5 fw-semibold shadow-xs">
+                                                <i class="bi bi-person-badge me-1"></i>@rol.Name
+                                            </span>
+                                        </td>
+                                        <td class="text-secondary font-monospace small">
+                                            @rol.NormalizedName
+                                        </td>
+                                        <td class="pe-3">
+                                            <small class="text-muted text-break">
+                                                @rol.Id
+                                            </small>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <!-- Scripts base de validación del cliente -->
+    <partial name="_ValidationScriptsPartial" />
+
+    <!-- CORRECCIÓN: Inyección limpia de las librerías CDN de DataTables sin código roto -->
+    <script src="cdn.datatables.net/2.3.8/js/dataTables.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#tablaRoles').DataTable({
+                pageLength: 10,
+                responsive: true,
+                language: {
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.8/i18n/es-MX.json'
+                },
+                order: [[0, 'asc']],
+                // Clases de Bootstrap integradas para mejorar el buscador y la paginación de DataTables
+                dom: "<'row mb-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6 text-end'f>>" +
+                     "<'row'<'col-sm-12'tr>>" +
+                     "<'row mt-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7 d-flex justify-content-end'p>>"
+            });
+        });
+    </script>
+}

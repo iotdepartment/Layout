@@ -1,77 +1,352 @@
 ﻿@model Layout.Models.ViewModels.UsuarioCreateViewModel
+@using Layout.Models.ViewModels
+@using Layout.Models
+@using Microsoft.AspNetCore.Identity
 
-<div class="card shadow-sm border-0 rounded-3">
+@{
+    var usuarios = ViewBag.Usuarios as List<UsuarioListadoViewModel>;
+    ViewData["Title"] = "Gestión de Usuarios";
+}
 
-    <div class="card-header bg-white border-bottom-0 pt-3">
-        <h4 class="fw-bold text-secondary mb-0">Alta de Usuario</h4>
+
+<style>
+    /* ==========================================================================
+       ESTILOS PREMIUM PARA LA VISTA DE GESTIÓN DE USUARIOS
+       ========================================================================== */
+
+    /* Contenedor de Checkboxes de Áreas */
+    .areas-container-box {
+        background-color: #fdfdfd;
+        border: 1px solid #eef1f6;
+        border-radius: 12px;
+        padding: 16px;
+        max-height: 220px;
+        overflow-y: auto;
+    }
+
+    .form-check-custom .form-check-input {
+        cursor: pointer;
+        border-color: #ced4da;
+    }
+
+        .form-check-custom .form-check-input:checked {
+            background-color: #4e73df;
+            border-color: #4e73df;
+        }
+
+    .form-check-custom .form-check-label {
+        cursor: pointer;
+        font-size: 0.9rem;
+        color: #495057;
+        font-weight: 500;
+    }
+
+    /* Tabla de Usuarios Estilizada */
+    .table-users th {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #858796;
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #e3e6f0;
+    }
+
+    .table-users td {
+        font-size: 0.9rem;
+        color: #495057;
+        vertical-align: middle;
+    }
+
+    .badge-user-count {
+        font-size: 0.75rem;
+        padding: 4px 8px;
+        background-color: #eaecf4;
+        color: #4e73df;
+        font-weight: 700;
+    }
+
+</style>
+
+<div class="row g-4">
+
+    <!-- COLUMNA IZQUIERDA: Formulario de Alta -->
+    <div class="col-12 col-xl-5">
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-white border-bottom-0 pt-3">
+                <h4 class="fw-bold text-secondary mb-0">Alta de Usuario</h4>
+            </div>
+
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+
+                    <div asp-validation-summary="All" class="text-danger mb-3 small fw-medium"></div>
+
+                    <!-- Campo: Nombre Completo -->
+                    <div class="mb-3">
+                        <label asp-for="NombreCompleto" class="form-label fw-semibold text-secondary">Nombre Completo</label>
+                        <input asp-for="NombreCompleto" class="form-control rounded-2 py-2" placeholder="Ej. Juan Pérez" required />
+                        <span asp-validation-for="NombreCompleto" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Campo: Correo -->
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label fw-semibold text-secondary">Correo Electrónico</label>
+                        <input asp-for="Email" type="email" class="form-control rounded-2 py-2" placeholder="ejemplo@correo.com" required />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Campo: Contraseña -->
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label fw-semibold text-secondary">Contraseña temporal</label>
+                        <input asp-for="Password" type="password" class="form-control rounded-2 py-2" placeholder="••••••••" required />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Campo: Rol -->
+                    <div class="mb-3">
+                        <label asp-for="Rol" class="form-label fw-semibold text-secondary">Rol asignado</label>
+                        <select asp-for="Rol" asp-items="Model.Roles" class="form-select rounded-2 py-2" id="rolSelect" required>
+                            <option value="">Seleccione un rol...</option>
+                        </select>
+                        <span asp-validation-for="Rol" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Contenedor Checkboxes: Áreas asignadas -->
+                    <div class="mb-4" id="divAreas">
+                        <label class="form-label fw-semibold text-secondary">Áreas operativas asignadas</label>
+                        <div class="areas-container-box">
+                            <div class="row g-2">
+                                @foreach (var area in Model.Areas)
+                                {
+                                    <div class="col-12 col-sm-6 col-md-4">
+                                        <div class="form-check form-check-custom d-flex align-items-center mb-1">
+                                            <input class="form-check-input me-2"
+                                                   type="checkbox"
+                                                   name="AreasSeleccionadas"
+                                                   value="@area.Value"
+                                                   id="area_@area.Value" />
+                                            <label class="form-check-label text-truncate" for="area_@area.Value" title="@area.Text">
+                                                @area.Text
+                                            </label>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de Envíos Estilizados -->
+                    <div class="d-flex gap-2 pt-2 border-top border-light">
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 fw-semibold shadow-sm">
+                            <i class="bi bi-save me-1.5"></i>Guardar Usuario
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4 fw-semibold">
+                            Cancelar
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
     </div>
+    <!-- COLUMNA DERECHA: Tabla de Usuarios Existentes -->
+    <div class="col-12 col-xl-7">
+        <div class="card shadow-sm border-0 rounded-3">
 
-    <div class="card-body">
+            <div class="card-header bg-white border-bottom-0 pt-3 d-flex justify-content-between align-items-center">
+                <h4 class="fw-bold text-secondary mb-0">
+                    Usuarios Registrados
+                </h4>
 
-        <!-- CORRECCIÓN: Abrir la etiqueta form correctamente con sus Tag Helpers -->
-        <form asp-action="Create" method="post">
-
-            <!-- Resumen de validaciones -->
-            <div asp-validation-summary="All" class="text-danger mb-3"></div>
-
-            <div class="mb-3">
-                <label asp-for="NombreCompleto" class="form-label fw-semibold">Nombre Completo</label>
-                <input asp-for="NombreCompleto" class="form-control" placeholder="Ej. Juan Pérez" />
-                <span asp-validation-for="NombreCompleto" class="text-danger small"></span>
+                <span class="badge rounded-pill badge-role-count">
+                    <i class="bi bi-people-fill me-1"></i>
+                    @(usuarios?.Count ?? 0) Cuentas Globales
+                </span>
             </div>
 
-            <div class="mb-3">
-                <label asp-for="Email" class="form-label fw-semibold">Correo Electrónico</label>
-                <input asp-for="Email" type="email" class="form-control" placeholder="ejemplo@correo.com" />
-                <span asp-validation-for="Email" class="text-danger small"></span>
+            <div class="card-body">
+
+                <div class="table-responsive">
+
+                    <table id="tablaUsuarios"
+                           class="table table-hover table-users align-middle mb-0 w-100">
+
+                        <thead>
+                            <tr>
+                                <th class="ps-3">Nombre</th>
+                                <th>Correo Electrónico</th>
+                                <th class="text-center">Rol</th>
+                                <th class="pe-3 text-center">Estado</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @if (usuarios != null)
+                            {
+                                foreach (var usuario in usuarios)
+                                {
+                                    <tr>
+
+                                        <td class="fw-bold text-dark ps-3">
+                                            <div class="d-flex align-items-center">
+                                                <i class="bi bi-person-circle text-secondary me-2 fs-5"></i>
+                                                @usuario.NombreCompleto
+                                            </div>
+                                        </td>
+
+                                        <td class="text-secondary small">
+                                            @usuario.Email
+                                        </td>
+
+                                        <td class="text-center">
+
+                                            @switch (usuario.Rol)
+                                            {
+                                                case "Administrador":
+                                                    <span class="badge bg-danger">
+                                                        @usuario.Rol
+                                                    </span>
+                                                    break;
+
+                                                case "Gerente":
+                                                    <span class="badge bg-primary">
+                                                        @usuario.Rol
+                                                    </span>
+                                                    break;
+
+                                                case "Supervisor":
+                                                    <span class="badge bg-warning text-dark">
+                                                        @usuario.Rol
+                                                    </span>
+                                                    break;
+
+                                                case "Coordinador":
+                                                    <span class="badge bg-info text-dark">
+                                                        @usuario.Rol
+                                                    </span>
+                                                    break;
+
+                                                case "Aprobador":
+                                                    <span class="badge bg-success">
+                                                        @usuario.Rol
+                                                    </span>
+                                                    break;
+
+                                                default:
+                                                    <span class="badge bg-secondary">
+                                                        @usuario.Rol
+                                                    </span>
+                                                    break;
+                                            }
+
+                                        </td>
+
+                                        <td class="pe-3 text-center">
+
+                                            @if (usuario.Activo)
+                                            {
+                                                <span class="badge bg-success-subtle text-success rounded-pill px-2 py-1 fw-semibold">
+                                                    <i class="bi bi-circle-fill me-1"
+                                                       style="font-size:0.5rem;"></i>
+                                                    Activo
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger-subtle text-danger rounded-pill px-2 py-1 fw-semibold">
+                                                    <i class="bi bi-circle-fill me-1"
+                                                       style="font-size:0.5rem;"></i>
+                                                    Inactivo
+                                                </span>
+                                            }
+
+                                        </td>
+
+                                    </tr>
+                                }
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
             </div>
 
-            <div class="mb-3">
-                <label asp-for="Password" class="form-label fw-semibold">Contraseña</label>
-                <input asp-for="Password" type="password" class="form-control" placeholder="••••••••" />
-                <span asp-validation-for="Password" class="text-danger small"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Rol" class="form-label fw-semibold">Rol asignado</label>
-                <select asp-for="Rol" asp-items="Model.Roles" class="form-select">
-                    <option value="">Seleccione un rol...</option>
-                </select>
-                <span asp-validation-for="Rol" class="text-danger small"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="AreaId" class="form-label fw-semibold">Área de trabajo</label>
-                <select asp-for="AreaId" asp-items="Model.Areas" class="form-select">
-                    <option value="">Seleccione una área...</option>
-                </select>
-                <span asp-validation-for="AreaId" class="text-danger small"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="TipoFirmaId" class="form-label fw-semibold">Tipo de Firma</label>
-                <select asp-for="TipoFirmaId" asp-items="Model.TiposFirma" class="form-select">
-                    <option value="">Seleccione tipo de firma...</option>
-                </select>
-                <span asp-validation-for="TipoFirmaId" class="text-danger small"></span>
-            </div>
-
-            <div class="d-flex gap-2 pt-2">
-                <button type="submit" class="btn btn-primary px-4">
-                    <i class="bi bi-save me-1"></i>Guardar Usuario
-                </button>
-                <a asp-action="Index" class="btn btn-outline-secondary px-4">
-                    Cancelar
-                </a>
-            </div>
-
-        </form>
-
+        </div>
     </div>
-
 </div>
 
+
 @section Scripts {
-    <!-- Script opcional para validar en el cliente sin recargar la página -->
+
     <partial name="_ValidationScriptsPartial" />
+    <script src="cdn.datatables.net/2.3.8/css/dataTables.dataTables.min.css"></script>
+    <script src="cdn.datatables.net/2.3.8/js/dataTables.min.js"></script>
+
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const rolSelect =
+                document.getElementById("rolSelect");
+
+            const divAreas =
+                document.getElementById("divAreas");
+
+            function actualizarAreas() {
+
+                const rol = rolSelect.value;
+
+                const requiereAreas =
+                    rol === "Supervisor" ||
+                    rol === "Gerente" ||
+                    rol === "Coordinador";
+
+                if (requiereAreas) {
+
+                    divAreas.style.display = "block";
+
+                } else {
+
+                    divAreas.style.display = "none";
+
+                    divAreas
+                        .querySelectorAll("input[type='checkbox']")
+                        .forEach(chk => chk.checked = false);
+                }
+            }
+
+            rolSelect.addEventListener(
+                "change",
+                actualizarAreas);
+
+            actualizarAreas();
+        });
+
+    </script>
+
+
+    <script>
+        $(document).ready(function () {
+            $('#tablaUsuarios').DataTable({
+                pageLength: 10,
+                responsive: true,
+                language: {
+                                        url: 'https://cdn.datatables.net/plug-ins/1.13.8/i18n/es-MX.json'
+
+                },
+                order: [[0, 'asc']],
+                dom: "<'row mb-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6 text-end'f>>" +
+                     "<'row'<'col-sm-12'tr>>" +
+                     "<'row mt-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7 d-flex justify-content-end'p>>"
+            });
+        });
+    </script>
+
+
 }

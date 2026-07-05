@@ -168,6 +168,13 @@
             <a class="nav-custom-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Usuarios" && ViewContext.RouteData.Values["Action"]?.ToString() == "Create" ? "active" : "")" asp-controller="Usuarios" asp-action="Create">
                 <i class="bi bi-person-plus"></i> Alta de Usuarios
             </a>
+
+            <a class="nav-custom-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Roles" && ViewContext.RouteData.Values["Action"]?.ToString() == "Create" ? "active" : "")"
+               asp-controller="Roles"
+               asp-action="Create">
+                <i class="bi bi-person-badge"></i> Alta de Roles
+            </a>
+
         </div>
     </div>
 

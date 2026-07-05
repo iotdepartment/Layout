@@ -15,6 +15,9 @@
 </style>
 <div asp-validation-summary="All" class="mb-4 d-none" role="alert"></div>
 
+<input type="hidden"
+       id="solicitudId"
+       value="@Model.SolicitudId" />
 <div class="card shadow-sm border-0 rounded-3 mb-4">
     <div class="card-body p-4">
         <form asp-action="CompletarInventario" method="post" novalidate>
@@ -24,7 +27,7 @@
             <!-- Encabezado de Sección -->
             <div class="d-flex align-items-center mb-4 border-bottom pb-2">
                 <i class="bi bi-gear-wide-connected text-primary fs-4 me-2"></i>
-                <h5 class="card-title mb-0 fw-semibold text-secondary">Movimientos Técnicos</h5>
+                <h5 class="card-title mb-0 fw-semibold text-secondary">Revisión de Movimientos</h5>
             </div>
 
             <!-- Contenedor Grid para los Checkboxes -->
@@ -33,7 +36,7 @@
                     <div class="form-check form-switch p-3 border rounded-3 bg-light h-100 hover-shadow-sm transition">
                         <input class="form-check-input ms-0 me-2 float-start" type="checkbox" asp-for="MovimientoITIoT" />
                         <label class="form-check-label fw-medium text-dark" asp-for="MovimientoITIoT">
-                            Movement IT / IoT
+                            Movimiento de Redes y/o Sistemas (IT/IoT)
                         </label>
                     </div>
                 </div>
@@ -42,7 +45,7 @@
                     <div class="form-check form-switch p-3 border rounded-3 bg-light h-100 hover-shadow-sm transition">
                         <input class="form-check-input ms-0 me-2 float-start" type="checkbox" asp-for="MovimientoProgramacion" />
                         <label class="form-check-label fw-medium text-dark" asp-for="MovimientoProgramacion">
-                            Programming Movements
+                            Movimientos de Programación
                         </label>
                     </div>
                 </div>
@@ -51,7 +54,7 @@
                     <div class="form-check form-switch p-3 border rounded-3 bg-light h-100 hover-shadow-sm transition">
                         <input class="form-check-input ms-0 me-2 float-start" type="checkbox" asp-for="MovimientoElectrico" />
                         <label class="form-check-label fw-medium text-dark" asp-for="MovimientoElectrico">
-                            Electrical Movements
+                            Movimientos eléctricos y/o Neumaticos
                         </label>
                     </div>
                 </div>
@@ -60,7 +63,7 @@
                     <div class="form-check form-switch p-3 border rounded-3 bg-light h-100 hover-shadow-sm transition">
                         <input class="form-check-input ms-0 me-2 float-start" type="checkbox" asp-for="MovimientoEHS" />
                         <label class="form-check-label fw-medium text-dark" asp-for="MovimientoEHS">
-                            EHS Equipment Relocation
+                            ¿El Movimiento involucra reubicar equipos de EHS?
                         </label>
                     </div>
                 </div>
@@ -69,7 +72,7 @@
                     <div class="form-check form-switch p-3 border rounded-3 bg-light h-100 hover-shadow-sm transition">
                         <input class="form-check-input ms-0 me-2 float-start" type="checkbox" asp-for="CambioNomenclatura" />
                         <label class="form-check-label fw-medium text-dark" asp-for="CambioNomenclatura">
-                            Cambio de nomenclatura
+                            ¿La nomenclatura de las mesas será modificada?
                         </label>
                     </div>
                 </div>
@@ -82,7 +85,7 @@
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" asp-for="RequierePCR" id="chkPCR" />
                             <label class="form-check-label fw-bold text-primary" for="chkPCR">
-                                Requiere PCR
+                                ¿Este movimiento requiere someter un PCR?
                             </label>
                         </div>
                     </div>
@@ -158,6 +161,92 @@
 
             <hr />
 
+            <div class="d-flex align-items-center mb-4 border-bottom pb-2">
+                <i class="bi bi-pen text-primary fs-4 me-2"></i>
+                <h5 class="card-title mb-0 fw-semibold text-secondary">
+                    Firmas Requeridas
+                </h5>
+            </div>
+
+            <div class="card bg-light border-0 rounded-3 p-3 mb-4">
+
+                <div id="contenedorFirmas">
+
+                    <div class="firma-row row g-3 mb-3">
+
+                        <div class="col-md-5">
+
+                            <label class="form-label fw-semibold">
+                                Tipo de Firma
+                            </label>
+
+                            <select class="form-select firma-tipo"
+                                    name="Firmas[0].TipoFirmaId">
+
+                                <option value="">
+                                    Seleccione...
+                                </option>
+
+                                @foreach (var firma in ViewBag.TiposFirma)
+                                {
+                                    <option value="@firma.Id">
+                                        @firma.Nombre
+                                    </option>
+                                }
+
+                            </select>
+
+                        </div>
+
+                        <div class="col-md-5">
+
+                            <label class="form-label fw-semibold">
+                                Usuario Responsable
+                            </label>
+
+                            <select class="form-select firma-usuario"
+                                    name="Firmas[0].UsuarioRequeridoId">
+
+                                <option value="">
+                                    Seleccione un usuario
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="col-md-2 d-flex align-items-end">
+
+                            <button type="button"
+                                    class="btn btn-outline-danger w-100 btnEliminarFirma">
+
+                                <i class="bi bi-trash"></i>
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="text-end">
+
+                    <button type="button"
+                            class="btn btn-outline-primary"
+                            id="btnAgregarFirma">
+
+                        <i class="bi bi-plus-circle me-1"></i>
+                        Agregar Firma
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <hr />
+
 
             <!-- Botones de Acción Formulario -->
             <div class="d-flex justify-content-end gap-2 pt-2">
@@ -219,7 +308,7 @@
             // Inicializar la función
             initToggleInput("chkPCR", "txtPCR");
 
-                    // =========================
+        // =========================
         // PREVIEW IMAGEN ANTES
         // =========================
 
@@ -272,6 +361,106 @@
 
             reader.readAsDataURL(archivo);
         });
+        });
+    </script>
+    
+    <script>
+                let indiceFirma = 1;
+
+        document
+            .getElementById("btnAgregarFirma")
+            ?.addEventListener("click", function () {
+
+                const contenedor =
+                    document.getElementById("contenedorFirmas");
+
+                const primeraFila =
+                    document.querySelector(".firma-row");
+
+                const nuevaFila =
+                    primeraFila.cloneNode(true);
+
+                nuevaFila.querySelectorAll("select")
+                    .forEach(select => {
+
+                        if (select.name.includes("TipoFirmaId")) {
+
+                            select.name =
+                                `Firmas[${indiceFirma}].TipoFirmaId`;
+
+                            select.selectedIndex = 0;
+                        }
+
+                        if (select.name.includes("UsuarioRequeridoId")) {
+
+                            select.name =
+                                `Firmas[${indiceFirma}].UsuarioRequeridoId`;
+
+                            select.selectedIndex = 0;
+                        }
+                    });
+
+                contenedor.appendChild(nuevaFila);
+
+                indiceFirma++;
+            });
+
+        document.addEventListener("click", function (e) {
+
+            if (
+                e.target.closest(".btnEliminarFirma")
+            ) {
+
+                const filas =
+                    document.querySelectorAll(".firma-row");
+
+                if (filas.length > 1) {
+
+                    e.target
+                        .closest(".firma-row")
+                        .remove();
+                }
+            }
+        });
+
+                document.addEventListener("change", async function (e) {
+
+            if (!e.target.classList.contains("firma-tipo"))
+                return;
+
+            const tipoFirmaId = e.target.value;
+
+            const fila =
+                e.target.closest(".firma-row");
+
+            const comboUsuario =
+                fila.querySelector(".firma-usuario");
+
+            const solicitudId =
+                document.getElementById("solicitudId").value;
+
+            comboUsuario.innerHTML =
+                '<option value="">Cargando...</option>';
+
+            const response =
+                await fetch(
+                    `/Solicitudes/ObtenerUsuariosFirma?tipoFirmaId=${tipoFirmaId}&solicitudId=${solicitudId}`
+                );
+
+            const usuarios =
+                await response.json();
+
+            comboUsuario.innerHTML =
+                '<option value="">Seleccione usuario</option>';
+
+            usuarios.forEach(usuario => {
+
+                comboUsuario.innerHTML +=
+                    `<option value="${usuario.id}">
+                        ${usuario.nombre}
+                     </option>`;
+            });
+
         });
     </script>
 }

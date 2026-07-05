@@ -12,16 +12,16 @@
             public string Password { get; set; }
 
             public string Rol { get; set; }
-
-            public int? AreaId { get; set; }
-
-            public int? TipoFirmaId { get; set; }
+        public List<int> AreasSeleccionadas { get; set; }
+            = new();
+        public int? TipoFirmaId { get; set; }
 
             public List<SelectListItem>? Areas { get; set; }
 
             public List<SelectListItem>? TiposFirma { get; set; }
 
             public List<SelectListItem>? Roles { get; set; }
+
         }
     }
 
