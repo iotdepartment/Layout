@@ -1,4 +1,5 @@
 ﻿using Layout.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,6 +15,7 @@ namespace Layout.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Administrador")]
         public IActionResult Create()
         {
             ViewBag.Roles = _roleManager.Roles
@@ -22,8 +24,10 @@ namespace Layout.Controllers
 
             return View(new RolCreateViewModel());
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Create(RolCreateViewModel model)
         {
             if (!ModelState.IsValid)

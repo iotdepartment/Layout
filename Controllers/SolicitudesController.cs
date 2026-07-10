@@ -222,7 +222,7 @@ namespace Layout.Controllers
         // VALIDA SI LA SOLICITUD ES ACEPTADA O RECHAZADA POR EL USUARIO APROBADOR O ADMINISTRADOR
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Aprobador,Administrador")]
+        [Authorize(Roles = "Aprobador,  ")]
         public async Task<IActionResult> Evaluar(int id, EstatusSolicitud nuevoEstatus, string comentarios)
         {
             var solicitud = await _context.SolicitudesMovimiento.FindAsync(id);
@@ -274,8 +274,7 @@ namespace Layout.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CompletarInventario(
-     SolicitudInventarioViewModel model)
+        public async Task<IActionResult> CompletarInventario(SolicitudInventarioViewModel model)
         {
             if (!ModelState.IsValid)
             {

@@ -328,7 +328,7 @@
 
                             <div class="prevent-modal-trigger d-flex gap-2 align-items-center">
                                 @* BOTÓN: VER LAYOUT *@
-                                @if (!string.IsNullOrEmpty(item.ImagenLayout))
+                               @*  @if (!string.IsNullOrEmpty(item.ImagenLayout))
                                 {
                                     <a href="@item.ImagenLayout" target="_blank" class="btn btn-sm btn-outline-secondary px-2.5 py-1 fw-semibold d-inline-flex align-items-center rounded-pill" title="Ver croquis adjunto" onclick="event.stopPropagation();">
                                         <i class="bi bi-image me-1"></i>Ver Layout
@@ -339,23 +339,50 @@
                                     <span class="badge bg-white text-muted border px-2.5 py-1.5 small fw-normal italic rounded-pill">
                                         Sin Layout
                                     </span>
-                                }
-
+                                } *@
                                 @* ==========================================================================
-                                    CONTROL DE ACCIONES Y BADGES DE INVENTARIO / FIRMAS EN EL FOOTER
-                                    ========================================================================== *@
+                                   CONTROL DE ACCIONES, ROLES Y BADGES EN EL FOOTER DE LA TARJETA
+                                   ========================================================================== *@
                                 @if (item.Estatus == EstatusSolicitud.EnProceso || item.Estatus == EstatusSolicitud.Aprobado)
                                 {
-                                    <!-- BOTÓN ESTANDARIZADO: COMPLETAR INFO -->
-                                    <a asp-action="CompletarInventario"
-                                       asp-controller="Solicitudes"
-                                       asp-route-id="@item.Id"
-                                       class="btn btn-sm btn-primary px-2.5 py-1 shadow-sm fw-semibold d-inline-flex align-items-center rounded-pill"
-                                       onclick="event.stopPropagation();"
-                                       title="Llenar datos de inventario y movimientos técnicos">
-                                        <i class="bi bi-pencil-square me-1"></i>Completar Info
-                                    </a>
+                                    @if (User.IsInRole("Administrador") || User.IsInRole("Aprobador"))
+                                    {
+                                        <!-- CORRECCIÓN: Botón interactivo estructurado con sus etiquetas correctas (Apertura y Cierre) -->
+                                        <a asp-action="CompletarInventario"
+                                           asp-controller="Solicitudes"
+                                           asp-route-id="@item.Id"
+                                           class="btn btn-sm btn-primary px-2.5 py-1 shadow-sm fw-semibold d-inline-flex align-items-center rounded-pill"
+                                           onclick="event.stopPropagation();"
+                                           title="Llenar datos de inventario y movimientos técnicos">
+                                            <i class="bi bi-pencil-square me-1"></i>Completar Info
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <!-- MEJORA UX: Si un usuario común ve la tarjeta, se le muestra un Badge estático en lugar de un botón -->
+                                        <span class="badge bg-light text-secondary border px-2.5 py-1.5 small fw-semibold d-inline-flex align-items-center rounded-pill"
+                                              title="Un administrador o aprobador está completando los datos técnicos">
+                                            <i class="bi bi-hourglass-split me-1 text-warning"></i>Pendiente Info. Técnica
+                                        </span>
+                                    }
                                 }
+                                else if (item.Estatus == EstatusSolicitud.PendienteFirmas)
+                                {
+                                    <!-- BADGE COMPLETADO: PENDIENTE FIRMAS -->
+                                    <span class="badge bg-light text-primary border px-2.5 py-1.5 small fw-semibold d-inline-flex align-items-center rounded-pill"
+                                          title="La solicitud se encuentra en espera de firmas digitales">
+                                        <i class="bi bi-pen-fill me-1"></i>Pendiente Firmas
+                                    </span>
+                                }
+                                else if (item.Estatus == EstatusSolicitud.Finalizado)
+                                {
+                                    <!-- BADGE COMPLETADO: FINALIZADO / COMPLETADO -->
+                                    <span class="badge bg-light text-success border px-2.5 py-1.5 small fw-semibold d-inline-flex align-items-center rounded-pill"
+                                          title="El flujo de la solicitud ha concluido con éxito">
+                                        <i class="bi bi-check-circle-fill me-1"></i>Completado
+                                    </span>
+                                }
+
                                 else if (item.Estatus == EstatusSolicitud.PendienteFirmas)
                                 {
                                     <!-- BADGE ESTANDARIZADO: ESPERANDO FIRMAS -->

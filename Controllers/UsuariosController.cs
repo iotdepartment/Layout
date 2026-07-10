@@ -1,6 +1,7 @@
 ﻿using Layout.Data;
 using Layout.Models;
 using Layout.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -25,6 +26,7 @@ namespace Layout.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Create()
         {
             var vm = new UsuarioCreateViewModel
@@ -102,8 +104,8 @@ namespace Layout.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(
-     UsuarioCreateViewModel model)
+        [Authorize(Roles = "Administrador")]
+        public async Task<IActionResult> Create(UsuarioCreateViewModel model)
         {
             if (!ModelState.IsValid)
             {
