@@ -178,6 +178,15 @@ namespace Layout.Controllers
                 .Include(s => s.MovimientosTecnicos)
                 .FirstOrDefaultAsync(s => s.Id == id);
 
+            if (solicitud == null)
+                return NotFound();
+
+            // Solo las solicitudes EnProceso pueden llenarse
+            if (solicitud.Estatus != EstatusSolicitud.EnProceso)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
             ViewBag.TiposFirma = await _context.TiposFirma
                 .OrderBy(x => x.Nombre)
                 .ToListAsync();
@@ -186,34 +195,20 @@ namespace Layout.Controllers
                 .OrderBy(x => x.NombreCompleto)
                 .ToListAsync();
 
-            if (solicitud == null)
-                return NotFound();
-
-            if (
-      solicitud.Estatus != EstatusSolicitud.EnProceso &&
-      solicitud.Estatus != EstatusSolicitud.Aprobado
-  )
-            {
-                return RedirectToAction(nameof(Index));
-            }
-
             var vm = new SolicitudInventarioViewModel
             {
-                SolicitudId = id
+                SolicitudId = solicitud.Id
             };
 
             if (solicitud.MovimientosTecnicos != null)
             {
-                var tech = solicitud.MovimientosTecnicos;
-
-                vm.MovimientoITIoT = tech.MovimientoITIoT;
-                vm.MovimientoProgramacion = tech.MovimientoProgramacion;
-                vm.MovimientoElectrico = tech.MovimientoElectrico;
-                vm.MovimientoEHS = tech.MovimientoEHS;
-                vm.CambioNomenclatura = tech.CambioNomenclatura;
-
-                vm.RequierePCR = tech.RequierePCR;
-                vm.NumeroPCR = tech.NumeroPCR;
+                vm.MovimientoITIoT = solicitud.MovimientosTecnicos.MovimientoITIoT;
+                vm.MovimientoProgramacion = solicitud.MovimientosTecnicos.MovimientoProgramacion;
+                vm.MovimientoElectrico = solicitud.MovimientosTecnicos.MovimientoElectrico;
+                vm.MovimientoEHS = solicitud.MovimientosTecnicos.MovimientoEHS;
+                vm.CambioNomenclatura = solicitud.MovimientosTecnicos.CambioNomenclatura;
+                vm.RequierePCR = solicitud.MovimientosTecnicos.RequierePCR;
+                vm.NumeroPCR = solicitud.MovimientosTecnicos.NumeroPCR;
             }
 
             return View(vm);
@@ -222,53 +217,51 @@ namespace Layout.Controllers
         // VALIDA SI LA SOLICITUD ES ACEPTADA O RECHAZADA POR EL USUARIO APROBADOR O ADMINISTRADOR
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Aprobador,  ")]
+        [Authorize(Roles = "Aprobador,Administrador")]
         public async Task<IActionResult> Evaluar(int id, EstatusSolicitud nuevoEstatus, string comentarios)
         {
-            var solicitud = await _context.SolicitudesMovimiento.FindAsync(id);
+            var solicitud = await _context.SolicitudesMovimiento
+                .FindAsync(id);
 
             if (solicitud == null)
             {
-                return Json(new { success = false, message = "La solicitud no existe." });
+                return Json(new
+                {
+                    success = false,
+                    message = "La solicitud no existe."
+                });
             }
 
             var user = await _userManager.GetUserAsync(User);
 
-            // ✅ REGLA DE NEGOCIO: Si el cliente aprueba, forzamos que el estatus real sea "EnProceso"
-            // para que la vista entienda que tiene un formulario técnico pendiente de llenar.
-            if (nuevoEstatus == EstatusSolicitud.Aprobado)
-            {
-                solicitud.Estatus = EstatusSolicitud.EnProceso;
-            }
-            else
-            {
-                solicitud.Estatus = nuevoEstatus;
-            }
+            solicitud.Estatus = nuevoEstatus;
 
             solicitud.UsuarioAprobadorId = user.Id;
             solicitud.FechaRevision = DateTime.Now;
-            solicitud.ComentariosRevision = string.IsNullOrWhiteSpace(comentarios)
-                ? "Sin comentarios adicionales"
-                : comentarios;
+            solicitud.ComentariosRevision =
+                string.IsNullOrWhiteSpace(comentarios)
+                    ? "Sin comentarios adicionales"
+                    : comentarios;
 
             await _context.SaveChangesAsync();
 
-            // ✅ 🔥 SI ERA APROBACIÓN → REDIRIGIR AL FORMULARIO EXTRA
-            // Evaluamos contra 'nuevoEstatus' porque es lo que mandó el cliente originalmente desde la interfaz
-            if (nuevoEstatus == EstatusSolicitud.Aprobado)
+            // Si se envió a EnProceso
+            if (nuevoEstatus == EstatusSolicitud.EnProceso)
             {
                 return Json(new
                 {
                     success = true,
-                    redirectUrl = Url.Action("CompletarInventario", "Solicitudes", new { id = solicitud.Id })
+                    redirectUrl = Url.Action(
+                        "CompletarInventario",
+                        "Solicitudes",
+                        new { id = solicitud.Id })
                 });
             }
 
-            // ✅ SI RECHAZA (O CUALQUIER OTRO) → RESPUESTA NORMAL
             return Json(new
             {
                 success = true,
-                message = "Solicitud procesada correctamente"
+                message = "Solicitud procesada correctamente."
             });
         }
 
@@ -372,9 +365,7 @@ namespace Layout.Controllers
         }
 
         private async Task<List<ApplicationUser>>
-        ObtenerUsuariosPorRolYArea(
-            string rol,
-            int areaId)
+        ObtenerUsuariosPorRolYArea(string rol, int areaId)
             {
                 var usuarios = await _context.UsuarioAreas
                     .Include(x => x.Usuario)
@@ -418,9 +409,7 @@ namespace Layout.Controllers
             }
 
         [HttpGet]
-        public async Task<IActionResult> ObtenerUsuariosFirma(
-    int tipoFirmaId,
-    int solicitudId)
+        public async Task<IActionResult> ObtenerUsuariosFirma(int tipoFirmaId, int solicitudId)
         {
             var solicitud = await _context.SolicitudesMovimiento
                 .FirstOrDefaultAsync(x => x.Id == solicitudId);
@@ -462,5 +451,7 @@ namespace Layout.Controllers
                     nombre = x.NombreCompleto
                 }));
         }
+
+
     }
 }

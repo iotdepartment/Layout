@@ -276,7 +276,6 @@
                                 case EstatusSolicitud.Pendiente:
                                     <span class="badge bg-warning text-dark px-2.5 py-1.5 fw-semibold rounded-pill">Pendiente</span>
                                     break;
-                                case EstatusSolicitud.Aprobado:
                                 case EstatusSolicitud.EnProceso:
                                     <span class="badge bg-info text-dark px-2.5 py-1.5 fw-semibold rounded-pill">En Proceso</span>
                                     break;
@@ -327,23 +326,10 @@
                             </small>
 
                             <div class="prevent-modal-trigger d-flex gap-2 align-items-center">
-                                @* BOTÓN: VER LAYOUT *@
-                               @*  @if (!string.IsNullOrEmpty(item.ImagenLayout))
-                                {
-                                    <a href="@item.ImagenLayout" target="_blank" class="btn btn-sm btn-outline-secondary px-2.5 py-1 fw-semibold d-inline-flex align-items-center rounded-pill" title="Ver croquis adjunto" onclick="event.stopPropagation();">
-                                        <i class="bi bi-image me-1"></i>Ver Layout
-                                    </a>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-white text-muted border px-2.5 py-1.5 small fw-normal italic rounded-pill">
-                                        Sin Layout
-                                    </span>
-                                } *@
                                 @* ==========================================================================
                                    CONTROL DE ACCIONES, ROLES Y BADGES EN EL FOOTER DE LA TARJETA
                                    ========================================================================== *@
-                                @if (item.Estatus == EstatusSolicitud.EnProceso || item.Estatus == EstatusSolicitud.Aprobado)
+                                @if (item.Estatus == EstatusSolicitud.EnProceso)
                                 {
                                     @if (User.IsInRole("Administrador") || User.IsInRole("Aprobador"))
                                     {
@@ -379,23 +365,6 @@
                                     <!-- BADGE COMPLETADO: FINALIZADO / COMPLETADO -->
                                     <span class="badge bg-light text-success border px-2.5 py-1.5 small fw-semibold d-inline-flex align-items-center rounded-pill"
                                           title="El flujo de la solicitud ha concluido con éxito">
-                                        <i class="bi bi-check-circle-fill me-1"></i>Completado
-                                    </span>
-                                }
-
-                                else if (item.Estatus == EstatusSolicitud.PendienteFirmas)
-                                {
-                                    <!-- BADGE ESTANDARIZADO: ESPERANDO FIRMAS -->
-                                    <span class="badge bg-light text-primary border px-2.5 py-1.5 small fw-semibold d-inline-flex align-items-center rounded-pill"
-                                          title="La solicitud requiere de firmas digitales para proceder">
-                                        <i class="bi bi-pen-fill me-1"></i>Esperando Firmas
-                                    </span>
-                                }
-                                else if (item.Estatus == EstatusSolicitud.Finalizado)
-                                {
-                                    <!-- BADGE ESTANDARIZADO: COMPLETADO -->
-                                    <span class="badge bg-light text-success border px-2.5 py-1.5 small fw-semibold d-inline-flex align-items-center rounded-pill"
-                                          title="Información técnica registrada con éxito">
                                         <i class="bi bi-check-circle-fill me-1"></i>Completado
                                     </span>
                                 }
@@ -615,16 +584,44 @@
                     <i class="bi bi-clock me-1.5 text-secondary"></i>Creado el: <span id="modalFecha" class="ms-1 fw-bold"></span>
                 </small>
 
-                <!-- Botones de Control para Administradores -->
-                <div id="bloqueAccionesAdmin" class="d-none">
-                    <button type="button" id="btnRechazar" class="btn btn-outline-danger rounded-pill px-3.5 me-1 fw-semibold btn-sm shadow-xs">
-                        <i class="bi bi-x-circle me-1.5"></i>Rechazar
-                    </button>
-                    <button type="button" id="btnAprobar" class="btn btn-success rounded-pill px-4 me-2 fw-semibold btn-sm shadow-sm">
-                        <i class="bi bi-check-circle me-1.5"></i>Aprobar Movimiento
-                    </button>
-                </div>
+                @if (User.IsInRole("Administrador") ||
+                                User.IsInRole("Aprobador"))
+                {
+                    <div id="bloqueAccionesAdmin" class="d-none">
 
+                        <button type="button"
+                                id="btnRechazar"
+                                class="btn btn-outline-danger rounded-pill px-3.5 me-1 fw-semibold btn-sm shadow-xs">
+
+                            <i class="bi bi-x-circle me-1.5"></i>
+                            Rechazar
+
+                        </button>
+
+                        <button type="button"
+                                id="btnAprobar"
+                                class="btn btn-success rounded-pill px-4 me-2 fw-semibold btn-sm shadow-sm">
+
+                            <i class="bi bi-check-circle me-1.5"></i>
+                            Aprobar Movimiento
+
+                        </button>
+
+                    </div>
+                }
+                else
+                {
+                    <div id="bloquePendienteAprobacion" class="d-none">
+
+                        <span class="badge bg-warning text-dark rounded-pill px-3 py-2 ">
+
+                            <i class="bi bi-hourglass-split me-1"></i>
+                            Pendiente de aprobación
+
+                        </span>
+
+                    </div>
+                }
                 <button type="button" class="btn btn-secondary rounded-pill px-4 fw-semibold btn-sm shadow-xs" data-bs-dismiss="modal">Cerrar</button>
             </div>
 
@@ -669,234 +666,6 @@
 
 
 @section Scripts {
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-
-            const modalElement = document.getElementById('modalDetalle');
-            const bsModal = new bootstrap.Modal(modalElement);
-
-            // ✅ Lightbox elementos (una sola vez)
-            const lightbox = document.getElementById('imageLightbox');
-            const lightboxImg = document.getElementById('lightboxImg');
-
-            let solicitudIdActual = null;
-
-        document.querySelectorAll('.btn-detalle-solicitud').forEach(card => {
-            card.addEventListener('click', function (event) {
-                // Medida de seguridad: Evita abrir el modal si el usuario hizo clic en botones internos
-                if (event.target.closest('.prevent-modal-trigger')) {
-                    return;
-                }
-
-                // 🔹 Datos Generales
-                solicitudIdActual = this.getAttribute('data-id');
-                const area = this.getAttribute('data-area');
-                const estatus = this.getAttribute('data-estatus');
-                const tipo = this.getAttribute('data-tipo');
-                const descripcion = this.getAttribute('data-descripcion');
-                const razon = this.getAttribute('data-razon');
-                const fecha = this.getAttribute('data-fecha');
-                const imagen = this.getAttribute('data-imagen');
-                const aprobador = this.getAttribute('data-aprobador');
-                const fechaRevision = this.getAttribute('data-fecharevision');
-                const comentarios = this.getAttribute('data-comentarios');
-
-                // Banderas de validación (Evaluando 'True' proveniente del backend de C#)
-                const aplicaValidacion = this.getAttribute('data-aplica-validacion') === 'True';
-                const aplicaResponsable = this.getAttribute('data-aplica-responsable') === 'True';
-                const aplicaMandril = this.getAttribute('data-aplica-mandril') === 'True';
-                const aplicaPallets = this.getAttribute('data-aplica-pallets') === 'True';
-                const aplicaRazon = this.getAttribute('data-aplica-razon') === 'True';
-
-                // Valores textuales
-                const validacion = this.getAttribute('data-validacion');
-                const responsable = this.getAttribute('data-responsable');
-                const mandril = this.getAttribute('data-mandril');
-                const pallets = this.getAttribute('data-pallets');
-                const razonInv = this.getAttribute('data-razoninv');
-                const fechaInicio = this.getAttribute('data-fecha-inicio');
-                const fechaFin = this.getAttribute('data-fecha-fin');
-
-                // ==================================================================
-                // 🔹 RENDERIZADO PREMIUM DE INVENTARIO (CON PALOMITAS / N/A)
-                // ==================================================================
-                const seccionInventario = document.getElementById('seccionInventario');
-
-                // El bloque se muestra si la solicitud está EnProceso o Finalizada (y existen datos técnicos creados o mapeados)
-                if (estatus === "EnProceso" || estatus === "Finalizado" || validacion || responsable || mandril || pallets || razonInv) {
-
-                    // Función auxiliar interna para inyectar las palomitas y formatear los textos correspondientes
-                    function procesarCeldaTecnica(idBadge, idTexto, aplica, valorReal) {
-                        const elBadge = document.getElementById(idBadge);
-                        const elTexto = document.getElementById(idTexto);
-
-                        if (aplica) {
-                            elBadge.innerHTML = '<span class="badge bg-success-subtle text-success rounded-pill px-2 py-0.5 small shadow-xs"><i class="bi bi-check-lg"></i></span>';
-                            elTexto.innerText = (valorReal && valorReal !== "null" && valorReal !== "") ? valorReal : "Sin especificar";
-                            elTexto.classList.remove("text-muted", "fst-italic");
-                        } else {
-                            elBadge.innerHTML = '<span class="badge bg-light text-muted border rounded-pill px-2 py-0.5 small">N/A</span>';
-                            elTexto.innerText = "No aplica";
-                            elTexto.classList.add("text-muted", "fst-italic");
-                        }
-                    }
-
-                    // Procesamos las 6 celdas técnicas de forma simétrica
-                    procesarCeldaTecnica("badgeValidacion", "modalValidacion", aplicaValidacion, validacion);
-                    procesarCeldaTecnica("badgeResponsable", "modalResponsable", aplicaResponsable, responsable);
-                    procesarCeldaTecnica("badgeMandril", "modalMandril", aplicaMandril, mandril);
-                    procesarCeldaTecnica("badgePallets", "modalPallets", aplicaPallets, pallets);
-                    procesarCeldaTecnica("badgeRazonInv", "modalRazonInv", aplicaRazon, razonInv);
-
-                    seccionInventario.classList.remove('d-none');
-                } else {
-                    seccionInventario.classList.add('d-none');
-                }
-
-                // 🔹 Inyección del Contenido Base
-                document.getElementById('modalTipo').innerText = tipo;
-                document.getElementById('modalArea').innerText = area;
-                document.getElementById('modalDescripcion').innerText = descripcion;
-                document.getElementById('modalRazon').innerText = razon;
-                document.getElementById('modalFecha').innerText = fecha;
-                document.getElementById('modalFechaInicio').innerText =
-                    fechaInicio || "N/A";
-
-                document.getElementById('modalFechaFin').innerText =
-                    fechaFin || "N/A";
-
-                // ==================================================================
-                // 🔹 CONTROL MÁQUINA DE ESTADOS (BADGES, PANELES ADMIN Y REVISIÓN)
-                // ==================================================================
-                const badge = document.getElementById('modalEstatus');
-                const seccionRevision = document.getElementById('seccionRevision');
-                const bloqueAdmin = document.getElementById('bloqueAccionesAdmin');
-                const formRevision = document.getElementById('seccionFormularioRevision');
-
-                // Mapeo correcto de nombres estéticos y reseteo de clases base
-                badge.innerText = estatus === "EnProceso" ? "En Proceso" : estatus === "Finalizado" ? "Finalizada" : estatus;
-                badge.className = "badge fs-6 px-3 py-1.5 rounded-pill fw-semibold shadow-xs text-nowrap d-inline-block";
-
-                if (estatus === "Pendiente") {
-                    // Estatus visual
-                    badge.classList.add("bg-warning", "text-dark");
-
-                    // Paneles activos (Uso administrativo para dictamen)
-                    bloqueAdmin.classList.remove('d-none');
-                    formRevision.classList.remove('d-none');
-                    document.getElementById('txtComentariosRevision').value = '';
-
-                    // Paneles ocultos
-                    seccionRevision.classList.add('d-none');
-                }
-                else {
-                    // Asignación de colores según los nuevos estados avanzados o rechazo
-                    if (estatus === "EnProceso" || estatus === "Aprobado") {
-                        badge.classList.add("bg-info", "text-dark");
-                    } else if (estatus === "Finalizado") {
-                        badge.classList.add("bg-success", "text-white");
-                    } else {
-                        badge.classList.add("bg-danger", "text-white");
-                    }
-
-                    // Renderizado de datos del dictamen histórico realizado
-                    document.getElementById('modalAprobador').innerText = aprobador;
-                    document.getElementById('modalFechaRevision').innerText = fechaRevision;
-                    document.getElementById('modalComentarios').innerText = comentarios;
-
-                    // Paneles activos / ocultos correspondientes
-                    seccionRevision.classList.remove('d-none');
-                    bloqueAdmin.classList.add('d-none');
-                    formRevision.classList.add('d-none');
-                }
-
-                // ==================================================================
-                // 🔹 GESTIÓN DEL CROQUIS / LAYOUT ADJUNTO
-                // ==================================================================
-                const seccionCroquis = document.getElementById('seccionCroquis');
-                const modalImagen = document.getElementById('modalImagen');
-
-                if (imagen && imagen.trim() !== "") {
-                    modalImagen.src = imagen;
-
-                    // Transfiere la imagen seleccionada al Lightbox global
-                    modalImagen.onclick = function (e) {
-                        e.stopPropagation();
-                        lightbox.style.display = "flex";
-                        lightboxImg.src = this.src;
-                    };
-
-                    seccionCroquis.classList.remove('d-none');
-                } else {
-                    seccionCroquis.classList.add('d-none');
-                }
-
-                // 10. Despliegue en pantalla del modal
-                bsModal.show();
-            });
-        });
-
-
-            // ✅ cerrar lightbox
-            lightbox.onclick = function () {
-                lightbox.style.display = "none";
-            };
-
-            // 🔹 enviar dictamen
-            async function enviarDictamen(nuevoEstatus) {
-
-                const comentarios = document.getElementById('txtComentariosRevision').value;
-
-                let estatusId = 0;
-                if (nuevoEstatus === 'Aprobado') estatusId = 1;
-                if (nuevoEstatus === 'Rechazado') estatusId = 2;
-
-                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
-
-                const formData = new FormData();
-                formData.append("id", solicitudIdActual);
-                formData.append("nuevoEstatus", estatusId);
-                formData.append("comentarios", comentarios);
-
-                if (token) {
-                    formData.append("__RequestVerificationToken", token);
-                }
-
-                try {
-                    const response = await fetch('/Solicitudes/Evaluar', {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    if (!response.ok) {
-                        throw new Error("Error servidor");
-                    }
-
-                    const result = await response.json();
-
-                    if (result.success) {
-
-                        if (result.redirectUrl) {
-                            window.location.href = result.redirectUrl; 
-                            return;
-                        }
-
-                        bsModal.hide();
-                        window.location.reload();
-                    }else {
-                        alert(result.message);
-                    }
-                } catch (err) {
-                    alert("Error procesando solicitud");
-                    console.error(err);
-                }
-            }
-
-            // ✅ botones
-            document.getElementById('btnAprobar').addEventListener('click', () => enviarDictamen('Aprobado'));
-            document.getElementById('btnRechazar').addEventListener('click', () => enviarDictamen('Rechazado'));
-
-        });
-    </script>
+    <script src="~/js/solicitud_index.js"></script>
 }
 

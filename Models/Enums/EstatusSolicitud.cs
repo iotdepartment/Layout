@@ -3,12 +3,13 @@
     public enum EstatusSolicitud
     {
         Pendiente = 0,
-        Aprobado = 1,
-        Rechazado = 2,
-        EnProceso = 3,
 
-        PendienteFirmas = 4,
+        EnProceso = 1,
 
-        Finalizado = 5
+        PendienteFirmas = 2,
+
+        Finalizado = 3,
+
+        Rechazado = 4
     }
 }
