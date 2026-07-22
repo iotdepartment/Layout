@@ -1,142 +1,265 @@
-﻿@model IEnumerable<SolicitudFirma>
+﻿@model Layout.Models.ViewModels.MisFirmasViewModel
 
 @{
-    ViewData["Title"] = "Mis Firmas Pendientes";
+    ViewData["Title"] = "Mis Firmas";
 }
 
-<style>
-    /* ==========================================================================
-           ESTILOS PREMIUM PARA LA TABLA DE FIRMAS PENDIENTES
-           ========================================================================== */
+<link rel="stylesheet"
+      href="https://cdn.datatables.net/2.3.8/css/dataTables.bootstrap5.css" />
 
-    /* Tabla de Firmas Estilizada */
+<style>
+
     .table-firmas th {
-        font-size: 0.72rem;
+        font-size: .72rem;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.8px;
+        letter-spacing: .8px;
         color: #858796;
         background-color: #f8f9fa;
-        border-bottom: 2px solid #e3e6f0;
     }
 
     .table-firmas td {
-        font-size: 0.9rem;
-        color: #495057;
         vertical-align: middle;
     }
 
-    .badge-firma-count {
-        font-size: 0.75rem;
-        padding: 4px 8px;
-        background-color: #eaecf4;
-        color: #4e73df;
-        font-weight: 700;
+    .counter-badge {
+        font-size: .8rem;
+        padding: 6px 10px;
     }
 
 </style>
 
-<!-- Inyección manual de estilos de DataTables compatibles con Bootstrap 5 -->
-<link rel="stylesheet" href="https://cdn.datatables.net/2.3.8/css/dataTables.bootstrap5.css" />
+<div class="card shadow-sm border-0">
 
-<div class="card shadow-sm border-0 rounded-3">
-    <!-- Encabezado del Panel -->
-    <div class="card-header bg-white border-bottom-0 pt-3 d-flex justify-content-between align-items-center">
-        <div>
-            <h4 class="fw-bold text-secondary mb-1">Mis Firmas Pendientes</h4>
-            <p class="text-muted small mb-0">Listado de movimientos de layout que requieren tu validación digital</p>
+    <div class="card-header bg-white">
+
+        <div class="d-flex justify-content-between align-items-center">
+
+            <div>
+                <h4 class="fw-bold text-secondary mb-1">
+                    Mis Firmas
+                </h4>
+
+                <p class="text-muted small mb-0">
+                    Seguimiento de solicitudes pendientes y realizadas
+                </p>
+            </div>
+
+            <div class="d-flex gap-2">
+
+                <span class="badge bg-warning text-dark counter-badge">
+
+                    <i class="bi bi-hourglass-split me-1"></i>
+
+                    @Model.Pendientes.Count Pendientes
+
+                </span>
+
+                <span class="badge bg-success counter-badge">
+
+                    <i class="bi bi-check-circle me-1"></i>
+
+                    @Model.Realizadas.Count Realizadas
+
+                </span>
+
+            </div>
+
         </div>
-        <span class="badge rounded-pill badge-role-count">
-            <i class="bi bi-pen-fill me-1"></i> @Model.Count() Por Firmar
-        </span>
+
     </div>
 
     <div class="card-body">
-        @if (!Model.Any())
-        {
-            <!-- Estado vacío cuando no hay firmas requeridas -->
-            <div class="text-center py-5 text-muted">
-                <i class="bi bi-shield-check fs-1 d-block mb-2 text-success"></i>
-                <h5 class="fw-bold text-secondary">¡Al día!</h5>
-                <p class="mb-0 small italic">No tienes firmas pendientes de validar en este momento.</p>
+
+        <ul class="nav nav-tabs mb-4">
+
+            <li class="nav-item">
+
+                <button class="nav-link active"
+                        data-bs-toggle="tab"
+                        data-bs-target="#tabPendientes">
+
+                    Pendientes
+
+                    <span class="badge bg-warning text-dark ms-1">
+                        @Model.Pendientes.Count
+                    </span>
+
+                </button>
+
+            </li>
+
+            <li class="nav-item">
+
+                <button class="nav-link"
+                        data-bs-toggle="tab"
+                        data-bs-target="#tabRealizadas">
+
+                    Realizadas
+
+                    <span class="badge bg-success ms-1">
+                        @Model.Realizadas.Count
+                    </span>
+
+                </button>
+
+            </li>
+
+        </ul>
+
+        <div class="tab-content">
+
+            <!-- TAB PENDIENTES -->
+            <div class="tab-pane fade show active" id="tabPendientes" role="tabpanel">
+
+                @if (!Model.Pendientes.Any())
+                {
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-check-circle text-success fs-1 d-block mb-3"></i>
+                        <h5 class="fw-bold text-secondary">No tienes firmas pendientes</h5>
+                        <p class="mb-0 small italic">Estás al día con todas tus validaciones digitales.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table id="tablaPendientes" class="table table-hover table-firmas align-middle mb-0 w-100">
+                            <thead>
+                                <tr>
+                                    <th class="ps-3">Solicitud</th>
+                                    <th>Área</th>
+                                    <th>Tipo Firma</th>
+                                    <th>Estatus</th>
+                                    <th class="text-end pe-3">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Pendientes)
+                                {
+                                    <tr>
+                                        <td class="fw-bold text-primary ps-3">
+                                            #@item.SolicitudId
+                                        </td>
+                                        <td class="fw-medium text-dark">
+                                            <i class="bi bi-geo-alt text-secondary me-1"></i>@(item.Solicitud?.Area?.Nombre ?? "N/A")
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-secondary border px-2.5 py-1.5 fw-semibold rounded-pill">
+                                                <i class="bi bi-fingerprint text-info me-1"></i>@item.TipoFirma?.Nombre
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-warning-subtle text-warning rounded-pill px-2.5 py-1.5 fw-semibold shadow-xs d-inline-flex align-items-center">
+                                                <i class="bi bi-circle-fill me-1 small" style="font-size: 0.5rem;"></i> Pendiente
+                                            </span>
+                                        </td>
+                                        <td class="text-end pe-3">
+                                            <!-- CORRECCIÓN: Enlace abierto y cerrado limpiamente con Tag Helpers -->
+                                            <a asp-action="Detalle"
+                                               asp-route-id="@item.Id"
+                                               class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold d-inline-flex align-items-center shadow-xs"
+                                               title="Revisar información técnica y firmar digitalmente">
+                                                <i class="bi bi-pencil-square me-1.5"></i>Revisar y Firmar
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+
             </div>
-        }
-        else
-        {
-            <div class="table-responsive">
-                <table id="tablaFirmas" class="table table-hover table-firmas align-middle mb-0 w-100">
-                    <thead>
-                        <tr>
-                            <th class="ps-3" style="width: 15%;">Solicitud</th>
-                            <th style="width: 30%;">Área Asignada</th>
-                            <th style="width: 25%;">Tipo de Firma</th>
-                            <th style="width: 15%;">Estatus</th>
-                            <th class="text-end pe-3" style="width: 15%;">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model)
-                        {
-                            <tr>
-                                <!-- ID de Solicitud -->
-                                <td class="ps-3 fw-bold text-primary">
-                                    #@item.SolicitudId
-                                </td>
 
-                                <!-- Área -->
-                                <td class="fw-medium text-dark">
-                                    <i class="bi bi-geo-alt text-secondary me-1"></i>
-                                    @(item.Solicitud?.Area?.Nombre ?? "Sin Área")
-                                </td>
+            <!-- TAB REALIZADAS -->
+            <div class="tab-pane fade" id="tabRealizadas" role="tabpanel">
 
-                                <!-- Tipo de Firma -->
-                                <td>
-                                    <span class="badge bg-light text-secondary border px-2.5 py-1.5 fw-semibold rounded-pill">
-                                        <i class="bi bi-fingerprint me-1 text-info"></i>@(item.TipoFirma?.Nombre ?? "N/A")
-                                    </span>
-                                </td>
+                @if (!Model.Realizadas.Any())
+                {
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-inbox text-muted fs-1 d-block mb-3 opacity-50"></i>
+                        <h5 class="fw-bold text-secondary">No existen firmas realizadas</h5>
+                        <p class="mb-0 small italic">El historial de tus firmas procesadas aparecerá en este panel.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table id="tablaRealizadas" class="table table-hover table-firmas align-middle mb-0 w-100">
+                            <thead>
+                                <tr>
+                                    <th class="ps-3">Solicitud</th>
+                                    <th>Área</th>
+                                    <th>Tipo Firma</th>
+                                    <th>Fecha Firma</th>
+                                    <th class="text-end pe-3">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Realizadas)
+                                {
+                                    <tr>
+                                        <td class="fw-bold text-primary ps-3">
+                                            #@item.SolicitudId
+                                        </td>
+                                        <td class="fw-medium text-dark">
+                                            <i class="bi bi-geo-alt text-secondary me-1"></i>@(item.Solicitud?.Area?.Nombre ?? "N/A")
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success-subtle text-success rounded-pill px-2.5 py-1.5 fw-semibold shadow-xs">
+                                                <i class="bi bi-shield-check-fill me-1"></i>@item.TipoFirma?.Nombre
+                                            </span>
+                                        </td>
+                                        <td class="text-secondary small font-monospace">
+                                            <i class="bi bi-calendar-check me-1"></i>@(item.FechaFirma?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")
+                                        </td>
+                                        <td class="text-end pe-3">
+                                            <!-- CORRECCIÓN: Enlace abierto y cerrado limpiamente con Tag Helpers -->
+                                            <a asp-action="Detalle"
+                                               asp-route-id="@item.Id"
+                                               class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-semibold d-inline-flex align-items-center shadow-xs"
+                                               title="Ver historial de la solicitud procesada">
+                                                <i class="bi bi-eye me-1.5"></i>Ver Solicitud
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
 
-                                <!-- Estatus -->
-                                <td>
-                                    <span class="badge bg-warning-subtle text-warning rounded-pill px-2.5 py-1.5 fw-semibold shadow-xs d-inline-flex align-items-center">
-                                        <i class="bi bi-circle-fill me-1 small" style="font-size: 0.5rem;"></i> Pendiente
-                                    </span>
-                                </td>
-
-                                <!-- Acciones (CORREGIDO: Enlace cerrado de forma limpia) -->
-                                <td class="text-end pe-3">
-                                    <a asp-action="Detalle"
-                                       asp-route-id="@item.Id"
-                                       class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold d-inline-flex align-items-center shadow-xs"
-                                       title="Ver detalles e ingresar firma digital">
-                                        <i class="bi bi-file-earmark-text me-1.5"></i>Revisar
-                                    </a>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
             </div>
-        }
+
+        </div>
+
     </div>
+
 </div>
 
 @section Scripts {
-    <!-- CDN oficiales de DataTables para Bootstrap 5 -->
     <script src="https://cdn.datatables.net/2.3.8/js/dataTables.js"></script>
     <script src="https://cdn.datatables.net/2.3.8/js/dataTables.bootstrap5.js"></script>
 
+
     <script>
+
         $(document).ready(function () {
-            $('#tablaFirmas').DataTable({
-                pageLength: 10,
+
+            $('#tablaPendientes').DataTable({
                 responsive: true,
-              
-                order: [[0, 'desc']], // Ordenar por ID de solicitud más reciente
-                dom: "<'row mb-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6 text-end'f>>" +
-                     "<'row'<'col-sm-12'tr>>" +
-                     "<'row mt-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7 d-flex justify-content-end'p>>"
+                pageLength: 10,
+                order: [[0, 'desc']]
             });
+
+            $('#tablaRealizadas').DataTable({
+                responsive: true,
+                pageLength: 10,
+                order: [[3, 'desc']]
+            });
+
         });
+
     </script>
+
 }

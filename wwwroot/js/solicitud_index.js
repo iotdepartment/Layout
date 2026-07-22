@@ -1,7 +1,72 @@
 ﻿
     document.addEventListener("DOMContentLoaded", function () {
 
-            const modalElement = document.getElementById('modalDetalle');
+        async function cargarFirmas(solicitudId) {
+
+            const response = await fetch(
+                `/Solicitudes/ObtenerFirmas?solicitudId=${solicitudId}`
+            );
+
+            const firmas = await response.json();
+
+            const contenedor =
+                document.getElementById('contenedorFirmas');
+
+            contenedor.innerHTML = '';
+
+            if (!firmas.length) {
+                contenedor.innerHTML =
+                    '<div class="text-muted">No existen firmas asignadas.</div>';
+
+                return;
+            }
+
+            firmas.forEach(firma => {
+
+                const color = firma.firmada
+                    ? 'success'
+                    : 'warning';
+
+                const icono = firma.firmada
+                    ? 'bi-check-circle-fill'
+                    : 'bi-hourglass-split';
+
+                const nombre =
+                    firma.firmada
+                        ? firma.usuarioFirmante
+                        : firma.usuarioRequerido;
+
+                const fecha =
+                    firma.firmada
+                        ? `<small class="text-muted">${firma.fechaFirma}</small>`
+                        : '';
+
+                contenedor.innerHTML += `
+
+            <div class="border rounded-3 p-3 mb-2">
+
+                <span class="badge bg-${color}">
+                    <i class="bi ${icono} me-1"></i>
+                    ${firma.firmada ? 'Firmada' : 'Pendiente'}
+                </span>
+
+                <div class="fw-bold mt-2">
+                    ${firma.tipoFirma}
+                </div>
+
+                <div class="text-muted">
+                    ${nombre}
+                </div>
+
+                ${fecha}
+
+            </div>
+
+        `;
+            });
+        }
+
+    const modalElement = document.getElementById('modalDetalle');
     const bsModal = new bootstrap.Modal(modalElement);
 
     // ✅ Lightbox elementos (una sola vez)
@@ -45,6 +110,9 @@
             const razonInv = this.getAttribute('data-razoninv');
             const fechaInicio = this.getAttribute('data-fecha-inicio');
             const fechaFin = this.getAttribute('data-fecha-fin');
+
+            const seccionFirmas =
+                document.getElementById('seccionFirmas');
 
             // ==================================================================
             // 🔹 RENDERIZADO PREMIUM DE INVENTARIO (CON PALOMITAS / N/A)
@@ -140,7 +208,7 @@
             }
 
             formRevision.classList.add("d-none");
-
+            seccionFirmas.classList.add("d-none");
 
             // ============================================
             // PENDIENTE
@@ -181,7 +249,6 @@
                 seccionRevision.classList.remove("d-none");
             }
 
-
             // ============================================
             // PENDIENTE FIRMAS
             // ============================================
@@ -195,6 +262,11 @@
                 document.getElementById('modalComentarios').innerText = comentarios;
 
                 seccionRevision.classList.remove("d-none");
+
+                // NUEVO
+                seccionFirmas.classList.remove("d-none");
+
+                cargarFirmas(solicitudIdActual);
             }
 
 
@@ -211,6 +283,11 @@
                 document.getElementById('modalComentarios').innerText = comentarios;
 
                 seccionRevision.classList.remove("d-none");
+
+                // NUEVO
+                seccionFirmas.classList.remove("d-none");
+
+                cargarFirmas(solicitudIdActual);
             }
 
 

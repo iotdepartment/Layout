@@ -8,7 +8,7 @@ namespace Layout.Models
 
         public bool Activo { get; set; } = true;
         public ICollection<UsuarioArea> Areas { get; set; }
-    = new List<UsuarioArea>();      
+        = new List<UsuarioArea>();      
 
         // Tipo de firma que puede realizar
         public int? TipoFirmaId { get; set; }

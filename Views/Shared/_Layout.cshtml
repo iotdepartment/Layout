@@ -186,6 +186,12 @@
                    asp-action="Create">
                     <i class="bi bi-person-badge"></i> Alta de Roles
                 </a>
+                <a class="nav-custom-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Usuarios" && ViewContext.RouteData.Values["Action"]?.ToString() == "AreasAsignadas" ? "active" : "")"
+                   asp-controller="Usuarios"
+                   asp-action="AreasAsignadas">
+                    <i class="bi bi-diagram-3"></i> Usuarios y Áreas
+                </a>
+
             }
         </div>
     </div>
@@ -280,5 +286,6 @@
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)
+
 </body>
 </html>

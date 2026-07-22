@@ -364,8 +364,7 @@ namespace Layout.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private async Task<List<ApplicationUser>>
-        ObtenerUsuariosPorRolYArea(string rol, int areaId)
+        private async Task<List<ApplicationUser>> ObtenerUsuariosPorRolYArea(string rol, int areaId)
             {
                 var usuarios = await _context.UsuarioAreas
                     .Include(x => x.Usuario)
@@ -388,8 +387,7 @@ namespace Layout.Controllers
                 return resultado;
             }
 
-        private async Task<List<ApplicationUser>>
-        ObtenerUsuariosPorRol(string rol)
+        private async Task<List<ApplicationUser>>ObtenerUsuariosPorRol(string rol)
             {
                 var usuarios = await _userManager.Users
                     .OrderBy(x => x.NombreCompleto)
@@ -450,6 +448,32 @@ namespace Layout.Controllers
                     id = x.Id,
                     nombre = x.NombreCompleto
                 }));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerFirmas(int solicitudId)
+        {
+            var firmas = await _context.SolicitudesFirma
+                .Include(x => x.TipoFirma)
+                .Include(x => x.UsuarioRequerido)
+                .Include(x => x.UsuarioFirmante)
+                .Where(x => x.SolicitudId == solicitudId)
+                .OrderBy(x => x.TipoFirma.Nombre)
+                .Select(x => new
+                {
+                    tipoFirma = x.TipoFirma.Nombre,
+                    firmada = x.Firmada,
+                    usuarioRequerido = x.UsuarioRequerido.NombreCompleto,
+                    usuarioFirmante = x.UsuarioFirmante != null
+                        ? x.UsuarioFirmante.NombreCompleto
+                        : null,
+                    fechaFirma = x.FechaFirma.HasValue
+                        ? x.FechaFirma.Value.ToString("dd/MM/yyyy HH:mm")
+                        : ""
+                })
+                .ToListAsync();
+
+            return Json(firmas);
         }
 
 

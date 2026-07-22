@@ -1,0 +1,65 @@
+﻿@model IEnumerable<ApplicationUser>
+
+@{
+    ViewData["Title"] = "Usuarios y Áreas";
+}
+
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h4 class="mb-0">
+            Usuarios y Áreas Asignadas
+        </h4>
+    </div>
+
+    <div class="card-body">
+
+        <table id="tablaUsuarios"
+               class="table table-striped table-hover">
+
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Correo</th>
+                    <th>Tipo Firma</th>
+                    <th>Áreas</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @foreach (var usuario in Model)
+                {
+                    <tr>
+
+                        <td>
+                            @usuario.NombreCompleto
+                        </td>
+
+                        <td>
+                            @usuario.Email
+                        </td>
+
+                        <td>
+                            @(usuario.TipoFirma?.Nombre ?? "Sin Firma")
+                        </td>
+
+                        <td>
+
+                            @foreach (var area in usuario.Areas)
+                            {
+                                <span class="badge bg-primary me-1">
+                                    @area.Area.Nombre
+                                </span>
+                            }
+
+                        </td>
+
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+</div>

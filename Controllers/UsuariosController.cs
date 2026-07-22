@@ -170,5 +170,19 @@ namespace Layout.Controllers
 
             return RedirectToAction(nameof(Create));
         }
+
+        [Authorize(Roles = "Administrador")]
+        public async Task<IActionResult> AreasAsignadas()
+        {
+            var usuarios = await _userManager.Users
+                .Include(x => x.TipoFirma)
+                .Include(x => x.Areas)
+                    .ThenInclude(x => x.Area)
+                .OrderBy(x => x.NombreCompleto)
+                .ToListAsync();
+
+            return View(usuarios);
+        }
+
     }
 }

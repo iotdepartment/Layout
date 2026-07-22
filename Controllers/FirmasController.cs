@@ -1,6 +1,7 @@
 ﻿using Layout.Data;
 using Layout.Models;
 using Layout.Models.Enums;
+using Layout.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -28,17 +29,29 @@ namespace Layout.Controllers
         {
             var usuario = await _userManager.GetUserAsync(User);
 
-            var firmasPendientes = await _context.SolicitudesFirma
+            var vm = new MisFirmasViewModel();
+
+            vm.Pendientes = await _context.SolicitudesFirma
                 .Include(x => x.Solicitud)
                     .ThenInclude(x => x.Area)
                 .Include(x => x.TipoFirma)
                 .Where(x =>
                     x.UsuarioRequeridoId == usuario.Id &&
                     !x.Firmada)
-                .OrderBy(x => x.SolicitudId)
+                .OrderByDescending(x => x.Solicitud.FechaCreacion)
                 .ToListAsync();
 
-            return View(firmasPendientes);
+            vm.Realizadas = await _context.SolicitudesFirma
+                .Include(x => x.Solicitud)
+                    .ThenInclude(x => x.Area)
+                .Include(x => x.TipoFirma)
+                .Where(x =>
+                    x.UsuarioRequeridoId == usuario.Id &&
+                    x.Firmada)
+                .OrderByDescending(x => x.FechaFirma)
+                .ToListAsync();
+
+            return View(vm);
         }
 
         [Authorize]
@@ -48,6 +61,8 @@ namespace Layout.Controllers
 
             var firma = await _context.SolicitudesFirma
                 .Include(x => x.TipoFirma)
+                .Include(x => x.UsuarioFirmante)
+                .Include(x => x.UsuarioRequerido)
                 .Include(x => x.Solicitud)
                     .ThenInclude(x => x.Area)
                 .Include(x => x.Solicitud)
@@ -62,6 +77,7 @@ namespace Layout.Controllers
 
             ViewBag.Firmas = await _context.SolicitudesFirma
                 .Include(x => x.TipoFirma)
+                .Include(x => x.UsuarioRequerido)
                 .Include(x => x.UsuarioFirmante)
                 .Where(x => x.SolicitudId == firma.SolicitudId)
                 .ToListAsync();
@@ -123,6 +139,43 @@ namespace Layout.Controllers
             // Revisar si ya quedaron todas firmadas
             await ValidarFinalizacionSolicitud(
                 firma.SolicitudId);
+
+            return RedirectToAction(nameof(Pendientes));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize]
+        public async Task<IActionResult> FirmarSolicitud(int id)
+        {
+            var usuario = await _userManager.GetUserAsync(User);
+
+            var firma = await _context.SolicitudesFirma
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (firma == null)
+                return NotFound();
+
+            // Seguridad: solo puede firmar el usuario asignado
+            if (firma.UsuarioRequeridoId != usuario.Id)
+                return Forbid();
+
+            // Evitar doble firma
+            if (firma.Firmada)
+            {
+                TempData["Error"] = "Esta firma ya fue registrada.";
+                return RedirectToAction(nameof(Pendientes));
+            }
+
+            firma.Firmada = true;
+            firma.UsuarioFirmanteId = usuario.Id;
+            firma.FechaFirma = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            await ValidarFinalizacionSolicitud(firma.SolicitudId);
+
+            TempData["Success"] = "Firma registrada correctamente.";
 
             return RedirectToAction(nameof(Pendientes));
         }

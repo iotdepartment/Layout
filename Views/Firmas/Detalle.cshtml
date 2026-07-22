@@ -173,8 +173,74 @@
                 </div>
 
             </div>
+
+
+
         }
+
+        @if (ViewBag.Firmas != null)
+        {
+            <div class="card shadow-sm border-0 rounded-3 mb-4">
+
+                <div class="card-header bg-white">
+                    <h5 class="fw-bold text-secondary mb-0">
+                        <i class="bi bi-pen-fill text-primary me-2"></i>
+                        Estado de Firmas
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    @foreach (var firma in (IEnumerable<SolicitudFirma>)ViewBag.Firmas)
+                    {
+                        <div class="border rounded-3 p-3 mb-2">
+
+                            @if (firma.Firmada)
+                            {
+                                <span class="badge bg-success mb-2">
+                                    <i class="bi bi-check-circle me-1"></i>
+                                    Firmada
+                                </span>
+
+                                <div class="fw-bold">
+                                    @firma.TipoFirma?.Nombre
+                                </div>
+
+                                <div class="text-muted">
+                                    @firma.UsuarioFirmante?.NombreCompleto
+                                </div>
+
+                                <small class="text-muted">
+                                    @firma.FechaFirma?.ToString("dd/MM/yyyy HH:mm")
+                                </small>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark mb-2">
+                                    <i class="bi bi-hourglass-split me-1"></i>
+                                    Pendiente
+                                </span>
+
+                                <div class="fw-bold">
+                                    @firma.TipoFirma?.Nombre
+                                </div>
+
+                                <div class="text-muted">
+                                    @firma.UsuarioRequerido?.NombreCompleto
+                                </div>
+                            }
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+        }
+
     </div>
+
+
 
     <!-- COLUMNA DERECHA: Firma Digital del Usuario -->
     <div class="col-12 col-lg-4">
@@ -202,28 +268,63 @@
                 </div>
 
                 <!-- Formulario de Acción para Guardar/Firmar -->
-                <form asp-action="FirmarSolicitud" method="post">
-                    <!-- Enviamos el ID de la SolicitudFirma oculto -->
-                    <input type="hidden" name="id" value="@Model.Id" />
+                @if (!Model.Firmada)
+                {
+                    <!-- FORMULARIO DE ACCIÓN PARA GUARDAR/FIRMAR DIGITALMENTE -->
+                    <form asp-action="FirmarSolicitud" method="post">
 
-                    <!-- Validación opcional mediante Checkbox antes de liberar el botón -->
-                    <div class="form-check mb-4 text-start">
-                        <input class="form-check-input" type="checkbox" id="chkAcepto" required />
-                        <label class="form-check-label text-secondary small fw-medium" for="chkAcepto">
-                            Confirmo que revisé la descripción, justificación y el layout adjunto de este movimiento.
-                        </label>
+                        <!-- Genera el token de seguridad obligatorio para solicitudes POST de ASP.NET Core -->
+                        @Html.AntiForgeryToken()
+
+                        <!-- Enviamos el ID de la SolicitudFirma oculto -->
+                        <input type="hidden" name="id" value="@Model.Id" />
+
+                        <!-- Validación opcional mediante Checkbox antes de liberar el botón -->
+                        <div class="form-check mb-4 text-start">
+                            <input class="form-check-input" type="checkbox" id="chkAcepto" required />
+                            <label class="form-check-label text-secondary small fw-medium" for="chkAcepto">
+                                Confirmo que revisé la descripción, justificación y el layout adjunto de este movimiento.
+                            </label>
+                        </div>
+
+                        <!-- Botonera Interactiva -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success rounded-pill fw-semibold py-2 shadow-sm">
+                                <i class="bi bi-pen me-1.5"></i>Estampar Firma Digital
+                            </button>
+
+                            <a asp-action="Pendientes" class="btn btn-outline-secondary rounded-pill fw-semibold py-2">
+                                Regresar a la Lista
+                            </a>
+                        </div>
+
+                    </form>
+                }
+                else
+                {
+                    <!-- PANEL PREMIUM: REGISTRO EXITOSO HISTÓRICO -->
+                    <div class="alert alert-success border-0 shadow-sm rounded-3 mb-4 p-3 bg-success-subtle text-success">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-check-circle-fill fs-3 me-3"></i>
+                            <div>
+                                <div class="fw-bold fs-6">Firma registrada correctamente</div>
+                                <small class="text-secondary d-block mt-0.5">
+                                    Esta solicitud fue firmada por ti el:
+                                    <strong class="text-dark">
+                                        @Model.FechaFirma?.ToString("dd/MM/yyyy HH:mm")
+                                    </strong>
+                                </small>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Botonera -->
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-success rounded-pill fw-semibold py-2 shadow-sm">
-                            <i class="bi bi-pen me-1.5"></i>Estampar Firma Digital
-                        </button>
+                    <!-- Botonera de Escape para registros ya firmados -->
+                    <div class="d-grid">
                         <a asp-action="Pendientes" class="btn btn-outline-secondary rounded-pill fw-semibold py-2">
-                            Regresar a la Lista
+                            Regresar a Mis Firmas
                         </a>
                     </div>
-                </form>
+                }
             </div>
         </div>  
     </div>
