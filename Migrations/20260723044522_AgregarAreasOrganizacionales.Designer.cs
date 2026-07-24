@@ -4,6 +4,7 @@ using Layout.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Layout.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260723044522_AgregarAreasOrganizacionales")]
+    partial class AgregarAreasOrganizacionales
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -143,35 +146,6 @@ namespace Layout.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("AreasOrganizacionales");
-                });
-
-            modelBuilder.Entity("Layout.Models.ResponsableFirma", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("AreaOrganizacionalId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TipoFirmaId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UsuarioId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AreaOrganizacionalId");
-
-                    b.HasIndex("TipoFirmaId");
-
-                    b.HasIndex("UsuarioId");
-
-                    b.ToTable("ResponsablesFirma");
                 });
 
             modelBuilder.Entity("Layout.Models.SolicitudAprobacionDetalle", b =>
@@ -650,31 +624,6 @@ namespace Layout.Migrations
                         .HasForeignKey("AreaOrganizacionalId");
 
                     b.Navigation("AreaOrganizacional");
-                });
-
-            modelBuilder.Entity("Layout.Models.ResponsableFirma", b =>
-                {
-                    b.HasOne("Layout.Models.AreaOrganizacional", "AreaOrganizacional")
-                        .WithMany()
-                        .HasForeignKey("AreaOrganizacionalId");
-
-                    b.HasOne("Layout.Models.TipoFirma", "TipoFirma")
-                        .WithMany()
-                        .HasForeignKey("TipoFirmaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Layout.Models.ApplicationUser", "Usuario")
-                        .WithMany()
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AreaOrganizacional");
-
-                    b.Navigation("TipoFirma");
-
-                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("Layout.Models.SolicitudAprobacionDetalle", b =>

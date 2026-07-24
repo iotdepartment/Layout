@@ -363,53 +363,50 @@
         });
         });
     </script>
-    
+
     <script>
-                let indiceFirma = 1;
+        let indiceFirma = 1;
 
-        document
-            .getElementById("btnAgregarFirma")
-            ?.addEventListener("click", function () {
+        document.getElementById("btnAgregarFirma")?.addEventListener("click", function () {
 
-                const contenedor =
-                    document.getElementById("contenedorFirmas");
+            const contenedor =
+                document.getElementById("contenedorFirmas");
 
-                const primeraFila =
-                    document.querySelector(".firma-row");
+            const primeraFila =
+                document.querySelector(".firma-row");
 
-                const nuevaFila =
-                    primeraFila.cloneNode(true);
+            const nuevaFila =
+                primeraFila.cloneNode(true);
 
-                nuevaFila.querySelectorAll("select")
-                    .forEach(select => {
+            nuevaFila.querySelectorAll("select")
+                .forEach(select => {
 
-                        if (select.name.includes("TipoFirmaId")) {
+                    if (select.name.includes("TipoFirmaId")) {
 
-                            select.name =
-                                `Firmas[${indiceFirma}].TipoFirmaId`;
+                        select.name =
+                            `Firmas[${indiceFirma}].TipoFirmaId`;
 
-                            select.selectedIndex = 0;
-                        }
+                        select.selectedIndex = 0;
+                    }
 
-                        if (select.name.includes("UsuarioRequeridoId")) {
+                    if (select.name.includes("UsuarioRequeridoId")) {
 
-                            select.name =
-                                `Firmas[${indiceFirma}].UsuarioRequeridoId`;
+                        select.name =
+                            `Firmas[${indiceFirma}].UsuarioRequeridoId`;
 
-                            select.selectedIndex = 0;
-                        }
-                    });
+                        select.innerHTML =
+                            '<option value="">Seleccione un usuario</option>';
+                    }
+                });
 
-                contenedor.appendChild(nuevaFila);
+            contenedor.appendChild(nuevaFila);
 
-                indiceFirma++;
-            });
+            indiceFirma++;
+        });
 
         document.addEventListener("click", function (e) {
 
-            if (
-                e.target.closest(".btnEliminarFirma")
-            ) {
+            if (e.target.closest(".btnEliminarFirma")) {
 
                 const filas =
                     document.querySelectorAll(".firma-row");
@@ -423,12 +420,13 @@
             }
         });
 
-                document.addEventListener("change", async function (e) {
+        document.addEventListener("change", async function (e) {
 
             if (!e.target.classList.contains("firma-tipo"))
                 return;
 
-            const tipoFirmaId = e.target.value;
+            const tipoFirmaId =
+                e.target.value;
 
             const fila =
                 e.target.closest(".firma-row");
@@ -436,31 +434,65 @@
             const comboUsuario =
                 fila.querySelector(".firma-usuario");
 
-            const solicitudId =
-                document.getElementById("solicitudId").value;
-
             comboUsuario.innerHTML =
                 '<option value="">Cargando...</option>';
 
-            const response =
-                await fetch(
-                    `/Solicitudes/ObtenerUsuariosFirma?tipoFirmaId=${tipoFirmaId}&solicitudId=${solicitudId}`
-                );
+            if (!tipoFirmaId) {
 
-            const usuarios =
-                await response.json();
+                comboUsuario.innerHTML =
+                    '<option value="">Seleccione un usuario</option>';
 
-            comboUsuario.innerHTML =
-                '<option value="">Seleccione usuario</option>';
+                return;
+            }
 
-            usuarios.forEach(usuario => {
+            try {
 
-                comboUsuario.innerHTML +=
-                    `<option value="${usuario.id}">
-                        ${usuario.nombre}
-                     </option>`;
-            });
+                const response =
+                    await fetch(
+                        `/Solicitudes/ObtenerUsuariosFirma?tipoFirmaId=${tipoFirmaId}`
+                    );
 
+                if (!response.ok) {
+
+                    comboUsuario.innerHTML =
+                        '<option value="">Error al cargar usuarios</option>';
+
+                    return;
+                }
+
+                const usuarios =
+                    await response.json();
+
+                comboUsuario.innerHTML = "";
+
+                const opcionInicial =
+                    document.createElement("option");
+
+                opcionInicial.value = "";
+                opcionInicial.textContent =
+                    "Seleccione un usuario";
+
+                comboUsuario.appendChild(opcionInicial);
+
+                usuarios.forEach(usuario => {
+
+                    const option =
+                        document.createElement("option");
+
+                    option.value = usuario.id;
+                    option.textContent = usuario.nombre;
+
+                    comboUsuario.appendChild(option);
+                });
+
+            }
+            catch (error) {
+
+                console.error(error);
+
+                comboUsuario.innerHTML =
+                    '<option value="">Error al cargar usuarios</option>';
+            }
         });
     </script>
 }

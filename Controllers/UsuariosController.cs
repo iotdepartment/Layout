@@ -32,6 +32,16 @@ namespace Layout.Controllers
             var vm = new UsuarioCreateViewModel
             {
                 Areas = await _context.Areas
+                    .OrderBy(x => x.Nombre)
+                    .Select(x => new SelectListItem
+                    {
+                        Value = x.Id.ToString(),
+                        Text = x.Nombre
+                    })
+                    .ToListAsync(),
+
+                TiposFirma = await _context.TiposFirma
+                    .OrderBy(x => x.Nombre)
                     .Select(x => new SelectListItem
                     {
                         Value = x.Id.ToString(),
@@ -74,32 +84,35 @@ namespace Layout.Controllers
             return View(vm);
         }
 
-        private async Task CargarCombos(UsuarioCreateViewModel model)
+        private async Task CargarCombos(
+      UsuarioCreateViewModel model)
         {
             model.Areas = await _context.Areas
-                .Select(a => new SelectListItem
+                .OrderBy(x => x.Nombre)
+                .Select(x => new SelectListItem
                 {
-                    Value = a.Id.ToString(),
-                    Text = a.Nombre
+                    Value = x.Id.ToString(),
+                    Text = x.Nombre
                 })
                 .ToListAsync();
 
             model.TiposFirma = await _context.TiposFirma
-                .Select(t => new SelectListItem
+                .OrderBy(x => x.Nombre)
+                .Select(x => new SelectListItem
                 {
-                    Value = t.Id.ToString(),
-                    Text = t.Nombre
+                    Value = x.Id.ToString(),
+                    Text = x.Nombre
                 })
                 .ToListAsync();
 
             model.Roles = await _roleManager.Roles
-    .OrderBy(r => r.Name)
-    .Select(r => new SelectListItem
-    {
-        Value = r.Name,
-        Text = r.Name
-    })
-    .ToListAsync();
+                .OrderBy(x => x.Name)
+                .Select(x => new SelectListItem
+                {
+                    Value = x.Name,
+                    Text = x.Name
+                })
+                .ToListAsync();
         }
 
         [HttpPost]

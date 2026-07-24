@@ -111,6 +111,22 @@
                         </select>
                         <span asp-validation-for="Rol" class="text-danger small"></span>
                     </div>
+                    <div class="mb-3" id="divTipoFirma">
+                        <label asp-for="TipoFirmaId"
+                               class="form-label fw-semibold text-secondary">
+                            Tipo de Firma
+                        </label>
+
+                        <select asp-for="TipoFirmaId"
+                                asp-items="Model.TiposFirma"
+                                class="form-select rounded-2 py-2">
+
+                            <option value="">
+                                Seleccione un tipo de firma...
+                            </option>
+
+                        </select>
+                    </div>
 
                     <!-- Contenedor Checkboxes: Áreas asignadas -->
                     <div class="mb-4" id="divAreas">
@@ -290,42 +306,21 @@
 
     <script>
 
-        document.addEventListener("DOMContentLoaded", function () {
-
-            const rolSelect =
-                document.getElementById("rolSelect");
+                        document.addEventListener("DOMContentLoaded", function () {
 
             const divAreas =
                 document.getElementById("divAreas");
 
-            function actualizarAreas() {
+            const divTipoFirma =
+                document.getElementById("divTipoFirma");
 
-                const rol = rolSelect.value;
-
-                const requiereAreas =
-                    rol === "Supervisor" ||
-                    rol === "Gerente" ||
-                    rol === "Coordinador";
-
-                if (requiereAreas) {
-
-                    divAreas.style.display = "block";
-
-                } else {
-
-                    divAreas.style.display = "none";
-
-                    divAreas
-                        .querySelectorAll("input[type='checkbox']")
-                        .forEach(chk => chk.checked = false);
-                }
+            if (divAreas) {
+                divAreas.style.display = "block";
             }
 
-            rolSelect.addEventListener(
-                "change",
-                actualizarAreas);
-
-            actualizarAreas();
+            if (divTipoFirma) {
+                divTipoFirma.style.display = "block";
+            }
         });
 
     </script>

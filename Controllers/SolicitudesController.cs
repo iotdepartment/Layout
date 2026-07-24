@@ -269,6 +269,33 @@ namespace Layout.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CompletarInventario(SolicitudInventarioViewModel model)
         {
+            // Validar usuarios duplicados
+            if (model.Firmas != null)
+            {
+                var usuariosDuplicados = model.Firmas
+                    .Where(x => !string.IsNullOrWhiteSpace(x.UsuarioRequeridoId))
+                    .GroupBy(x => x.UsuarioRequeridoId)
+                    .Any(x => x.Count() > 1);
+
+                if (usuariosDuplicados)
+                {
+                    ModelState.AddModelError(
+                        "",
+                        "No puede seleccionar el mismo usuario más de una vez en las firmas requeridas."
+                    );
+
+                    ViewBag.TiposFirma = await _context.TiposFirma
+                        .OrderBy(x => x.Nombre)
+                        .ToListAsync();
+
+                    ViewBag.Usuarios = await _userManager.Users
+                        .OrderBy(x => x.NombreCompleto)
+                        .ToListAsync();
+
+                    return View(model);
+                }
+            }
+
             if (!ModelState.IsValid)
             {
                 var errores = ModelState
@@ -365,89 +392,64 @@ namespace Layout.Controllers
         }
 
         private async Task<List<ApplicationUser>> ObtenerUsuariosPorRolYArea(string rol, int areaId)
+        {
+            var usuarios = await _context.UsuarioAreas
+                .Include(x => x.Usuario)
+                .Where(x => x.AreaId == areaId)
+                .Select(x => x.Usuario)
+                .ToListAsync();
+
+            var resultado = new List<ApplicationUser>();
+
+            foreach (var usuario in usuarios)
             {
-                var usuarios = await _context.UsuarioAreas
-                    .Include(x => x.Usuario)
-                    .Where(x => x.AreaId == areaId)
-                    .Select(x => x.Usuario)
-                    .ToListAsync();
-
-                var resultado = new List<ApplicationUser>();
-
-                foreach (var usuario in usuarios)
+                if (await _userManager.IsInRoleAsync(
+                    usuario,
+                    rol))
                 {
-                    if (await _userManager.IsInRoleAsync(
-                        usuario,
-                        rol))
-                    {
-                        resultado.Add(usuario);
-                    }
+                    resultado.Add(usuario);
                 }
-
-                return resultado;
             }
 
-        private async Task<List<ApplicationUser>>ObtenerUsuariosPorRol(string rol)
+            return resultado;
+        }
+
+        private async Task<List<ApplicationUser>> ObtenerUsuariosPorRol(string rol)
+        {
+            var usuarios = await _userManager.Users
+                .OrderBy(x => x.NombreCompleto)
+                .ToListAsync();
+
+            var resultado = new List<ApplicationUser>();
+
+            foreach (var usuario in usuarios)
             {
-                var usuarios = await _userManager.Users
-                    .OrderBy(x => x.NombreCompleto)
-                    .ToListAsync();
-
-                var resultado = new List<ApplicationUser>();
-
-                foreach (var usuario in usuarios)
+                if (await _userManager.IsInRoleAsync(usuario, rol))
                 {
-                    if (await _userManager.IsInRoleAsync(usuario, rol))
-                    {
-                        resultado.Add(usuario);
-                    }
+                    resultado.Add(usuario);
                 }
-
-                return resultado;
             }
+
+            return resultado;
+        }
 
         [HttpGet]
-        public async Task<IActionResult> ObtenerUsuariosFirma(int tipoFirmaId, int solicitudId)
+        public async Task<IActionResult> ObtenerUsuariosFirma(
+    int tipoFirmaId)
         {
-            var solicitud = await _context.SolicitudesMovimiento
-                .FirstOrDefaultAsync(x => x.Id == solicitudId);
-
-            if (solicitud == null)
-                return Json(new List<object>());
-
-            var areaId = solicitud.AreaId;
-
-            var usuarios = new List<ApplicationUser>();
-
-            // Supervisor Área
-            if (tipoFirmaId == 8)
-            {
-                usuarios = await ObtenerUsuariosPorRolYArea(
-                    "Supervisor",
-                    areaId);
-            }
-
-            // Gerente Área
-            else if (tipoFirmaId == 3)
-            {
-                usuarios = await ObtenerUsuariosPorRolYArea(
-                    "Gerente",
-                    areaId);
-            }
-
-            // Coord. EHS
-            else if (tipoFirmaId == 7)
-            {
-                usuarios = await ObtenerUsuariosPorRol(
-                    "Coordinador");
-            }
-
-            return Json(
-                usuarios.Select(x => new
+            var usuarios = await _userManager.Users
+                .Where(x =>
+                    x.Activo &&
+                    x.TipoFirmaId == tipoFirmaId)
+                .OrderBy(x => x.NombreCompleto)
+                .Select(x => new
                 {
                     id = x.Id,
                     nombre = x.NombreCompleto
-                }));
+                })
+                .ToListAsync();
+
+            return Json(usuarios);
         }
 
         [HttpGet]
@@ -475,6 +477,7 @@ namespace Layout.Controllers
 
             return Json(firmas);
         }
+
 
 
     }

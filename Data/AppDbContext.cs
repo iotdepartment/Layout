@@ -13,6 +13,10 @@ namespace Layout.Data
 
         public DbSet<Area> Areas { get; set; }
 
+        public DbSet<AreaOrganizacional> AreasOrganizacionales { get; set; }
+
+        public DbSet<ResponsableFirma> ResponsablesFirma { get; set; }
+
         public DbSet<UsuarioArea> UsuarioAreas { get; set; }
 
         public DbSet<SolicitudMovimiento> SolicitudesMovimiento { get; set; }
