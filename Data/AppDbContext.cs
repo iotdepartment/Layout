@@ -18,6 +18,7 @@ namespace Layout.Data
         public DbSet<ResponsableFirma> ResponsablesFirma { get; set; }
 
         public DbSet<UsuarioArea> UsuarioAreas { get; set; }
+        public DbSet<UsuarioTipoFirma> UsuarioTiposFirma { get; set; }
 
         public DbSet<SolicitudMovimiento> SolicitudesMovimiento { get; set; }
 
@@ -41,11 +42,17 @@ namespace Layout.Data
             // USUARIO - TIPO FIRMA
             // =====================================================
 
-            builder.Entity<ApplicationUser>()
-                .HasOne(u => u.TipoFirma)
-                .WithMany()
-                .HasForeignKey(u => u.TipoFirmaId)
-                .OnDelete(DeleteBehavior.Restrict);
+            builder.Entity<UsuarioTipoFirma>()
+                .HasOne(x => x.Usuario)
+                .WithMany(x => x.TiposFirma)
+                .HasForeignKey(x => x.UsuarioId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<UsuarioTipoFirma>()
+                .HasOne(x => x.TipoFirma)
+                .WithMany(x => x.Usuarios)
+                .HasForeignKey(x => x.TipoFirmaId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // =====================================================
             // USUARIO - AREA (M:N)

@@ -51,7 +51,7 @@
 
                     <i class="bi bi-hourglass-split me-1"></i>
 
-                    @Model.Pendientes.Count Pendientes
+                    @Model.PendientesAgrupadas.Count Pendientes
 
                 </span>
 
@@ -82,7 +82,7 @@
                     Pendientes
 
                     <span class="badge bg-warning text-dark ms-1">
-                        @Model.Pendientes.Count
+                        @Model.PendientesAgrupadas.Count
                     </span>
 
                 </button>
@@ -98,7 +98,7 @@
                     Realizadas
 
                     <span class="badge bg-success ms-1">
-                        @Model.Realizadas.Count
+                        @Model.RealizadasAgrupadas.Count
                     </span>
 
                 </button>
@@ -112,7 +112,7 @@
             <!-- TAB PENDIENTES -->
             <div class="tab-pane fade show active" id="tabPendientes" role="tabpanel">
 
-                @if (!Model.Pendientes.Any())
+                @if (!Model.PendientesAgrupadas.Any())
                 {
                     <div class="text-center py-5 text-muted">
                         <i class="bi bi-check-circle text-success fs-1 d-block mb-3"></i>
@@ -126,27 +126,34 @@
                         <table id="tablaPendientes" class="table table-hover table-firmas align-middle mb-0 w-100">
                             <thead>
                                 <tr>
-                                    <th class="ps-3">Solicitud</th>
+                                    <th>Solicitud</th>
                                     <th>Área</th>
-                                    <th>Tipo Firma</th>
+                                    <th>Firmas Requeridas</th>
                                     <th>Estatus</th>
-                                    <th class="text-end pe-3">Acciones</th>
+                                    <th>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var item in Model.Pendientes)
+                                @foreach (var item in Model.PendientesAgrupadas)
+
                                 {
                                     <tr>
                                         <td class="fw-bold text-primary ps-3">
-                                            #@item.SolicitudId
+                                            @item.Folio
                                         </td>
+
                                         <td class="fw-medium text-dark">
-                                            <i class="bi bi-geo-alt text-secondary me-1"></i>@(item.Solicitud?.Area?.Nombre ?? "N/A")
+                                            <i class="bi bi-geo-alt text-secondary me-1"></i>
+                                            @item.Area
                                         </td>
+
                                         <td>
-                                            <span class="badge bg-light text-secondary border px-2.5 py-1.5 fw-semibold rounded-pill">
-                                                <i class="bi bi-fingerprint text-info me-1"></i>@item.TipoFirma?.Nombre
-                                            </span>
+                                            @foreach (var firma in item.TiposFirma)
+                                            {
+                                                <span class="badge bg-light text-secondary border me-1 mb-1">
+                                                    @firma
+                                                </span>
+                                            }
                                         </td>
                                         <td>
                                             <span class="badge bg-warning-subtle text-warning rounded-pill px-2.5 py-1.5 fw-semibold shadow-xs d-inline-flex align-items-center">
@@ -156,7 +163,7 @@
                                         <td class="text-end pe-3">
                                             <!-- CORRECCIÓN: Enlace abierto y cerrado limpiamente con Tag Helpers -->
                                             <a asp-action="Detalle"
-                                               asp-route-id="@item.Id"
+                                               asp-route-id="@item.FirmaIdReferencia"
                                                class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold d-inline-flex align-items-center shadow-xs"
                                                title="Revisar información técnica y firmar digitalmente">
                                                 <i class="bi bi-pencil-square me-1.5"></i>Revisar y Firmar
@@ -174,62 +181,85 @@
             <!-- TAB REALIZADAS -->
             <div class="tab-pane fade" id="tabRealizadas" role="tabpanel">
 
-                @if (!Model.Realizadas.Any())
+                @if (!Model.RealizadasAgrupadas.Any())
                 {
                     <div class="text-center py-5 text-muted">
                         <i class="bi bi-inbox text-muted fs-1 d-block mb-3 opacity-50"></i>
-                        <h5 class="fw-bold text-secondary">No existen firmas realizadas</h5>
-                        <p class="mb-0 small italic">El historial de tus firmas procesadas aparecerá en este panel.</p>
+                        <h5 class="fw-bold text-secondary">
+                            No existen firmas realizadas
+                        </h5>
+                        <p class="mb-0 small italic">
+                            El historial de tus firmas procesadas aparecerá en este panel.
+                        </p>
                     </div>
                 }
                 else
                 {
                     <div class="table-responsive">
+
                         <table id="tablaRealizadas" class="table table-hover table-firmas align-middle mb-0 w-100">
+
                             <thead>
                                 <tr>
                                     <th class="ps-3">Solicitud</th>
                                     <th>Área</th>
-                                    <th>Tipo Firma</th>
+                                    <th>Firmas Realizadas</th>
                                     <th>Fecha Firma</th>
                                     <th class="text-end pe-3">Acciones</th>
                                 </tr>
                             </thead>
+
                             <tbody>
-                                @foreach (var item in Model.Realizadas)
+                                @foreach (var item in Model.RealizadasAgrupadas)
                                 {
                                     <tr>
+                                        <!-- Folio o ID de Solicitud -->
                                         <td class="fw-bold text-primary ps-3">
-                                            #@item.SolicitudId
+                                            #@item.Folio
                                         </td>
+
+                                        <!-- Área -->
                                         <td class="fw-medium text-dark">
-                                            <i class="bi bi-geo-alt text-secondary me-1"></i>@(item.Solicitud?.Area?.Nombre ?? "N/A")
+                                            <i class="bi bi-geo-alt text-secondary me-1"></i>
+                                            @item.Area
                                         </td>
+
+                                        <!-- Colección de Badges de firmas realizadas -->
                                         <td>
-                                            <span class="badge bg-success-subtle text-success rounded-pill px-2.5 py-1.5 fw-semibold shadow-xs">
-                                                <i class="bi bi-shield-check-fill me-1"></i>@item.TipoFirma?.Nombre
-                                            </span>
+                                            @foreach (var firma in item.TiposFirma)
+                                            {
+                                                <span class="badge bg-success-subtle text-success rounded-pill me-1 mb-1 fw-semibold shadow-xs">
+                                                    <i class="bi bi-shield-check-fill me-1"></i>@firma
+                                                </span>
+                                            }
                                         </td>
+
+                                        <!-- Fecha de Registro -->
                                         <td class="text-secondary small font-monospace">
-                                            <i class="bi bi-calendar-check me-1"></i>@(item.FechaFirma?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")
+                                            <i class="bi bi-calendar-check me-1"></i>
+                                            @(item.FechaFirma?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")
                                         </td>
+
+                                        <!-- CORRECCIÓN: Estructura del botón de acciones unificada y limpia -->
                                         <td class="text-end pe-3">
-                                            <!-- CORRECCIÓN: Enlace abierto y cerrado limpiamente con Tag Helpers -->
                                             <a asp-action="Detalle"
-                                               asp-route-id="@item.Id"
+                                               asp-route-id="@item.FirmaIdReferencia"
                                                class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-semibold d-inline-flex align-items-center shadow-xs"
                                                title="Ver historial de la solicitud procesada">
                                                 <i class="bi bi-eye me-1.5"></i>Ver Solicitud
                                             </a>
                                         </td>
+
                                     </tr>
                                 }
                             </tbody>
+
                         </table>
+
                     </div>
                 }
-
             </div>
+
 
         </div>
 

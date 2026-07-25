@@ -31,25 +31,67 @@ namespace Layout.Controllers
 
             var vm = new MisFirmasViewModel();
 
-            vm.Pendientes = await _context.SolicitudesFirma
-                .Include(x => x.Solicitud)
-                    .ThenInclude(x => x.Area)
-                .Include(x => x.TipoFirma)
-                .Where(x =>
-                    x.UsuarioRequeridoId == usuario.Id &&
-                    !x.Firmada)
-                .OrderByDescending(x => x.Solicitud.FechaCreacion)
-                .ToListAsync();
+            var pendientes = await _context.SolicitudesFirma
+     .Include(x => x.Solicitud)
+         .ThenInclude(x => x.Area)
+     .Include(x => x.TipoFirma)
+     .Where(x =>
+         x.UsuarioRequeridoId == usuario.Id &&
+         !x.Firmada)
+     .ToListAsync();
 
-            vm.Realizadas = await _context.SolicitudesFirma
-                .Include(x => x.Solicitud)
-                    .ThenInclude(x => x.Area)
-                .Include(x => x.TipoFirma)
-                .Where(x =>
-                    x.UsuarioRequeridoId == usuario.Id &&
-                    x.Firmada)
+            vm.PendientesAgrupadas = pendientes
+           .GroupBy(x => x.SolicitudId)
+           .Select(g => new PendienteFirmaAgrupadaViewModel
+           {
+               FirmaIdReferencia = g.First().Id,
+
+               SolicitudId = g.Key,
+
+               Folio = g.First().Solicitud.Folio,
+
+               Area = g.First().Solicitud.Area.Nombre,
+
+               FechaCreacion = g.First().Solicitud.FechaCreacion,
+
+               TiposFirma = g
+                   .Select(x => x.TipoFirma.Nombre)
+                   .ToList()
+           })
+           .ToList();
+
+
+
+            var realizadas = await _context.SolicitudesFirma
+    .Include(x => x.Solicitud)
+        .ThenInclude(x => x.Area)
+    .Include(x => x.TipoFirma)
+    .Where(x =>
+        x.UsuarioRequeridoId == usuario.Id &&
+        x.Firmada)
+    .ToListAsync();
+
+            vm.RealizadasAgrupadas = realizadas
+                .GroupBy(x => x.SolicitudId)
+                .Select(g => new FirmaRealizadaAgrupadaViewModel
+                {
+                    FirmaIdReferencia = g.First().Id,
+
+                    SolicitudId = g.Key,
+
+                    Folio = g.First().Solicitud.Folio,
+
+                    Area = g.First().Solicitud.Area.Nombre,
+
+                    FechaFirma = g.Max(x => x.FechaFirma),
+
+                    TiposFirma = g
+                        .Select(x => x.TipoFirma.Nombre)
+                        .Distinct()
+                        .ToList()
+                })
                 .OrderByDescending(x => x.FechaFirma)
-                .ToListAsync();
+                .ToList();
 
             return View(vm);
         }
@@ -109,36 +151,49 @@ namespace Layout.Controllers
                 }
             }
         }
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Firmar(int firmaId, string? comentarios)
+        public async Task<IActionResult> Firmar(
+       int firmaId,
+       string? comentarios)
         {
             var usuario = await _userManager.GetUserAsync(User);
 
-            var firma = await _context.SolicitudesFirma
+            var firmaBase = await _context.SolicitudesFirma
                 .FirstOrDefaultAsync(x => x.Id == firmaId);
 
-            if (firma == null)
+            if (firmaBase == null)
                 return NotFound();
 
-            // Seguridad
-            if (firma.UsuarioRequeridoId != usuario.Id)
+            if (firmaBase.UsuarioRequeridoId != usuario.Id)
                 return Forbid();
 
-            firma.Firmada = true;
+            var firmasPendientes = await _context.SolicitudesFirma
+                .Where(x =>
+                    x.SolicitudId == firmaBase.SolicitudId &&
+                    x.UsuarioRequeridoId == usuario.Id &&
+                    !x.Firmada)
+                .ToListAsync();
 
-            firma.UsuarioFirmanteId = usuario.Id;
+            foreach (var firma in firmasPendientes)
+            {
+                firma.Firmada = true;
 
-            firma.FechaFirma = DateTime.Now;
+                firma.UsuarioFirmanteId = usuario.Id;
 
-            firma.Comentarios = comentarios;
+                firma.FechaFirma = DateTime.Now;
+
+                firma.Comentarios = comentarios;
+            }
 
             await _context.SaveChangesAsync();
 
-            // Revisar si ya quedaron todas firmadas
             await ValidarFinalizacionSolicitud(
-                firma.SolicitudId);
+                firmaBase.SolicitudId);
+
+            TempData["Success"] =
+                $"Se registraron {firmasPendientes.Count} firma(s).";
 
             return RedirectToAction(nameof(Pendientes));
         }
@@ -150,32 +205,36 @@ namespace Layout.Controllers
         {
             var usuario = await _userManager.GetUserAsync(User);
 
-            var firma = await _context.SolicitudesFirma
+            var firmaBase = await _context.SolicitudesFirma
                 .FirstOrDefaultAsync(x => x.Id == id);
 
-            if (firma == null)
+            if (firmaBase == null)
                 return NotFound();
 
-            // Seguridad: solo puede firmar el usuario asignado
-            if (firma.UsuarioRequeridoId != usuario.Id)
+            if (firmaBase.UsuarioRequeridoId != usuario.Id)
                 return Forbid();
 
-            // Evitar doble firma
-            if (firma.Firmada)
-            {
-                TempData["Error"] = "Esta firma ya fue registrada.";
-                return RedirectToAction(nameof(Pendientes));
-            }
+            var firmasPendientes = await _context.SolicitudesFirma
+                .Where(x =>
+                    x.SolicitudId == firmaBase.SolicitudId &&
+                    x.UsuarioRequeridoId == usuario.Id &&
+                    !x.Firmada)
+                .ToListAsync();
 
-            firma.Firmada = true;
-            firma.UsuarioFirmanteId = usuario.Id;
-            firma.FechaFirma = DateTime.Now;
+            foreach (var firma in firmasPendientes)
+            {
+                firma.Firmada = true;
+                firma.UsuarioFirmanteId = usuario.Id;
+                firma.FechaFirma = DateTime.Now;
+            }
 
             await _context.SaveChangesAsync();
 
-            await ValidarFinalizacionSolicitud(firma.SolicitudId);
+            await ValidarFinalizacionSolicitud(
+                firmaBase.SolicitudId);
 
-            TempData["Success"] = "Firma registrada correctamente.";
+            TempData["Success"] =
+                $"Se registraron {firmasPendientes.Count} firma(s).";
 
             return RedirectToAction(nameof(Pendientes));
         }

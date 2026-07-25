@@ -84,8 +84,7 @@ namespace Layout.Controllers
             return View(vm);
         }
 
-        private async Task CargarCombos(
-      UsuarioCreateViewModel model)
+        private async Task CargarCombos(UsuarioCreateViewModel model)
         {
             model.Areas = await _context.Areas
                 .OrderBy(x => x.Nombre)
@@ -118,7 +117,8 @@ namespace Layout.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Administrador")]
-        public async Task<IActionResult> Create(UsuarioCreateViewModel model)
+        public async Task<IActionResult> Create(
+    UsuarioCreateViewModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -131,9 +131,6 @@ namespace Layout.Controllers
                 UserName = model.Email,
                 Email = model.Email,
                 NombreCompleto = model.NombreCompleto,
-
-                TipoFirmaId = model.TipoFirmaId,
-
                 EmailConfirmed = true,
                 Activo = true
             };
@@ -174,9 +171,24 @@ namespace Layout.Controllers
                             AreaId = areaId
                         });
                 }
-
-                await _context.SaveChangesAsync();
             }
+
+            // Asignar Tipos de Firma
+            if (model.TiposFirmaSeleccionados != null &&
+                model.TiposFirmaSeleccionados.Any())
+            {
+                foreach (var tipoFirmaId in model.TiposFirmaSeleccionados)
+                {
+                    _context.UsuarioTiposFirma.Add(
+                        new UsuarioTipoFirma
+                        {
+                            UsuarioId = usuario.Id,
+                            TipoFirmaId = tipoFirmaId
+                        });
+                }
+            }
+
+            await _context.SaveChangesAsync();
 
             TempData["Success"] =
                 "Usuario registrado correctamente.";
@@ -188,12 +200,12 @@ namespace Layout.Controllers
         public async Task<IActionResult> AreasAsignadas()
         {
             var usuarios = await _userManager.Users
-                .Include(x => x.TipoFirma)
+                .Include(x => x.TiposFirma)
+                    .ThenInclude(x => x.TipoFirma)
                 .Include(x => x.Areas)
                     .ThenInclude(x => x.Area)
                 .OrderBy(x => x.NombreCompleto)
                 .ToListAsync();
-
             return View(usuarios);
         }
 

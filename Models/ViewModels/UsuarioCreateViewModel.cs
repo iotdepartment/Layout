@@ -10,17 +10,16 @@ namespace Layout.Models.ViewModels
 
         public string Password { get; set; }
 
-        // Rol del sistema
         public string Rol { get; set; }
 
-        // Tipo de firma del usuario
-        public int? TipoFirmaId { get; set; }
+        // Varias firmas por usuario
+        public List<int> TiposFirmaSeleccionados { get; set; }
+            = new();
 
-        // Áreas asignadas al usuario
+        // Áreas asignadas
         public List<int> AreasSeleccionadas { get; set; }
             = new();
 
-        // Combos
         public List<SelectListItem>? Areas { get; set; }
 
         public List<SelectListItem>? TiposFirma { get; set; }

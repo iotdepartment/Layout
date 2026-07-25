@@ -2,8 +2,19 @@
 {
     public class MisFirmasViewModel
     {
-        public List<SolicitudFirma> Pendientes { get; set; } = new();
+        public List<PendienteFirmaAgrupadaViewModel>
+            PendientesAgrupadas
+        { get; set; }
+            = new();
 
-        public List<SolicitudFirma> Realizadas { get; set; } = new();
+        public List<FirmaRealizadaAgrupadaViewModel>
+RealizadasAgrupadas
+        { get; set; }
+= new();
+
+        public List<SolicitudFirma>
+            Realizadas
+        { get; set; }
+            = new();
     }
 }

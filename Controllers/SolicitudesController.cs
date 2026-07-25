@@ -269,33 +269,7 @@ namespace Layout.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CompletarInventario(SolicitudInventarioViewModel model)
         {
-            // Validar usuarios duplicados
-            if (model.Firmas != null)
-            {
-                var usuariosDuplicados = model.Firmas
-                    .Where(x => !string.IsNullOrWhiteSpace(x.UsuarioRequeridoId))
-                    .GroupBy(x => x.UsuarioRequeridoId)
-                    .Any(x => x.Count() > 1);
-
-                if (usuariosDuplicados)
-                {
-                    ModelState.AddModelError(
-                        "",
-                        "No puede seleccionar el mismo usuario más de una vez en las firmas requeridas."
-                    );
-
-                    ViewBag.TiposFirma = await _context.TiposFirma
-                        .OrderBy(x => x.Nombre)
-                        .ToListAsync();
-
-                    ViewBag.Usuarios = await _userManager.Users
-                        .OrderBy(x => x.NombreCompleto)
-                        .ToListAsync();
-
-                    return View(model);
-                }
-            }
-
+           
             if (!ModelState.IsValid)
             {
                 var errores = ModelState
@@ -434,20 +408,19 @@ namespace Layout.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ObtenerUsuariosFirma(
-    int tipoFirmaId)
+        public async Task<IActionResult> ObtenerUsuariosFirma(int tipoFirmaId)
         {
-            var usuarios = await _userManager.Users
-                .Where(x =>
-                    x.Activo &&
-                    x.TipoFirmaId == tipoFirmaId)
-                .OrderBy(x => x.NombreCompleto)
-                .Select(x => new
-                {
-                    id = x.Id,
-                    nombre = x.NombreCompleto
-                })
-                .ToListAsync();
+            var usuarios = await _context.UsuarioTiposFirma
+              .Include(x => x.Usuario)
+              .Where(x =>
+                  x.TipoFirmaId == tipoFirmaId &&
+                  x.Usuario.Activo)
+              .Select(x => new
+              {
+                  id = x.Usuario.Id,
+                  nombre = x.Usuario.NombreCompleto
+              })
+              .ToListAsync();
 
             return Json(usuarios);
         }

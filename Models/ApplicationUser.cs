@@ -7,11 +7,11 @@ namespace Layout.Models
         public string NombreCompleto { get; set; }
 
         public bool Activo { get; set; } = true;
-        public ICollection<UsuarioArea> Areas { get; set; }
-        = new List<UsuarioArea>();      
 
-        // Tipo de firma que puede realizar
-        public int? TipoFirmaId { get; set; }
-        public TipoFirma? TipoFirma { get; set; }
+        public ICollection<UsuarioArea> Areas
+        { get; set; } = new List<UsuarioArea>();
+
+        public ICollection<UsuarioTipoFirma> TiposFirma
+        { get; set; } = new List<UsuarioTipoFirma>();
     }
 }

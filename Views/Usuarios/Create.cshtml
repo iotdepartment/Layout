@@ -111,21 +111,44 @@
                         </select>
                         <span asp-validation-for="Rol" class="text-danger small"></span>
                     </div>
-                    <div class="mb-3" id="divTipoFirma">
-                        <label asp-for="TipoFirmaId"
-                               class="form-label fw-semibold text-secondary">
-                            Tipo de Firma
+                    <div class="mb-4" id="divTipoFirma">
+
+                        <label class="form-label fw-semibold text-secondary">
+                            Tipos de Firma
                         </label>
 
-                        <select asp-for="TipoFirmaId"
-                                asp-items="Model.TiposFirma"
-                                class="form-select rounded-2 py-2">
+                        <div class="areas-container-box">
 
-                            <option value="">
-                                Seleccione un tipo de firma...
-                            </option>
+                            <div class="row g-2">
 
-                        </select>
+                                @foreach (var firma in Model.TiposFirma)
+                                {
+                                    <div class="col-12 col-sm-6">
+
+                                        <div class="form-check form-check-custom d-flex align-items-center mb-1">
+
+                                            <input class="form-check-input me-2"
+                                                   type="checkbox"
+                                                   name="TiposFirmaSeleccionados"
+                                                   value="@firma.Value"
+                                                   id="firma_@firma.Value" />
+
+                                            <label class="form-check-label"
+                                                   for="firma_@firma.Value">
+
+                                                @firma.Text
+
+                                            </label>
+
+                                        </div>
+
+                                    </div>
+                                }
+
+                            </div>
+
+                        </div>
+
                     </div>
 
                     <!-- Contenedor Checkboxes: Áreas asignadas -->
@@ -306,7 +329,7 @@
 
     <script>
 
-                        document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function () {
 
             const divAreas =
                 document.getElementById("divAreas");
@@ -332,7 +355,7 @@
                 pageLength: 10,
                 responsive: true,
                 language: {
-                                        url: 'https://cdn.datatables.net/plug-ins/1.13.8/i18n/es-MX.json'
+                url: 'https://cdn.datatables.net/plug-ins/1.13.8/i18n/es-MX.json'
 
                 },
                 order: [[0, 'asc']],
