@@ -343,9 +343,14 @@
 
                 const comentarios = document.getElementById('txtComentariosRevision').value;
 
-    let estatusId = 0;
-    if (nuevoEstatus === 'Aprobado') estatusId = 1;
-    if (nuevoEstatus === 'Rechazado') estatusId = 2;
+        let estatusId = 0;
+
+        if (nuevoEstatus === 'Aprobado')
+            estatusId = 1; // EnProceso
+
+        if (nuevoEstatus === 'Rechazado')
+            estatusId = 4; // Rechazado
+    
 
     const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
 

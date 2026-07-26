@@ -3,7 +3,67 @@
 @{
     ViewData["Title"] = "Nueva Solicitud";
 }
+<style>
+    /* ==========================================================================
+       ESTILOS PREMIUM PARA FORMULARIO DE INVENTARIO INTERACTIVO
+       ========================================================================== */
 
+    /* Contenedor que agrupa los campos en un flujo limpio */
+    .form-inventory-card {
+        background-color: #ffffff;
+        border: 1px solid #eef1f6;
+        border-radius: 16px;
+        padding: 20px;
+    }
+
+    /* Celda individual para cada parámetro técnico */
+    .form-inventory-row {
+        background-color: #fcfcfc;
+        border: 1px solid #f1f3f9;
+        border-radius: 12px;
+        padding: 14px 16px;
+        transition: all 0.25s ease;
+    }
+
+        /* Estado visual cuando el parámetro está activado */
+        .form-inventory-row.active-row {
+            background-color: #fafbfe;
+            border-color: #d1dff8;
+            box-shadow: 0 4px 12px rgba(78, 115, 223, 0.04);
+        }
+
+    /* Estilo para las etiquetas de control */
+    .form-inventory-label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0;
+        cursor: pointer;
+    }
+
+    /* Estilo para los inputs y textareas del formulario */
+    .form-inventory-control {
+        border-radius: 8px;
+        padding: 10px 12px;
+        border: 1px solid #ced4da;
+        background-color: #f8fafc;
+        transition: all 0.15s ease;
+    }
+
+        .form-inventory-control:focus {
+            background-color: #ffffff;
+            border-color: #4e73df;
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.1);
+        }
+
+    /* Personalización del interruptor switch de Bootstrap */
+    .form-switch .form-check-input {
+        width: 2.5em;
+        height: 1.25em;
+        cursor: pointer;
+    }
+
+</style>
 <div class="row justify-content-center mt-4">
     <div class="col-lg-8 col-md-10">
         <div class="card shadow-sm border-0">
@@ -58,7 +118,7 @@
                     <small class="bg-danger-subtle text-danger fw-bold">En revision</small>
                     <div class="mb-4 border-3 border-dark border" disabled>
                        
-                        <label asp-for="Imagen" class="form-label fw-bold small text-secondary" >Dibujo o Croquis (Imagen)</label>
+                        <label asp-for="Imagen" class="form-label fw-bold small text-secondary" >Dibujo o Layout (Imagen)</label>
                         <input  type="file" asp-for="Imagen" class="form-control form-control-modern" accept="image/*" />
                         <div class="form-text small">Archivos sugeridos: PNG, JPG, JPEG.</div>
                         <span asp-validation-for="Imagen" class="text-danger small"></span>
@@ -72,7 +132,8 @@
 
                             <input asp-for="FechaInicioMovimiento"
                                    type="date"
-                                   class="form-control" />
+                                   class="form-control"
+                                   id="fechaInicio" />
                         </div>
 
                         <div class="col-md-6 mb-3">
@@ -82,56 +143,109 @@
 
                             <input asp-for="FechaFinMovimiento"
                                    type="date"
-                                   class="form-control" />
+                                   class="form-control"
+                                   id="fechaFin" />
                         </div>
 
                     </div>
 
 
                     <hr class="mt-4" />
+                    <div class="form-inventory-card shadow-sm">
 
-                    <h5 class="text-primary fw-bold mb-3">
-                        <i class="bi bi-box-seam me-2"></i>Información de Inventario
-                    </h5>
+                        <h5 class="text-primary fw-bold mb-4 d-flex align-items-center">
+                            <i class="bi bi-box-seam me-2 fs-4"></i>Información Técnica de Inventario
+                        </h5>
 
-                    <!-- VALIDACION -->
-                    <div class="mb-3">
-                        <input type="checkbox" id="chkValidacion" asp-for="AplicaValidacion" />
-                        <label class="fw-semibold">Número de Validación</label>
-                        <input id="txtValidacion" asp-for="NumeroValidacion" class="form-control" readonly />
-                    </div>
+                        <div class="row g-3">
 
-                    <!-- RESPONSABLE -->
-                    <div class="mb-3">
-                        <input type="checkbox" id="chkResponsable" asp-for="AplicaResponsable" />
-                        <label class="fw-semibold">Responsable Inventario</label>
-                        <input id="txtResponsable" asp-for="ResponsableInventario" class="form-control" readonly />
-                    </div>
+                            <!-- 1. NÚMERO DE VALIDACIÓN -->
+                            <div class="col-12">
+                                <div class="form-inventory-row" id="rowValidacion">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <label class="form-inventory-label" for="chkValidacion">
+                                            <i class="bi bi-hash text-muted me-1.5"></i>Número de Validación
+                                        </label>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input inventory-switch" type="checkbox" id="chkValidacion" asp-for="AplicaValidacion" data-target="txtValidacion" data-row="rowValidacion" />
+                                        </div>
+                                    </div>
+                                    <input id="txtValidacion" asp-for="NumeroValidacion" class="form-control form-inventory-control" placeholder="Ingrese el folio de validación..." readonly />
+                                    <span asp-validation-for="NumeroValidacion" class="text-danger small mt-1 d-block"></span>
+                                </div>
+                            </div>
 
-                    <!-- MANDRIL -->
-                    <div class="mb-3">
-                        <input type="checkbox" id="chkMandril" asp-for="AplicaMandril" />
-                        <label class="fw-semibold">Mandril / Kanban / NP</label>
-                        <input id="txtMandril" asp-for="MandrilKanbanNP" class="form-control" readonly />
-                    </div>
+                            <!-- 2. RESPONSABLE INVENTARIO -->
+                            <div class="col-12">
+                                <div class="form-inventory-row" id="rowResponsable">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <label class="form-inventory-label" for="chkResponsable">
+                                            <i class="bi bi-person text-muted me-1.5"></i>Responsable de Inventario
+                                        </label>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input inventory-switch" type="checkbox" id="chkResponsable" asp-for="AplicaResponsable" data-target="txtResponsable" data-row="rowResponsable" />
+                                        </div>
+                                    </div>
+                                    <input id="txtResponsable" asp-for="ResponsableInventario" class="form-control form-inventory-control" placeholder="Nombre completo del responsable..." readonly />
+                                    <span asp-validation-for="ResponsableInventario" class="text-danger small mt-1 d-block"></span>
+                                </div>
+                            </div>
 
-                    <!-- PALLETS -->
-                    <div class="mb-3">
-                        <input type="checkbox" id="chkPallets" asp-for="AplicaPallets" />
-                        <label class="fw-semibold"># Pallets</label>
-                        <input id="txtPallets" asp-for="NumeroPallets" class="form-control" readonly />
-                    </div>
+                            <!-- 3. MANDRIL / KANBAN / NP -->
+                            <div class="col-12">
+                                <div class="form-inventory-row" id="rowMandril">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <label class="form-inventory-label" for="chkMandril">
+                                            <i class="bi bi-tag text-muted me-1.5"></i>Mandril / Kanban / Número Parte
+                                        </label>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input inventory-switch" type="checkbox" id="chkMandril" asp-for="AplicaMandril" data-target="txtMandril" data-row="rowMandril" />
+                                        </div>
+                                    </div>
+                                    <input id="txtMandril" asp-for="MandrilKanbanNP" class="form-control form-inventory-control" placeholder="Escriba el identificador correspondiente..." readonly />
+                                    <span asp-validation-for="MandrilKanbanNP" class="text-danger small mt-1 d-block"></span>
+                                </div>
+                            </div>
 
-                    <!-- RAZON INVENTARIO -->
-                    <div class="mb-3">
-                        <input type="checkbox" id="chkRazonInv" asp-for="AplicaRazonInventario" />
-                        <label class="fw-semibold">Razón Inventario</label>
-                        <textarea id="txtRazonInv" asp-for="RazonInventario" class="form-control" readonly></textarea>
+                            <!-- 4. NÚMERO DE PALLETS -->
+                            <div class="col-12">
+                                <div class="form-inventory-row" id="rowPallets">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <label class="form-inventory-label" for="chkPallets">
+                                            <i class="bi bi-layers text-muted me-1.5"></i>Cantidad de Pallets
+                                        </label>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input inventory-switch" type="checkbox" id="chkPallets" asp-for="AplicaPallets" data-target="txtPallets" data-row="rowPallets" />
+                                        </div>
+                                    </div>
+                                    <input id="txtPallets" asp-for="NumeroPallets" type="number" class="form-control form-inventory-control" placeholder="Ej. 5" readonly />
+                                    <span asp-validation-for="NumeroPallets" class="text-danger small mt-1 d-block"></span>
+                                </div>
+                            </div>
+
+                            <!-- 5. RAZÓN INVENTARIO -->
+                            <div class="col-12">
+                                <div class="form-inventory-row" id="rowRazonInv">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <label class="form-inventory-label" for="chkRazonInv">
+                                            <i class="bi bi-chat-left-text text-muted me-1.5"></i>Razón de Inventario
+                                        </label>
+                                        <div class="form-check form-switch">
+                                            <!-- Nota: Corregido asp-for a 'AplicaRazon' según tu controlador HttpPost de C# -->
+                                            <input class="form-check-input inventory-switch" type="checkbox" id="chkRazonInv" asp-for="AplicaRazonInventario" data-target="txtRazonInv" data-row="rowRazonInv" />
+                                        </div>
+                                    </div>
+                                    <textarea id="txtRazonInv" asp-for="RazonInventario" class="form-control form-inventory-control" rows="2" placeholder="Describa detalladamente los motivos técnicos de inventario..." readonly></textarea>
+                                    <span asp-validation-for="RazonInventario" class="text-danger small mt-1 d-block"></span>
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
 
                   
                     <!-- Botones -->
-                    <div class="d-flex justify-content-end gap-2 border-top pt-3">
+                    <div class="d-flex justify-content-end gap-2  pt-3">
                         <a asp-controller="Home" asp-action="Index" class="btn btn-light px-4">Cancelar</a>
                         <button type="submit" id="btnGuardar" class="btn btn-primary px-4">
                             <span id="btnText">Guardar Solicitud</span>
@@ -149,6 +263,45 @@
     <partial name="_ValidationScriptsPartial" />
 
     <script>
+            document
+        .getElementById("fechaInicio")
+        .addEventListener("change", function () {
+
+            document
+                .getElementById("fechaFin")
+                .min = this.value;
+        });
+        const switches = document.querySelectorAll('.inventory-switch');
+
+        function evaluarSwitch(checkbox) {
+            const idInput = checkbox.getAttribute('data-target');
+            const idRow = checkbox.getAttribute('data-row');
+            const inputControl = document.getElementById(idInput);
+            const filaContenedora = document.getElementById(idRow);
+
+            if (checkbox.checked) {
+                // Activado: Habilitamos escritura, cambiamos fondo y agregamos clase estética
+                inputControl.removeAttribute('readonly');
+                filaContenedora.classList.add('active-row');
+                inputControl.style.backgroundColor = "#ffffff";
+            } else {
+                // Desactivado: Bloqueamos campo, limpiamos texto y removemos diseño activo
+                inputControl.setAttribute('readonly', 'true');
+                inputControl.value = "";
+                filaContenedora.classList.remove('active-row');
+                inputControl.style.backgroundColor = "#f8fafc";
+            }
+        }
+
+        // Evaluamos el estado inicial de los campos (por si la vista carga datos previamente guardados)
+        switches.forEach(checkbox => {
+            evaluarSwitch(checkbox);
+
+            // Escuchamos los clics de cambio del usuario
+            checkbox.addEventListener('change', function () {
+                evaluarSwitch(this);
+            });
+        });
         function toggleInput(checkId, inputId) {
             const chk = document.getElementById(checkId);
             const input = document.getElementById(inputId);

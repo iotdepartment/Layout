@@ -21,13 +21,22 @@
             --bg-main: #f8fafc;
         }
 
+        /* CORRECCIÓN UX: Obligamos a la raíz HTML y al Body a medir el 100% real sin desbordar */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
             background-color: var(--bg-main);
             font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             overflow-x: hidden;
         }
 
-        /* Contenedor del Sidebar */
+        /* ==========================================================================
+           COMPONENTES DEL SIDEBAR
+           ========================================================================== */
         .sidebar {
             width: var(--sidebar-width);
             height: 100vh;
@@ -63,7 +72,8 @@
             border-left: 4px solid transparent;
         }
 
-            .nav-custom-link:hover, .nav-custom-link.active {
+            .nav-custom-link:hover,
+            .nav-custom-link.active {
                 color: #fff;
                 background-color: var(--sidebar-hover);
             }
@@ -79,16 +89,19 @@
                 margin-right: 10px;
             }
 
-        /* Contenedor de contenido principal */
+        /* ==========================================================================
+           ESTRUCTURA DE CONTENEDORES PRINCIPALES (CON FIX DE SCROLL)
+           ========================================================================== */
+
+        /* CORRECCIÓN CRÍTICA: Cambiado min-height: 100vh por min-height: 100% para evitar sumar la topbar */
         .main-wrapper {
             margin-left: var(--sidebar-width);
-            min-height: 100vh;
+            min-height: 100%;
             display: flex;
             flex-direction: column;
             transition: margin-left 0.3s ease;
         }
 
-        /* Barra de navegación superior */
         .topbar {
             height: var(--topbar-height);
             background-color: #fff;
@@ -102,32 +115,104 @@
             z-index: 990;
         }
 
+        /* CORRECCIÓN CRÍTICA: flex-grow: 1 junto con flex-shrink: 0 garantiza el empuje fluido */
         .content-body {
             padding: 2rem 1.5rem;
             flex-grow: 1;
+            flex-shrink: 0;
         }
 
+        /* Aspecto del footer limpio y clavado abajo */
         footer {
-            background-color: #fff;
+            background-color: #ffffff;
             border-top: 1px solid #e2e8f0;
-            padding: 1rem 1.5rem;
+            padding: 15px 24px;
             font-size: 0.875rem;
+            flex-shrink: 0;
         }
 
-        /* Ajustes Responsivos */
+        /* ==========================================================================
+           AJUSTES RESPONSIVOS (MÓVILES Y TABLETAS)
+           ========================================================================== */
         @@media (max-width: 991.98px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
+            .sidebar
 
-                .sidebar.show {
-                    transform: translateX(0);
-                }
-
-            .main-wrapper {
-                margin-left: 0;
-            }
+        {
+            transform: translateX(-100%);
         }
+
+        .sidebar.show {
+            transform: translateX(0);
+        }
+
+        .main-wrapper {
+            margin-left: 0;
+        }
+
+        }
+
+        /* ==========================================================================
+           CABECERA DEL SIDEBAR (FONDO EXCLUSIVO PARA LA IMAGEN DEL LOGO)
+           ========================================================================== */
+
+        /* Contenedor de la barra lateral como Flexbox vertical */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* El menú se expandirá para ocupar todo el espacio libre intermedio */
+        .sidebar-menu {
+            flex-grow: 1;
+        }
+
+        /* Cabecera general de la barra lateral */
+        .sidebar-brand {
+            height: var(--topbar-height);
+            padding: 0 1.25rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Mantiene la estética integrada del menú */
+            display: flex;
+            align-items: center;
+        }
+
+            /* Enlace contenedor que organiza el logo y texto en línea */
+            .sidebar-brand a {
+                display: flex;
+                align-items: center;
+                gap: 12px; /* Separación horizontal fija entre el logo y el texto */
+                width: 100%;
+                height: 100%;
+                text-decoration: none;
+            }
+
+        /* CORRECCIÓN UX: Contenedor exclusivo con fondo gris claro para aislar y resaltar la imagen */
+        .logo-bg-wrapper {
+            background-color: #f1f5f9; /* Cambia solo el fondo que envuelve a la imagen */
+            padding: 6px 8px;
+            border-radius: 8px; /* Bordes suaves para el marco de la imagen */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        /* Logotipo corporativo dentro de su marco protector */
+        .sidebar-logo {
+            max-height: 26px; /* Ajustado proporcionalmente para el nuevo contenedor */
+            width: auto;
+            object-fit: contain;
+        }
+
+        /* Texto del sistema a la derecha del logotipo */
+        .sidebar-system-title {
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #ffffff; /* Texto en blanco para contrastar con el fondo oscuro del menú */
+            line-height: 1.2;
+            letter-spacing: 0.3px;
+        }
+
     </style>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
@@ -135,12 +220,21 @@
 
     <!-- SIDEBAR (Barra Lateral) -->
     <div class="sidebar" id="sidebar">
+
+        <!-- ENCABEZADO: Logotipo con fondo gris exclusivo y Texto integrado en línea -->
         <div class="sidebar-brand">
-            <a class="text-white fw-bold fs-5 text-decoration-none d-flex align-items-center" asp-controller="Home" asp-action="Index">
-                <i class="bi bi-layers-half text-info me-2"></i> LayoutSystem
+            <a asp-controller="Home" asp-action="Index" title="Ir al Inicio">
+                <!-- El fondo gris claro solo se aplica a este contenedor de la imagen -->
+                <div class="logo-bg-wrapper shadow-xs">
+                    <img src="/image/toyoda-gosei-logo.png" alt="Toyoda Gosei Logo" class="sidebar-logo" />
+                </div>
+                <span class="sidebar-system-title">
+                    Sistema de Movimientos de <br><span class="text-info">Layout</span>
+                </span>
             </a>
         </div>
 
+        <!-- MENÚ DE NAVEGACIÓN PRINCIPAL -->
         <div class="sidebar-menu">
             <!-- INICIO -->
             <a class="nav-custom-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" asp-controller="Home" asp-action="Index">
@@ -158,13 +252,12 @@
                 <i class="bi bi-list-task"></i> Lista de Solicitudes
             </a>
 
-            <!-- NUEVO ENLACE: MIS FIRMAS (Integrado y Corregido) -->
+            <!-- ENLACE: MIS FIRMAS -->
             <a class="nav-custom-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Firmas" && ViewContext.RouteData.Values["Action"]?.ToString() == "Pendientes" ? "active" : "")"
                asp-controller="Firmas"
                asp-action="Pendientes">
                 <i class="bi bi-pen-fill"></i> Mis Firmas
             </a>
-
 
             <!-- SECCIÓN COMPLETA DE ADMINISTRACIÓN (Protegida por Roles) -->
             @if (User.IsInRole("Administrador"))
@@ -180,14 +273,13 @@
                    asp-action="Create">
                     <i class="bi bi-person-badge"></i> Alta de Roles
                 </a>
+@* 
                 <a class="nav-custom-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Usuarios" && ViewContext.RouteData.Values["Action"]?.ToString() == "AreasAsignadas" ? "active" : "")"
                    asp-controller="Usuarios"
                    asp-action="AreasAsignadas">
                     <i class="bi bi-diagram-3"></i> Usuarios y Áreas
-                </a>
-
+                </a> *@
             }
-
 
             <!-- SECCIÓN: SEGURIDAD -->
             <div class="text-uppercase text-white-50 px-4 pt-3 pb-2 small fw-bold" style="font-size: 0.75rem; letter-spacing: 0.05em;">Seguridad</div>
@@ -197,8 +289,6 @@
             </a>
         </div>
     </div>
-
-
 
 
     <!-- MAIN WRAPPER (Contenido Superior e Interno) -->
@@ -211,26 +301,31 @@
             </button>
 
             <div class="d-none d-lg-block">
-                <span class="text-muted small">Panel de Control Operativo</span>
+                <span class="text-muted small fw-medium">Panel de Control Operativo</span>
             </div>
 
             <!-- Autenticación / Perfil -->
             <div class="d-flex align-items-center">
                 @if (SignInManager.IsSignedIn(User))
                 {
+                    // Buscamos si existe el Claim del Nombre Completo, si no, limpiamos el Email de la sesión
+                    var nombreClaim = User.FindFirst("NombreCompleto")?.Value;
+                    var nombreMostrar = !string.IsNullOrEmpty(nombreClaim) ? nombreClaim : User.Identity?.Name;
+                    var inicial = !string.IsNullOrEmpty(nombreMostrar) ? nombreMostrar.Substring(0, 1).ToUpper() : "U";
+
                     <div class="dropdown">
-                        <button class="btn btn-light dropdown-toggle d-flex align-items-center gap-2" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 0.85rem;">
-                                @(User.Identity?.Name?.Substring(0, 1).ToUpper() ?? "U")
+                        <button class="btn btn-light dropdown-toggle d-flex align-items-center gap-2 border-0 bg-transparent" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.85rem; letter-spacing: 0.5px;">
+                                @inicial
                             </div>
-                            <span class="d-none d-sm-inline small fw-semibold">@User.Identity?.Name</span>
+                            <span class="d-none d-sm-inline small fw-semibold text-secondary">@nombreMostrar</span>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2" aria-labelledby="userMenu">
-                            <li><h6 class="dropdown-header">Mi Cuenta</h6></li>
-                            <li><hr class="dropdown-divider"></li>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 rounded-3" aria-labelledby="userMenu">
+                            <li><h6 class="dropdown-header text-uppercase tracking-wider small opacity-75">Mi Cuenta</h6></li>
+                            <li><hr class="dropdown-divider opacity-25"></li>
                             <li>
-                                <a class="dropdown-item text-danger d-flex align-items-center gap-2" asp-controller="Account" asp-action="Logout">
-                                    <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                                <a class="dropdown-item text-danger d-flex align-items-center gap-2 fw-medium py-2" asp-controller="Account" asp-action="Logout">
+                                    <i class="bi bi-box-arrow-right fs-5"></i> Cerrar Sesión
                                 </a>
                             </li>
                         </ul>
@@ -238,28 +333,29 @@
                 }
                 else
                 {
-                    <a class="btn btn-primary btn-sm px-3" asp-controller="Account" asp-action="Login">
+                    <a class="btn btn-primary btn-sm px-3 rounded-pill fw-semibold shadow-sm" asp-controller="Account" asp-action="Login">
                         <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar Sesión
                     </a>
                 }
             </div>
         </header>
 
-        <!-- CUERPO DE LAS VISTAS -->
+        <!-- CUERPO DE LAS VISTAS (Inyección dinámica de páginas) -->
         <main class="content-body" role="main">
             @RenderBody()
         </main>
 
-        <!-- FOOTER -->
-        <footer class="text-muted">
-            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
-                <div>&copy; 2026 - LayoutSystem - Todos los derechos reservados.</div>
+        <!-- FOOTER ESTILIZADO -->
+        <footer class="text-muted footer-clean">
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2 small fw-medium">
+                <div>&copy; 2026 - <span class="text-secondary fw-bold">LayoutSystem</span> - Todos los derechos reservados.</div>
                 <div>
-                    <a asp-controller="Home" asp-action="Privacy" class="text-muted text-decoration-none me-3">Privacidad</a>
+                    <a asp-controller="Home" asp-action="Privacy" class="text-muted text-decoration-none hover-underline">Aviso de Privacidad</a>
                 </div>
             </div>
         </footer>
     </div>
+
 
     <!-- Scripts Básicos -->
 

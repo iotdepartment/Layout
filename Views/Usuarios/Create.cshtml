@@ -66,131 +66,42 @@
         font-weight: 700;
     }
 
+    .modal-xl {
+        max-width: 1200px;
+    }
+
+    .modal-body {
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    #modalUsuario .modal-content {
+        border: none;
+        border-radius: 18px;
+    }
+
+    #modalUsuario .card {
+        border-radius: 14px;
+    }
+
+    #modalUsuario .form-control,
+    #modalUsuario .form-select {
+        border-radius: 10px;
+    }
+
+    #modalUsuario .modal-header {
+        background: #f8fafc;
+    }
+
+    #modalUsuario .modal-footer {
+        background: #f8fafc;
+    }
 </style>
 
 <div class="row g-4">
 
-    <!-- COLUMNA IZQUIERDA: Formulario de Alta -->
-    <div class="col-12 col-xl-5">
-        <div class="card shadow-sm border-0 rounded-3">
-            <div class="card-header bg-white border-bottom-0 pt-3">
-                <h4 class="fw-bold text-secondary mb-0">Alta de Usuario</h4>
-            </div>
-
-            <div class="card-body">
-                <form asp-action="Create" method="post">
-
-                    <div asp-validation-summary="All" class="text-danger mb-3 small fw-medium"></div>
-
-                    <!-- Campo: Nombre Completo -->
-                    <div class="mb-3">
-                        <label asp-for="NombreCompleto" class="form-label fw-semibold text-secondary">Nombre Completo</label>
-                        <input asp-for="NombreCompleto" class="form-control rounded-2 py-2" placeholder="Ej. Juan Pérez" required />
-                        <span asp-validation-for="NombreCompleto" class="text-danger small"></span>
-                    </div>
-
-                    <!-- Campo: Correo -->
-                    <div class="mb-3">
-                        <label asp-for="Email" class="form-label fw-semibold text-secondary">Correo Electrónico</label>
-                        <input asp-for="Email" type="email" class="form-control rounded-2 py-2" placeholder="ejemplo@correo.com" required />
-                        <span asp-validation-for="Email" class="text-danger small"></span>
-                    </div>
-
-                    <!-- Campo: Contraseña -->
-                    <div class="mb-3">
-                        <label asp-for="Password" class="form-label fw-semibold text-secondary">Contraseña temporal</label>
-                        <input asp-for="Password" type="password" class="form-control rounded-2 py-2" placeholder="••••••••" required />
-                        <span asp-validation-for="Password" class="text-danger small"></span>
-                    </div>
-
-                    <!-- Campo: Rol -->
-                    <div class="mb-3">
-                        <label asp-for="Rol" class="form-label fw-semibold text-secondary">Rol asignado</label>
-                        <select asp-for="Rol" asp-items="Model.Roles" class="form-select rounded-2 py-2" id="rolSelect" required>
-                            <option value="">Seleccione un rol...</option>
-                        </select>
-                        <span asp-validation-for="Rol" class="text-danger small"></span>
-                    </div>
-                    <div class="mb-4" id="divTipoFirma">
-
-                        <label class="form-label fw-semibold text-secondary">
-                            Tipos de Firma
-                        </label>
-
-                        <div class="areas-container-box">
-
-                            <div class="row g-2">
-
-                                @foreach (var firma in Model.TiposFirma)
-                                {
-                                    <div class="col-12 col-sm-6">
-
-                                        <div class="form-check form-check-custom d-flex align-items-center mb-1">
-
-                                            <input class="form-check-input me-2"
-                                                   type="checkbox"
-                                                   name="TiposFirmaSeleccionados"
-                                                   value="@firma.Value"
-                                                   id="firma_@firma.Value" />
-
-                                            <label class="form-check-label"
-                                                   for="firma_@firma.Value">
-
-                                                @firma.Text
-
-                                            </label>
-
-                                        </div>
-
-                                    </div>
-                                }
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <!-- Contenedor Checkboxes: Áreas asignadas -->
-                    <div class="mb-4" id="divAreas">
-                        <label class="form-label fw-semibold text-secondary">Áreas operativas asignadas</label>
-                        <div class="areas-container-box">
-                            <div class="row g-2">
-                                @foreach (var area in Model.Areas)
-                                {
-                                    <div class="col-12 col-sm-6 col-md-4">
-                                        <div class="form-check form-check-custom d-flex align-items-center mb-1">
-                                            <input class="form-check-input me-2"
-                                                   type="checkbox"
-                                                   name="AreasSeleccionadas"
-                                                   value="@area.Value"
-                                                   id="area_@area.Value" />
-                                            <label class="form-check-label text-truncate" for="area_@area.Value" title="@area.Text">
-                                                @area.Text
-                                            </label>
-                                        </div>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Botones de Envíos Estilizados -->
-                    <div class="d-flex gap-2 pt-2 border-top border-light">
-                        <button type="submit" class="btn btn-primary rounded-pill px-4 fw-semibold shadow-sm">
-                            <i class="bi bi-save me-1.5"></i>Guardar Usuario
-                        </button>
-                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4 fw-semibold">
-                            Cancelar
-                        </a>
-                    </div>
-
-                </form>
-            </div>
-        </div>
-    </div>
-    <!-- COLUMNA DERECHA: Tabla de Usuarios Existentes -->
-    <div class="col-12 col-xl-7">
+   <!-- COLUMNA DERECHA: Tabla de Usuarios Existentes -->
+    <div class="col-12">
         <div class="card shadow-sm border-0 rounded-3">
 
             <div class="card-header bg-white border-bottom-0 pt-3 d-flex justify-content-between align-items-center">
@@ -198,15 +109,27 @@
                     Usuarios Registrados
                 </h4>
 
-                <span class="badge rounded-pill badge-role-count">
-                    <i class="bi bi-people-fill me-1"></i>
-                    @(usuarios?.Count ?? 0) Cuentas Globales
-                </span>
+                <div class="d-flex align-items-center gap-2">
+
+                    <span class="badge rounded-pill badge-role-count">
+                        <i class="bi bi-people-fill me-1"></i>
+                        @(usuarios?.Count ?? 0) Cuentas Globales
+                    </span>
+
+                    <button type="button"
+                            class="btn btn-primary rounded-pill px-3"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalUsuario">
+
+                        <i class="bi bi-person-plus me-1"></i>
+                        Nuevo Usuario
+
+                    </button>
+
+                </div>
             </div>
 
             <div class="card-body">
-
-                <div class="table-responsive">
 
                     <table id="tablaUsuarios"
                            class="table table-hover table-users align-middle mb-0 w-100">
@@ -216,6 +139,7 @@
                                 <th class="ps-3">Nombre</th>
                                 <th>Correo Electrónico</th>
                                 <th class="text-center">Rol</th>
+                                <th>Áreas Asignadas</th>
                                 <th class="pe-3 text-center">Estado</th>
                             </tr>
                         </thead>
@@ -281,6 +205,47 @@
                                             }
 
                                         </td>
+                                    <td style="max-width:320px;">
+
+                                        @if (usuario.Areas != null && usuario.Areas.Any())
+                                        {
+                                            var totalAreas = usuario.Areas.Count();
+                                            var areasPrincipales = usuario.Areas.Take(3);
+                                            var areasOcultas = usuario.Areas.Skip(3);
+                                            var cantidadOcultas = totalAreas - 3;
+
+                                            @foreach (var area in areasPrincipales)
+                                            {
+                                                <span class="badge bg-light text-secondary border rounded-pill px-2 py-1 fw-semibold me-1 mb-1">
+                                                    <i class="bi bi-geo-alt text-primary me-1"></i>
+                                                    @area
+                                                </span>
+                                            }
+
+                                            @if (cantidadOcultas > 0)
+                                            {
+                                                var tooltipAreas = string.Join("<br>", areasOcultas);
+
+                                                <span class="badge bg-info-subtle text-primary border rounded-pill px-2 py-1 fw-semibold"
+                                                      data-bs-toggle="tooltip"
+                                                      data-bs-html="true"
+                                                      title="@tooltipAreas">
+
+                                                    +@cantidadOcultas más
+
+                                                </span>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-light text-muted border rounded-pill">
+                                                Sin áreas
+                                            </span>
+                                        }
+
+                                    </td>
+
+
 
                                         <td class="pe-3 text-center">
 
@@ -311,11 +276,236 @@
 
                     </table>
 
-                </div>
 
             </div>
 
         </div>
+    </div>
+
+    <div class="modal fade"
+         id="modalUsuario"
+         tabindex="-1"
+         aria-hidden="true">
+
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+
+            <div class="modal-content p-3">
+
+                <div class="modal-header border-0 shadow-sm">
+
+                    <div>
+                        <h4 class="fw-bold text-primary mb-1">
+                            <i class="bi bi-person-plus-fill me-2"></i>
+                            Alta de Usuario
+                        </h4>
+
+                        <small class="text-muted">
+                            Registra un nuevo usuario, asigna firmas y áreas operativas.
+                        </small>
+                    </div>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+                <div class="modal-body">
+                    <form asp-action="Create" method="post">
+
+                        <div asp-validation-summary="All" class="text-danger mb-3 small fw-medium"></div>
+                        <div class="row">
+
+                            <div class="col-md-6 mb-3">
+
+                                <label asp-for="NombreCompleto"
+                                       class="form-label fw-semibold">
+
+                                    Nombre Completo
+
+                                </label>
+
+                                <input asp-for="NombreCompleto"
+                                       class="form-control form-control-lg" />
+
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+
+                                <label asp-for="Email"
+                                       class="form-label fw-semibold">
+
+                                    Correo Electrónico
+
+                                </label>
+
+                                <input asp-for="Email"
+                                       type="email"
+                                       class="form-control form-control-lg" />
+
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+
+                            <div class="col-md-6 mb-3">
+
+                                <label asp-for="Password"
+                                       class="form-label fw-semibold">
+
+                                    Contraseña Temporal
+
+                                </label>
+
+                                <input asp-for="Password"
+                                       type="password"
+                                       class="form-control form-control-lg" />
+
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+
+                                <label asp-for="Rol"
+                                       class="form-label fw-semibold">
+
+                                    Rol del Sistema
+
+                                </label>
+
+                                <select asp-for="Rol"
+                                        asp-items="Model.Roles"
+                                        class="form-select form-select-lg">
+
+                                    <option value="">
+                                        Seleccione un rol...
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                        <div class="card border-0 shadow-sm mb-3">
+
+                            <div class="card-header bg-light">
+
+                                <h6 class="mb-0 fw-bold">
+                                    <i class="bi bi-vector-pen me-2"></i>
+                                    Tipos de Firma
+                                </h6>
+
+                            </div>
+
+                            <div class="card-body">
+
+                                <div class="row g-2">
+
+                                    @foreach (var firma in Model.TiposFirma)
+                                    {
+                                        <div class="col-md-4">
+
+                                            <div class="form-check">
+
+                                                <input class="form-check-input"
+                                                       type="checkbox"
+                                                       name="TiposFirmaSeleccionados"
+                                                       value="@firma.Value"
+                                                       id="firma_@firma.Value" />
+
+                                                <label class="form-check-label"
+                                                       for="firma_@firma.Value">
+
+                                                    @firma.Text
+
+                                                </label>
+
+                                            </div>
+
+                                        </div>
+                                    }
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="card border-0 shadow-sm">
+
+                            <div class="card-header bg-light">
+
+                                <h6 class="mb-0 fw-bold">
+                                    <i class="bi bi-diagram-3-fill me-2"></i>
+                                    Áreas Operativas
+                                </h6>
+
+                            </div>
+
+                            <div class="card-body">
+
+                                <div class="row g-2">
+
+                                    @foreach (var area in Model.Areas)
+                                    {
+                                        <div class="col-md-4">
+
+                                            <div class="form-check">
+
+                                                <input class="form-check-input"
+                                                       type="checkbox"
+                                                       name="AreasSeleccionadas"
+                                                       value="@area.Value"
+                                                       id="area_@area.Value" />
+
+                                                <label class="form-check-label"
+                                                       for="area_@area.Value">
+
+                                                    @area.Text
+
+                                                </label>
+
+                                            </div>
+
+                                        </div>
+                                    }
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="modal-footer border-0 mt-3">
+
+                            <button type="button"
+                                    class="btn btn-light px-4"
+                                    data-bs-dismiss="modal">
+
+                                Cancelar
+
+                            </button>
+
+                            <button type="submit"
+                                    class="btn btn-primary px-4">
+
+                                <i class="bi bi-save me-1"></i>
+                                Guardar Usuario
+
+                            </button>
+
+                        </div>
+                  
+                    </form>
+                </div>
+
+
+            </div>
+
+        </div>
+
     </div>
 </div>
 
@@ -323,46 +513,43 @@
 @section Scripts {
 
     <partial name="_ValidationScriptsPartial" />
-    <script src="cdn.datatables.net/2.3.8/css/dataTables.dataTables.min.css"></script>
-    <script src="cdn.datatables.net/2.3.8/js/dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.8/css/dataTables.dataTables.min.css" />
+
+    <script src="https://cdn.datatables.net/2.3.8/js/dataTables.min.js"></script>
 
 
-    <script>
-
-        document.addEventListener("DOMContentLoaded", function () {
-
-            const divAreas =
-                document.getElementById("divAreas");
-
-            const divTipoFirma =
-                document.getElementById("divTipoFirma");
-
-            if (divAreas) {
-                divAreas.style.display = "block";
-            }
-
-            if (divTipoFirma) {
-                divTipoFirma.style.display = "block";
-            }
-        });
-
-    </script>
-
-
+    <!-- 3. Lógica JavaScript de la Vista (Unificada en un solo bloque jQuery seguro) -->
     <script>
         $(document).ready(function () {
+
+            // ✅ INICIALIZACIÓN DE DATATABLES (Compatible con v1.13.8 y Bootstrap 5)
             $('#tablaUsuarios').DataTable({
                 pageLength: 10,
                 responsive: true,
                 language: {
-                url: 'https://cdn.datatables.net/plug-ins/1.13.8/i18n/es-MX.json'
-
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.8/i18n/es-MX.json'
                 },
                 order: [[0, 'asc']],
                 dom: "<'row mb-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6 text-end'f>>" +
                      "<'row'<'col-sm-12'tr>>" +
                      "<'row mt-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7 d-flex justify-content-end'p>>"
             });
+
+                  const tooltipTriggerList = document.querySelectorAll(
+            '[data-bs-toggle="tooltip"]');
+
+        tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+            new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+
+            // ✅ MANEJO VISUAL DE CONTENEDORES (Asegura el despliegue correcto de bloques)
+            const divAreas = document.getElementById("divAreas");
+            const divTipoFirma = document.getElementById("divTipoFirma");
+
+            if (divAreas) divAreas.style.display = "block";
+            if (divTipoFirma) divTipoFirma.style.display = "block";
+
         });
     </script>
 

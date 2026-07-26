@@ -11,5 +11,11 @@
         public bool Activo { get; set; }
 
         public string Rol { get; set; }
+
+        public List<string> Areas { get; set; }
+    = new();
+
+        public List<string> TiposFirma { get; set; }
+            = new();
     }
 }

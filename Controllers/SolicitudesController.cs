@@ -32,12 +32,16 @@ namespace Layout.Controllers
         {
             var vm = new SolicitudCreateViewModel
             {
+                FechaInicioMovimiento = DateTime.Today,
+                FechaFinMovimiento = DateTime.Today,
+
                 Areas = _context.Areas
                     .Select(a => new SelectListItem
                     {
                         Value = a.Id.ToString(),
                         Text = a.Nombre
-                    }).ToList()
+                    })
+                    .ToList()
             };
 
             return View(vm);

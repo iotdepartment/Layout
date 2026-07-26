@@ -60,6 +60,10 @@ namespace Layout.Controllers
             };
 
             var usuarios = await _userManager.Users
+                .Include(x => x.Areas)
+                    .ThenInclude(x => x.Area)
+                .Include(x => x.TiposFirma)
+                    .ThenInclude(x => x.TipoFirma)
                 .OrderBy(x => x.NombreCompleto)
                 .ToListAsync();
 
@@ -67,23 +71,42 @@ namespace Layout.Controllers
 
             foreach (var usuario in usuarios)
             {
-                var roles = await _userManager.GetRolesAsync(usuario);
+                var roles =
+                    await _userManager.GetRolesAsync(usuario);
 
-                usuariosTabla.Add(new UsuarioListadoViewModel
-                {
-                    Id = usuario.Id,
-                    NombreCompleto = usuario.NombreCompleto,
-                    Email = usuario.Email,
-                    Activo = usuario.Activo,
-                    Rol = roles.FirstOrDefault() ?? "-"
-                });
+                usuariosTabla.Add(
+                    new UsuarioListadoViewModel
+                    {
+                        Id = usuario.Id,
+
+                        NombreCompleto =
+                            usuario.NombreCompleto,
+
+                        Email =
+                            usuario.Email,
+
+                        Activo =
+                            usuario.Activo,
+
+                        Rol =
+                            roles.FirstOrDefault() ?? "-",
+
+                        Areas =
+                            usuario.Areas
+                                .Select(x => x.Area.Nombre)
+                                .ToList(),
+
+                        TiposFirma =
+                            usuario.TiposFirma
+                                .Select(x => x.TipoFirma.Nombre)
+                                .ToList()
+                    });
             }
 
             ViewBag.Usuarios = usuariosTabla;
 
             return View(vm);
         }
-
         private async Task CargarCombos(UsuarioCreateViewModel model)
         {
             model.Areas = await _context.Areas
@@ -117,8 +140,7 @@ namespace Layout.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Administrador")]
-        public async Task<IActionResult> Create(
-    UsuarioCreateViewModel model)
+        public async Task<IActionResult> Create(UsuarioCreateViewModel model)
         {
             if (!ModelState.IsValid)
             {
