@@ -96,14 +96,12 @@
             const comentarios = this.getAttribute('data-comentarios');
 
             // Banderas de validación (Evaluando 'True' proveniente del backend de C#)
-            const aplicaValidacion = this.getAttribute('data-aplica-validacion') === 'True';
             const aplicaResponsable = this.getAttribute('data-aplica-responsable') === 'True';
             const aplicaMandril = this.getAttribute('data-aplica-mandril') === 'True';
             const aplicaPallets = this.getAttribute('data-aplica-pallets') === 'True';
             const aplicaRazon = this.getAttribute('data-aplica-razon') === 'True';
 
             // Valores textuales
-            const validacion = this.getAttribute('data-validacion');
             const responsable = this.getAttribute('data-responsable');
             const mandril = this.getAttribute('data-mandril');
             const pallets = this.getAttribute('data-pallets');
@@ -120,7 +118,7 @@
             const seccionInventario = document.getElementById('seccionInventario');
 
             // El bloque se muestra si la solicitud está EnProceso o Finalizada (y existen datos técnicos creados o mapeados)
-            if (estatus === "EnProceso" || estatus === "Finalizado" || validacion || responsable || mandril || pallets || razonInv) {
+            if (estatus === "EnProceso" || estatus === "Finalizado" || responsable || mandril || pallets || razonInv) {
 
                 // Función auxiliar interna para inyectar las palomitas y formatear los textos correspondientes
                 function procesarCeldaTecnica(idBadge, idTexto, aplica, valorReal) {
@@ -139,7 +137,6 @@
                 }
 
                 // Procesamos las 6 celdas técnicas de forma simétrica
-                procesarCeldaTecnica("badgeValidacion", "modalValidacion", aplicaValidacion, validacion);
                 procesarCeldaTecnica("badgeResponsable", "modalResponsable", aplicaResponsable, responsable);
                 procesarCeldaTecnica("badgeMandril", "modalMandril", aplicaMandril, mandril);
                 procesarCeldaTecnica("badgePallets", "modalPallets", aplicaPallets, pallets);
@@ -182,7 +179,7 @@
             // NOMBRE AMIGABLE DEL ESTATUS
             // ============================================
             const nombresEstatus = {
-                "Pendiente": "Pendiente",
+                "Pendiente": "Pendiente de Aprobación",
                 "EnProceso": "En Proceso",
                 "PendienteFirmas": "Pendiente de Firmas",
                 "Finalizado": "Finalizada",
@@ -341,7 +338,7 @@
     // 🔹 enviar dictamen
     async function enviarDictamen(nuevoEstatus) {
 
-                const comentarios = document.getElementById('txtComentariosRevision').value;
+        const comentarios = document.getElementById('txtComentariosRevision').value;
 
         let estatusId = 0;
 

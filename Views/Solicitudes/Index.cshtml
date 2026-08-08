@@ -253,12 +253,10 @@
                          data-aprobador="@(item.UsuarioAprobador?.UserName ?? "N/A")"
                          data-fecharevision="@(item.FechaRevision?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")"
                          data-comentarios="@(item.ComentariosRevision ?? "Sin comentarios adicionales")"
-                         data-validacion="@item.InventarioTemporal?.NumeroValidacion"
                          data-responsable="@item.InventarioTemporal?.ResponsableInventario"
                          data-mandril="@item.InventarioTemporal?.MandrilKanbanNP"
                          data-pallets="@item.InventarioTemporal?.NumeroPallets"
                          data-razoninv="@item.InventarioTemporal?.RazonInventario"
-                         data-aplica-validacion="@item.InventarioTemporal?.AplicaValidacion"
                          data-aplica-responsable="@item.InventarioTemporal?.AplicaResponsable"
                          data-aplica-mandril="@item.InventarioTemporal?.AplicaMandril"
                          data-aplica-pallets="@item.InventarioTemporal?.AplicaPallets"
@@ -274,7 +272,7 @@
                             @switch (item.Estatus)
                             {
                                 case EstatusSolicitud.Pendiente:
-                                    <span class="badge bg-warning text-dark px-2.5 py-1.5 fw-semibold rounded-pill">Pendiente</span>
+                                    <span class="badge bg-warning text-dark px-2.5 py-1.5 fw-semibold rounded-pill">Pendiente de Aprobación</span>
                                     break;
                                 case EstatusSolicitud.EnProceso:
                                     <span class="badge bg-info text-dark px-2.5 py-1.5 fw-semibold rounded-pill">En Proceso</span>
@@ -282,8 +280,8 @@
                                 case EstatusSolicitud.Rechazado:
                                     <span class="badge bg-danger px-2.5 py-1.5 fw-semibold rounded-pill">Rechazada</span>
                                     break;
-                                case EstatusSolicitud.Finalizado:
-                                    <span class="badge bg-success px-2.5 py-1.5 fw-semibold rounded-pill">Finalizada</span>
+                                case EstatusSolicitud.Aprobado:
+                                    <span class="badge bg-success px-2.5 py-1.5 fw-semibold rounded-pill">Aprobado</span>
                                     break;
                                 case EstatusSolicitud.PendienteFirmas:
                                     <span class="badge bg-primary px-2.5 py-1.5 fw-semibold rounded-pill">
@@ -360,12 +358,12 @@
                                         <i class="bi bi-pen-fill me-1"></i>Pendiente Firmas
                                     </span>
                                 }
-                                else if (item.Estatus == EstatusSolicitud.Finalizado)
+                                else if (item.Estatus == EstatusSolicitud.Aprobado)
                                 {
                                     <!-- BADGE COMPLETADO: FINALIZADO / COMPLETADO -->
                                     <span class="badge bg-light text-success border px-2.5 py-1.5 small fw-semibold d-inline-flex align-items-center rounded-pill"
                                           title="El flujo de la solicitud ha concluido con éxito">
-                                        <i class="bi bi-check-circle-fill me-1"></i>Completado
+                                        <i class="bi bi-check-circle-fill me-1"></i>Aprobado
                                     </span>
                                 }
 
@@ -473,16 +471,7 @@
                         <div class="content-panel-box p-3 bg-light border-0">
                             <div class="inventory-grid">
 
-                                <!-- 1. Validación -->
-                                <div class="inventory-cell shadow-xs">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <span class="inventory-cell-title">Desviación</span>
-                                        <!-- Este contenedor se llenará con JS: un badge verde con palomita o un badge gris N/A -->
-                                        <span id="badgeValidacion"></span>
-                                    </div>
-                                    <span id="modalValidacion" class="inventory-cell-value text-secondary">—</span>
-                                </div>
-
+                               
                                 <!-- 2. Responsable -->
                                 <div class="inventory-cell shadow-xs">
                                     <div class="d-flex justify-content-between align-items-start">

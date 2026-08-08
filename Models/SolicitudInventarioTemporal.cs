@@ -7,9 +7,6 @@
         public int SolicitudId { get; set; }
         public SolicitudMovimiento Solicitud { get; set; }
 
-        public bool AplicaValidacion { get; set; }
-        public string? NumeroValidacion { get; set; }
-
         public bool AplicaResponsable { get; set; }
         public string? ResponsableInventario { get; set; }
 

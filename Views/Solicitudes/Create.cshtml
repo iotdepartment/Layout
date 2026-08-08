@@ -64,6 +64,7 @@
     }
 
 </style>
+
 <div class="row justify-content-center mt-4">
     <div class="col-lg-8 col-md-10">
         <div class="card shadow-sm border-0">
@@ -159,7 +160,7 @@
 
                         <div class="row g-3">
 
-                            <!-- 1. NÚMERO DE VALIDACIÓN -->
+                           @*  <!-- 1. NÚMERO DE VALIDACIÓN -->
                             <div class="col-12">
                                 <div class="form-inventory-row" id="rowValidacion">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
@@ -173,7 +174,7 @@
                                     <input id="txtValidacion" asp-for="NumeroValidacion" class="form-control form-inventory-control" placeholder="Ingrese el folio de validación..." readonly />
                                     <span asp-validation-for="NumeroValidacion" class="text-danger small mt-1 d-block"></span>
                                 </div>
-                            </div>
+                            </div> *@
 
                             <!-- 2. RESPONSABLE INVENTARIO -->
                             <div class="col-12">
@@ -320,7 +321,6 @@
         }
 
         // Inicialización
-        toggleInput("chkValidacion", "txtValidacion");
         toggleInput("chkResponsable", "txtResponsable");
         toggleInput("chkMandril", "txtMandril");
         toggleInput("chkPallets", "txtPallets");
@@ -343,10 +343,7 @@
 
         const errores = [];
 
-        if ($("#chkValidacion").is(":checked") &&
-            !$("#txtValidacion").val().trim()) {
-            errores.push("Debe capturar el Número de Validación.");
-        }
+       
 
         if ($("#chkResponsable").is(":checked") &&
             !$("#txtResponsable").val().trim()) {

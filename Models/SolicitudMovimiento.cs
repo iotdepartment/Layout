@@ -7,6 +7,7 @@ namespace Layout.Models
         public int Id { get; set; }
         public string Folio { get; set; }
 
+
         public int AreaId { get; set; }
         public Area Area { get; set; }
 
@@ -17,6 +18,8 @@ namespace Layout.Models
 
         public string ImagenLayout { get; set; }
 
+        public string? NumeroValidacion { get; set; }
+        public DateTime? FechaValidacion { get; set; }
         public string UsuarioSolicitanteId { get; set; }
         public ApplicationUser UsuarioSolicitante { get; set; }
 

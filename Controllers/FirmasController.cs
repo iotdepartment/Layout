@@ -32,44 +32,44 @@ namespace Layout.Controllers
             var vm = new MisFirmasViewModel();
 
             var pendientes = await _context.SolicitudesFirma
-     .Include(x => x.Solicitud)
-         .ThenInclude(x => x.Area)
-     .Include(x => x.TipoFirma)
-     .Where(x =>
-         x.UsuarioRequeridoId == usuario.Id &&
-         !x.Firmada)
-     .ToListAsync();
+             .Include(x => x.Solicitud)
+                .ThenInclude(x => x.Area)
+             .Include(x => x.TipoFirma)
+             .Where(x =>
+                 x.UsuarioRequeridoId == usuario.Id &&
+                 !x.Firmada)
+             .ToListAsync();
 
             vm.PendientesAgrupadas = pendientes
-           .GroupBy(x => x.SolicitudId)
-           .Select(g => new PendienteFirmaAgrupadaViewModel
-           {
-               FirmaIdReferencia = g.First().Id,
+               .GroupBy(x => x.SolicitudId)
+               .Select(g => new PendienteFirmaAgrupadaViewModel
+               {
+                   FirmaIdReferencia = g.First().Id,
 
-               SolicitudId = g.Key,
+                   SolicitudId = g.Key,
 
-               Folio = g.First().Solicitud.Folio,
+                   Folio = g.First().Solicitud.Folio,
 
-               Area = g.First().Solicitud.Area.Nombre,
+                   Area = g.First().Solicitud.Area.Nombre,
 
-               FechaCreacion = g.First().Solicitud.FechaCreacion,
+                   FechaCreacion = g.First().Solicitud.FechaCreacion,
 
-               TiposFirma = g
-                   .Select(x => x.TipoFirma.Nombre)
-                   .ToList()
-           })
-           .ToList();
+                   TiposFirma = g
+                       .Select(x => x.TipoFirma.Nombre)
+                       .ToList()
+               })
+               .ToList();
 
 
 
             var realizadas = await _context.SolicitudesFirma
-    .Include(x => x.Solicitud)
-        .ThenInclude(x => x.Area)
-    .Include(x => x.TipoFirma)
-    .Where(x =>
-        x.UsuarioRequeridoId == usuario.Id &&
-        x.Firmada)
-    .ToListAsync();
+                .Include(x => x.Solicitud)
+                    .ThenInclude(x => x.Area)
+                .Include(x => x.TipoFirma)
+                .Where(x =>
+                    x.UsuarioRequeridoId == usuario.Id &&
+                    x.Firmada)
+                .ToListAsync();
 
             vm.RealizadasAgrupadas = realizadas
                 .GroupBy(x => x.SolicitudId)
@@ -145,7 +145,7 @@ namespace Layout.Controllers
                 if (solicitud != null)
                 {
                     solicitud.Estatus =
-                        EstatusSolicitud.Finalizado;
+                        EstatusSolicitud.Aprobado;
 
                     await _context.SaveChangesAsync();
                 }

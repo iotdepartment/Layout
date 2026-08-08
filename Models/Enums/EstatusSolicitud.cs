@@ -8,8 +8,10 @@
 
         PendienteFirmas = 2,
 
-        Finalizado = 3,
+        Aprobado = 3,
 
-        Rechazado = 4
+        Rechazado = 4,
+        
+        Finalizado = 5
     }
 }

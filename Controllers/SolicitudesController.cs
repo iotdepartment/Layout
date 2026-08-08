@@ -121,10 +121,7 @@ namespace Layout.Controllers
 
                 var inventario = new SolicitudInventarioTemporal
                 {
-                    SolicitudId = solicitud.Id,
-
-                    AplicaValidacion = model.AplicaValidacion,
-                    NumeroValidacion = model.AplicaValidacion ? model.NumeroValidacion : null,
+                    SolicitudId = solicitud.Id, 
 
                     AplicaResponsable = model.AplicaResponsable,
                     ResponsableInventario = model.AplicaResponsable ? model.ResponsableInventario : null,
@@ -222,10 +219,13 @@ namespace Layout.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Aprobador,Administrador")]
-        public async Task<IActionResult> Evaluar(int id, EstatusSolicitud nuevoEstatus, string comentarios)
+        public async Task<IActionResult> Evaluar(
+     int id,
+     EstatusSolicitud nuevoEstatus,
+     string comentarios)
         {
             var solicitud = await _context.SolicitudesMovimiento
-                .FindAsync(id);
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             if (solicitud == null)
             {
@@ -241,15 +241,27 @@ namespace Layout.Controllers
             solicitud.Estatus = nuevoEstatus;
 
             solicitud.UsuarioAprobadorId = user.Id;
+
             solicitud.FechaRevision = DateTime.Now;
+
             solicitud.ComentariosRevision =
                 string.IsNullOrWhiteSpace(comentarios)
                     ? "Sin comentarios adicionales"
                     : comentarios;
 
+            // ✅ Generar Número de Validación únicamente al aprobar
+            if (
+                nuevoEstatus == EstatusSolicitud.EnProceso &&
+                string.IsNullOrWhiteSpace(solicitud.NumeroValidacion)
+            )
+            {
+                solicitud.NumeroValidacion =
+                    $"VAL-{DateTime.Now.Year}-{solicitud.Id:D6}";
+            }
+
             await _context.SaveChangesAsync();
 
-            // Si se envió a EnProceso
+            // ✅ Redirigir a completar información técnica
             if (nuevoEstatus == EstatusSolicitud.EnProceso)
             {
                 return Json(new
@@ -265,7 +277,9 @@ namespace Layout.Controllers
             return Json(new
             {
                 success = true,
-                message = "Solicitud procesada correctamente."
+                message = nuevoEstatus == EstatusSolicitud.Rechazado
+                    ? "Solicitud rechazada correctamente."
+                    : "Solicitud procesada correctamente."
             });
         }
 
