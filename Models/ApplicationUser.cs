@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Layout.Models.Enums;
+using Microsoft.AspNetCore.Identity;
 
 namespace Layout.Models
 {
@@ -6,8 +7,11 @@ namespace Layout.Models
     {
         public string NombreCompleto { get; set; }
 
-        public bool Activo { get; set; } = true;
+        public bool Activo { get; set; }
 
+        public EstatusUsuario EstatusUsuario { get; set; }
+
+        public DateTime FechaSolicitudAcceso { get; set; }
         public ICollection<UsuarioArea> Areas
         { get; set; } = new List<UsuarioArea>();
 

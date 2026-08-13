@@ -1,0 +1,78 @@
+﻿@model Layout.Models.ViewModels.RegisterViewModel
+
+@{
+    Layout = "_LayoutLogin";
+    ViewData["Title"] = "Solicitar Acceso";
+}
+
+<div class="text-center mb-4">
+    <i class="bi bi-person-badge text-primary" style="font-size:3rem;"></i>
+</div>
+
+<h2 class="text-center mb-2 fw-bold text-secondary">
+    @ViewData["Title"]
+</h2>
+
+<p class="text-center text-muted small mb-4">
+    Complete la información para solicitar una cuenta dentro del sistema.
+    Su acceso deberá ser autorizado por un Administrador o Aprobador.
+</p>
+
+<!-- CORRECCIÓN: Se añade la etiqueta de apertura <form> con sus Tag Helpers correspondientes -->
+<form asp-controller="Account" asp-action="Register" method="post">
+
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger p-2 small mb-3 text-center"></div>
+
+    <!-- Nombre -->
+    <div class="mb-3">
+        <label asp-for="NombreCompleto" class="form-label fw-semibold text-muted"></label>
+        <input asp-for="NombreCompleto" class="form-control form-control-lg" placeholder="Nombre completo" />
+        <span asp-validation-for="NombreCompleto" class="text-danger small mt-1 d-block"></span>
+    </div>
+
+    <!-- Correo -->
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label fw-semibold text-muted"></label>
+        <input asp-for="Email" class="form-control form-control-lg" placeholder="ejemplo@empresa.com" />
+        <span asp-validation-for="Email" class="text-danger small mt-1 d-block"></span>
+    </div>
+
+    <!-- Contraseña -->
+    <div class="mb-3">
+        <label asp-for="Password" class="form-label fw-semibold text-muted"></label>
+        <input asp-for="Password" type="password" class="form-control form-control-lg" placeholder="••••••••" />
+        <span asp-validation-for="Password" class="text-danger small mt-1 d-block"></span>
+    </div>
+
+    <!-- Confirmar Contraseña -->
+    <div class="mb-4">
+        <label asp-for="ConfirmPassword" class="form-label fw-semibold text-muted"></label>
+        <input asp-for="ConfirmPassword" type="password" class="form-control form-control-lg" placeholder="••••••••" />
+        <span asp-validation-for="ConfirmPassword" class="text-danger small mt-1 d-block"></span>
+    </div>
+
+    <div class="alert alert-info small mb-4">
+        <i class="bi bi-info-circle me-2"></i>
+        Una vez enviada la solicitud, un Administrador o Aprobador
+        revisará la información, asignará los permisos correspondientes
+        y autorizará el acceso al sistema.
+    </div>
+
+    <div class="d-grid">
+        <button type="submit" class="btn btn-success btn-lg shadow-sm">
+            <i class="bi bi-person-plus me-2"></i>Solicitar Acceso
+        </button>
+    </div>
+
+    <div class="text-center mt-4">
+        <!-- CORRECCIÓN: Se añade la etiqueta de apertura <a> para regresar al Login -->
+        <a asp-controller="Account" asp-action="Login" class="text-decoration-none fw-semibold text-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Volver al Inicio de Sesión
+        </a>
+    </div>
+
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -273,12 +273,12 @@
                    asp-action="Create">
                     <i class="bi bi-person-badge"></i> Alta de Roles
                 </a>
-@* 
-                <a class="nav-custom-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Usuarios" && ViewContext.RouteData.Values["Action"]?.ToString() == "AreasAsignadas" ? "active" : "")"
+
+                <a class="nav-custom-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Usuarios" && ViewContext.RouteData.Values["Action"]?.ToString() == "Pendientes" ? "active" : "")"
                    asp-controller="Usuarios"
-                   asp-action="AreasAsignadas">
-                    <i class="bi bi-diagram-3"></i> Usuarios y Áreas
-                </a> *@
+                   asp-action="Pendientes">
+                    <i class="bi bi-diagram-3"></i> Usuarios Pendientes
+                </a> 
             }
 
             <!-- SECCIÓN: SEGURIDAD -->
@@ -356,11 +356,7 @@
         </footer>
     </div>
 
-
     <!-- Scripts Básicos -->
-
-    
-
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

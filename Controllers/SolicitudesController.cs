@@ -219,10 +219,7 @@ namespace Layout.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Aprobador,Administrador")]
-        public async Task<IActionResult> Evaluar(
-     int id,
-     EstatusSolicitud nuevoEstatus,
-     string comentarios)
+        public async Task<IActionResult> Evaluar(int id, EstatusSolicitud nuevoEstatus, string comentarios)
         {
             var solicitud = await _context.SolicitudesMovimiento
                 .FirstOrDefaultAsync(x => x.Id == id);

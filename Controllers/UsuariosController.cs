@@ -1,5 +1,6 @@
 ﻿using Layout.Data;
 using Layout.Models;
+using Layout.Models.Enums;
 using Layout.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -231,5 +232,183 @@ namespace Layout.Controllers
             return View(usuarios);
         }
 
+        [Authorize(Roles = "Administrador,Aprobador")]
+        public async Task<IActionResult> Pendientes()
+        {
+            var usuarios = await _userManager.Users
+                .Where(x =>
+                    x.EstatusUsuario ==
+                    EstatusUsuario.Pendiente)
+                .OrderBy(x => x.NombreCompleto)
+                .ToListAsync();
+
+            return View(usuarios);
+        }
+
+
+
+        //[Authorize(Roles = "Administrador,Aprobador")]
+        //[HttpGet]
+        //public async Task<IActionResult> Aprobar(string id)
+        //{
+        //    var usuario =
+        //        await _userManager.FindByIdAsync(id);
+
+        //    if (usuario == null)
+        //        return NotFound();
+
+        //    var vm =
+        //        new AprobarUsuarioViewModel
+        //        {
+        //            UsuarioId = usuario.Id,
+        //            NombreCompleto =
+        //                usuario.NombreCompleto,
+        //            Email = usuario.Email
+        //        };
+
+        //    return View(vm);
+        //}
+
+        [Authorize(Roles = "Administrador,Aprobador")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Aprobar(AprobarUsuarioViewModel model)
+        {
+            var usuario =
+                await _userManager.FindByIdAsync(
+                    model.UsuarioId);
+
+            if (usuario == null)
+                return NotFound();
+
+            usuario.Activo = true;
+
+            usuario.EstatusUsuario =
+                EstatusUsuario.Aprobado;
+
+            await _userManager.UpdateAsync(usuario);
+
+            // Eliminar roles previos
+            var rolesActuales =
+                await _userManager.GetRolesAsync(usuario);
+
+            if (rolesActuales.Any())
+            {
+                await _userManager.RemoveFromRolesAsync(
+                    usuario,
+                    rolesActuales);
+            }
+
+            // Asignar rol nuevo
+            await _userManager.AddToRoleAsync(
+                usuario,
+                model.RolSeleccionado);
+
+            // Limpiar áreas
+            var areasActuales = _context.UsuarioAreas
+                .Where(x => x.UsuarioId == usuario.Id);
+
+            _context.UsuarioAreas.RemoveRange(
+                areasActuales);
+
+            // Guardar áreas
+            foreach (var areaId in model.AreasSeleccionadas)
+            {
+                _context.UsuarioAreas.Add(
+                    new UsuarioArea
+                    {
+                        UsuarioId = usuario.Id,
+                        AreaId = areaId
+                    });
+            }
+
+            // Limpiar firmas
+            var firmasActuales = _context.UsuarioTiposFirma
+                .Where(x => x.UsuarioId == usuario.Id);
+
+            _context.UsuarioTiposFirma.RemoveRange(
+                firmasActuales);
+
+            // Guardar firmas
+            foreach (var firmaId in model.TiposFirmaSeleccionados)
+            {
+                _context.UsuarioTiposFirma.Add(
+                    new UsuarioTipoFirma
+                    {
+                        UsuarioId = usuario.Id,
+                        TipoFirmaId = firmaId
+                    });
+            }
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Pendientes));
+        }
+
+        [Authorize(Roles = "Administrador,Aprobador")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Rechazar(string id)
+        {
+            var usuario =
+                await _userManager.FindByIdAsync(id);
+
+            if (usuario == null)
+                return NotFound();
+
+            usuario.Activo = false;
+
+            usuario.EstatusUsuario =
+                EstatusUsuario.Rechazado;
+
+            await _userManager.UpdateAsync(usuario);
+
+            return RedirectToAction(nameof(Pendientes));
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Administrador,Aprobador")]
+        public async Task<IActionResult> ObtenerDatosAprobacion(string id)
+        {
+            var usuario =
+                await _userManager.FindByIdAsync(id);
+
+            if (usuario == null)
+                return NotFound();
+
+            return Json(new
+            {
+                usuarioId = usuario.Id,
+                nombreCompleto = usuario.NombreCompleto,
+                email = usuario.Email,
+
+                roles = await _roleManager.Roles
+                    .OrderBy(x => x.Name)
+                    .Select(x => new
+                    {
+                        value = x.Name,
+                        text = x.Name
+                    })
+                    .ToListAsync(),
+
+                areas = await _context.Areas
+                    .OrderBy(x => x.Nombre)
+                    .Select(x => new
+                    {
+                        value = x.Id,
+                        text = x.Nombre
+                    })
+                    .ToListAsync(),
+
+                firmas = await _context.TiposFirma
+                    .OrderBy(x => x.Nombre)
+                    .Select(x => new
+                    {
+                        value = x.Id,
+                        text = x.Nombre
+                    })
+                    .ToListAsync()
+            });
+        }
     }
 }
