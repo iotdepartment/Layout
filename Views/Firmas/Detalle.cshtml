@@ -1,331 +1,335 @@
-﻿@model SolicitudFirma
+﻿    @model SolicitudFirma
 
-@{
-    ViewData["Title"] = $"Revisión de Solicitud #{Model.SolicitudId}";
-}
+    @{
+        ViewData["Title"] = $"Revisión de Solicitud #{Model.SolicitudId}";
+    }
 
-<div class="row g-4">
-    <!-- COLUMNA IZQUIERDA: Detalles Completos de la Solicitud -->
-    <div class="col-12 col-lg-8">
+    <div class="row g-4">
+        <!-- COLUMNA IZQUIERDA: Detalles Completos de la Solicitud -->
+        <div class="col-12 col-lg-8">
         
-        <!-- Tarjeta Principal de Información General -->
-        <div class="card shadow-sm border-0 rounded-3 mb-4">
-            <div class="card-header bg-white border-bottom-0 pt-3 d-flex justify-content-between align-items-center">
-                <h4 class="fw-bold text-secondary mb-0">
-                    <i class="bi bi-file-earmark-text text-primary me-2"></i>Solicitud #@Model.SolicitudId
-                </h4>
-                <span class="badge bg-light text-dark border px-3 py-1.5 rounded-pill fw-semibold">
-                    <i class="bi bi-geo-alt me-1 text-primary"></i>@(Model.Solicitud?.Area?.Nombre ?? "Sin Área")
-                </span>
-            </div>
-
-            <div class="card-body">
-                <!-- Tipo de Movimiento -->
-                <div class="mb-3">
-                    <small class="text-uppercase text-muted fw-bold d-block mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">Tipo de Movimiento</small>
-                    <span class="fs-5 fw-bold text-primary">@Model.Solicitud?.TipoMovimiento.ToString()</span>
+            <!-- Tarjeta Principal de Información General -->
+            <div class="card shadow-sm border-0 rounded-3 mb-4">
+                <div class="card-header bg-white border-bottom-0 pt-3 d-flex justify-content-between align-items-center">
+                    <h4 class="fw-bold text-secondary mb-0">
+                        <i class="bi bi-patch-check-fill text-success me-2"></i>
+                        Número de Validación:
+                        <span class="text-primary">
+                            @(Model.Solicitud?.NumeroValidacion ?? "Pendiente de Asignación")
+                        </span>
+                    </h4>
+                    <span class="badge bg-light text-dark border px-3 py-1.5 rounded-pill fw-semibold">
+                        <i class="bi bi-geo-alt me-1 text-primary"></i>@(Model.Solicitud?.Area?.Nombre ?? "Sin Área")
+                    </span>
                 </div>
 
-                <div class="row g-3">
-                    <!-- Descripción -->
-                    <div class="col-12">
-                        <small class="text-uppercase text-muted fw-bold d-block mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">Descripción Detallada</small>
-                        <p class="review-content-box border-start border-primary border-4 mb-0">@Model.Solicitud?.Descripcion</p>
+                <div class="card-body">
+                    <!-- Tipo de Movimiento -->
+                    <div class="mb-3">
+                        <small class="text-uppercase text-muted fw-bold d-block mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">Tipo de Movimiento</small>
+                        <span class="fs-5 fw-bold text-primary">@Model.Solicitud?.TipoMovimiento.ToString()</span>
                     </div>
 
-                    <!-- Justificación / Razón -->
-                    <div class="col-12">
-                        <small class="text-uppercase text-muted fw-bold d-block mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">Justificación de Petición</small>
-                        <p class="review-content-box mb-0">@Model.Solicitud?.Razon</p>
-                    </div>
-                </div>
+                    <div class="row g-3">
+                        <!-- Descripción -->
+                        <div class="col-12">
+                            <small class="text-uppercase text-muted fw-bold d-block mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">Descripción Detallada</small>
+                            <p class="review-content-box border-start border-primary border-4 mb-0">@Model.Solicitud?.Descripcion</p>
+                        </div>
 
-                <!-- Croquis / Layout Adjunto -->
-                @if (Model.Solicitud != null && !string.IsNullOrEmpty(Model.Solicitud.ImagenLayout))
-                {
-                    <div class="mt-4 pt-3 border-top border-light">
-                        <small class="text-uppercase text-muted fw-bold d-block mb-2" style="font-size: 0.65rem; letter-spacing: 0.5px;">Layout / Croquis Adjunto</small>
-                        <div class="bg-light p-2 rounded-3 border border-light text-center">
-                            <a href="@Model.Solicitud.ImagenLayout" target="_blank" title="Click para expandir layout">
-                                <img src="@Model.Solicitud.ImagenLayout" class="img-fluid rounded-3 shadow-sm" style="max-height: 220px;" alt="Layout" />
-                            </a>
+                        <!-- Justificación / Razón -->
+                        <div class="col-12">
+                            <small class="text-uppercase text-muted fw-bold d-block mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">Justificación de Petición</small>
+                            <p class="review-content-box mb-0">@Model.Solicitud?.Razon</p>
                         </div>
                     </div>
-                }
+
+                    <!-- Croquis / Layout Adjunto -->
+                    @if (Model.Solicitud != null && !string.IsNullOrEmpty(Model.Solicitud.ImagenLayout))
+                    {
+                        <div class="mt-4 pt-3 border-top border-light">
+                            <small class="text-uppercase text-muted fw-bold d-block mb-2" style="font-size: 0.65rem; letter-spacing: 0.5px;">Layout / Croquis Adjunto</small>
+                            <div class="bg-light p-2 rounded-3 border border-light text-center">
+                                <a href="@Model.Solicitud.ImagenLayout" target="_blank" title="Click para expandir layout">
+                                    <img src="@Model.Solicitud.ImagenLayout" class="img-fluid rounded-3 shadow-sm" style="max-height: 220px;" alt="Layout" />
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
             </div>
+
+            <!-- Tarjeta Secundaria: Información Técnica (Si ya fue llenada por el Aprobador) -->
+            @if (Model.Solicitud?.MovimientosTecnicos != null)
+            {
+                var tech = Model.Solicitud.MovimientosTecnicos;
+            
+                <div class="card shadow-sm border-0 rounded-3 mb-4">
+                    <div class="card-header bg-white border-bottom-0 pt-3">
+                        <h5 class="fw-bold text-secondary mb-0">
+                            <i class="bi bi-boxes text-info me-2"></i>Información Dictaminada de Ingeniería
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- 1. Cuadrícula de Interruptores Técnicos (Estatus Aplica/No) -->
+                        <div class="tech-switch-grid mb-4">
+
+                            <!-- IoT / IT -->
+                            <div class="tech-switch-cell shadow-xs">
+                                <span class="tech-switch-title"><i class="bi bi-cpu me-2 text-muted"></i>Movimiento IT / IoT</span>
+                                <span class="badge @(tech.MovimientoITIoT ? "bg-success-subtle text-success" : "bg-light text-muted border") rounded-pill px-2.5 py-1">
+                                    @(tech.MovimientoITIoT ? "Aplica" : "No")
+                                </span>
+                            </div>
+
+                            <!-- Programación -->
+                            <div class="tech-switch-cell shadow-xs">
+                                <span class="tech-switch-title"><i class="bi bi-code-slash me-2 text-muted"></i>Programación</span>
+                                <span class="badge @(tech.MovimientoProgramacion ? "bg-success-subtle text-success" : "bg-light text-muted border") rounded-pill px-2.5 py-1">
+                                    @(tech.MovimientoProgramacion ? "Aplica" : "No")
+                                </span>
+                            </div>
+
+                            <!-- Eléctrico -->
+                            <div class="tech-switch-cell shadow-xs">
+                                <span class="tech-switch-title"><i class="bi bi-lightning me-2 text-muted"></i>Electrónico / Eléctrico</span>
+                                <span class="badge @(tech.MovimientoElectrico ? "bg-success-subtle text-success" : "bg-light text-muted border") rounded-pill px-2.5 py-1">
+                                    @(tech.MovimientoElectrico ? "Aplica" : "No")
+                                </span>
+                            </div>
+
+                            <!-- EHS -->
+                            <div class="tech-switch-cell shadow-xs">
+                                <span class="tech-switch-title"><i class="bi bi-shield-exclamation me-2 text-muted"></i>Normativa EHS</span>
+                                <span class="badge @(tech.MovimientoEHS ? "bg-success-subtle text-success" : "bg-light text-muted border") rounded-pill px-2.5 py-1">
+                                    @(tech.MovimientoEHS ? "Aplica" : "No")
+                                </span>
+                            </div>
+
+                            <!-- Cambio Nomenclatura -->
+                            <div class="tech-switch-cell shadow-xs">
+                                <span class="tech-switch-title"><i class="bi bi-tag me-2 text-muted"></i>Cambio Nomenclatura</span>
+                                <span class="badge @(tech.CambioNomenclatura ? "bg-success-subtle text-success" : "bg-light text-muted border") rounded-pill px-2.5 py-1">
+                                    @(tech.CambioNomenclatura ? "Aplica" : "No")
+                                </span>
+                            </div>
+
+                            <!-- Requiere PCR -->
+                            <div class="tech-switch-cell shadow-xs">
+                                <span class="tech-switch-title"><i class="bi bi-file-earmark-check me-2 text-muted"></i>Requiere PCR</span>
+                                <span class="badge @(tech.RequierePCR ? "bg-success-subtle text-success" : "bg-light text-muted border") rounded-pill px-2.5 py-1">
+                                    @(tech.RequierePCR ? "Aplica" : "No")
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- 2. Información Adicional del PCR (Si aplica, muestra el número de folio) -->
+                        @if (tech.RequierePCR && !string.IsNullOrEmpty(tech.NumeroPCR))
+                        {
+                            <div class="mb-4 bg-light p-3 rounded-3 border border-start border-info border-3 shadow-xs">
+                                <small class="text-uppercase text-muted fw-bold d-block mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">Folio de Control PCR</small>
+                                <span class="fw-bold text-dark fs-6"><i class="bi bi-hash me-1 text-info"></i>@tech.NumeroPCR</span>
+                            </div>
+                        }
+
+                        <!-- 3. Galería de Evidencias Visuales (Imagen Antes y Después) -->
+                        @if (!string.IsNullOrEmpty(tech.ImagenAntes) || !string.IsNullOrEmpty(tech.ImagenDespues))
+                        {
+                            <div class="divider-dashed my-3"></div>
+                            <small class="text-uppercase text-muted fw-bold d-block mb-3" style="font-size: 0.65rem; letter-spacing: 0.5px;">Cambios del movimiento</small>
+
+                            <div class="row g-3">
+                                <!-- Imagen Antes -->
+                                <div class="col-12 col-sm-6">
+                                    <div class="card h-100 bg-light border border-light p-2 rounded-3 text-center">
+                                        <span class="text-uppercase text-secondary fw-bold d-block mb-2" style="font-size: 0.6rem;">Estado Inicial (Antes)</span>
+                                        @if (!string.IsNullOrEmpty(tech.ImagenAntes))
+                                        {
+                                            <a href="@tech.ImagenAntes" target="_blank" title="Ver imagen original">
+                                                <img src="@tech.ImagenAntes" class="img-fluid rounded-2 shadow-xs" style="max-height: 160px; object-fit: cover;" alt="Antes" />
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <div class="py-4 text-muted small italic"><i class="bi bi-image text-muted opacity-50 d-block mb-1 fs-4"></i>Sin evidencia inicial</div>
+                                        }
+                                    </div>
+                                </div>
+
+                                <!-- Imagen Después -->
+                                <div class="col-12 col-sm-6">
+                                    <div class="card h-100 bg-light border border-light p-2 rounded-3 text-center">
+                                        <span class="text-uppercase text-secondary fw-bold d-block mb-2" style="font-size: 0.6rem;">Estado Final (Después)</span>
+                                        @if (!string.IsNullOrEmpty(tech.ImagenDespues))
+                                        {
+                                            <a href="@tech.ImagenDespues" target="_blank" title="Ver imagen original">
+                                                <img src="@tech.ImagenDespues" class="img-fluid rounded-2 shadow-xs" style="max-height: 160px; object-fit: cover;" alt="Después" />
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <div class="py-4 text-muted small italic"><i class="bi bi-image text-muted opacity-50 d-block mb-1 fs-4"></i>Sin evidencia final</div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                </div>
+
+
+
+            }
+
+            @if (ViewBag.Firmas != null)
+            {
+                <div class="card shadow-sm border-0 rounded-3 mb-4">
+
+                    <div class="card-header bg-white">
+                        <h5 class="fw-bold text-secondary mb-0">
+                            <i class="bi bi-pen-fill text-primary me-2"></i>
+                            Estado de Firmas
+                        </h5>
+                    </div>
+
+                    <div class="card-body">
+
+                        @foreach (var firma in (IEnumerable<SolicitudFirma>)ViewBag.Firmas)
+                        {
+                            <div class="border rounded-3 p-3 mb-2">
+
+                                @if (firma.Firmada)
+                                {
+                                    <span class="badge bg-success mb-2">
+                                        <i class="bi bi-check-circle me-1"></i>
+                                        Firmada
+                                    </span>
+
+                                    <div class="fw-bold">
+                                        @firma.TipoFirma?.Nombre
+                                    </div>
+
+                                    <div class="text-muted">
+                                        @firma.UsuarioFirmante?.NombreCompleto
+                                    </div>
+
+                                    <small class="text-muted">
+                                        @firma.FechaFirma?.ToString("dd/MM/yyyy HH:mm")
+                                    </small>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark mb-2">
+                                        <i class="bi bi-hourglass-split me-1"></i>
+                                        Pendiente
+                                    </span>
+
+                                    <div class="fw-bold">
+                                        @firma.TipoFirma?.Nombre
+                                    </div>
+
+                                    <div class="text-muted">
+                                        @firma.UsuarioRequerido?.NombreCompleto
+                                    </div>
+                                }
+
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+            }
+
         </div>
 
-        <!-- Tarjeta Secundaria: Información Técnica (Si ya fue llenada por el Aprobador) -->
-        @if (Model.Solicitud?.MovimientosTecnicos != null)
-        {
-            var tech = Model.Solicitud.MovimientosTecnicos;
-            
-            <div class="card shadow-sm border-0 rounded-3 mb-4">
+
+
+        <!-- COLUMNA DERECHA: Firma Digital del Usuario -->
+        <div class="col-12 col-lg-4">
+            <div class="card shadow-sm border-0 rounded-3 position-sticky" style="top: 20px;">
                 <div class="card-header bg-white border-bottom-0 pt-3">
                     <h5 class="fw-bold text-secondary mb-0">
-                        <i class="bi bi-boxes text-info me-2"></i>Información Dictaminada de Ingeniería
+                        <i class="bi bi-fingerprint text-success me-2"></i>Firma de Enterado
                     </h5>
                 </div>
+            
                 <div class="card-body">
-                    <!-- 1. Cuadrícula de Interruptores Técnicos (Estatus Aplica/No) -->
-                    <div class="tech-switch-grid mb-4">
+                    <p class="text-muted small">
+                        Estás por validar este movimiento como: 
+                        <strong class="text-dark">@(Model.TipoFirma?.Nombre ?? "Validación General")</strong>.
+                    </p>
 
-                        <!-- IoT / IT -->
-                        <div class="tech-switch-cell shadow-xs">
-                            <span class="tech-switch-title"><i class="bi bi-cpu me-2 text-muted"></i>Movimiento IT / IoT</span>
-                            <span class="badge @(tech.MovimientoITIoT ? "bg-success-subtle text-success" : "bg-light text-muted border") rounded-pill px-2.5 py-1">
-                                @(tech.MovimientoITIoT ? "Aplica" : "No")
-                            </span>
-                        </div>
-
-                        <!-- Programación -->
-                        <div class="tech-switch-cell shadow-xs">
-                            <span class="tech-switch-title"><i class="bi bi-code-slash me-2 text-muted"></i>Programación</span>
-                            <span class="badge @(tech.MovimientoProgramacion ? "bg-success-subtle text-success" : "bg-light text-muted border") rounded-pill px-2.5 py-1">
-                                @(tech.MovimientoProgramacion ? "Aplica" : "No")
-                            </span>
-                        </div>
-
-                        <!-- Eléctrico -->
-                        <div class="tech-switch-cell shadow-xs">
-                            <span class="tech-switch-title"><i class="bi bi-lightning me-2 text-muted"></i>Electrónico / Eléctrico</span>
-                            <span class="badge @(tech.MovimientoElectrico ? "bg-success-subtle text-success" : "bg-light text-muted border") rounded-pill px-2.5 py-1">
-                                @(tech.MovimientoElectrico ? "Aplica" : "No")
-                            </span>
-                        </div>
-
-                        <!-- EHS -->
-                        <div class="tech-switch-cell shadow-xs">
-                            <span class="tech-switch-title"><i class="bi bi-shield-exclamation me-2 text-muted"></i>Normativa EHS</span>
-                            <span class="badge @(tech.MovimientoEHS ? "bg-success-subtle text-success" : "bg-light text-muted border") rounded-pill px-2.5 py-1">
-                                @(tech.MovimientoEHS ? "Aplica" : "No")
-                            </span>
-                        </div>
-
-                        <!-- Cambio Nomenclatura -->
-                        <div class="tech-switch-cell shadow-xs">
-                            <span class="tech-switch-title"><i class="bi bi-tag me-2 text-muted"></i>Cambio Nomenclatura</span>
-                            <span class="badge @(tech.CambioNomenclatura ? "bg-success-subtle text-success" : "bg-light text-muted border") rounded-pill px-2.5 py-1">
-                                @(tech.CambioNomenclatura ? "Aplica" : "No")
-                            </span>
-                        </div>
-
-                        <!-- Requiere PCR -->
-                        <div class="tech-switch-cell shadow-xs">
-                            <span class="tech-switch-title"><i class="bi bi-file-earmark-check me-2 text-muted"></i>Requiere PCR</span>
-                            <span class="badge @(tech.RequierePCR ? "bg-success-subtle text-success" : "bg-light text-muted border") rounded-pill px-2.5 py-1">
-                                @(tech.RequierePCR ? "Aplica" : "No")
-                            </span>
-                        </div>
+                    <!-- Vista de la Firma Previamente Cargada del Sistema -->
+                    <div class="signature-preview-box mb-4 shadow-xs">
+                        <div class="text-uppercase text-muted fw-bold mb-2" style="font-size: 0.65rem; letter-spacing: 1px;">Firma Digital</div>
+                    
+                        <!-- Iconografía simuladora de firma en el backend -->
+                        <i class="bi bi-shield-lock-fill fs-2 text-success d-block mb-1"></i>
+                        <span class="font-monospace text-dark d-block fw-bold small text-truncate">@User.Identity?.Name</span>
+                        <small class="text-muted italic" style="font-size: 0.75rem;">Token de seguridad generado en sesión</small>
                     </div>
 
-                    <!-- 2. Información Adicional del PCR (Si aplica, muestra el número de folio) -->
-                    @if (tech.RequierePCR && !string.IsNullOrEmpty(tech.NumeroPCR))
+                    <!-- Formulario de Acción para Guardar/Firmar -->
+                    @if (!Model.Firmada)
                     {
-                        <div class="mb-4 bg-light p-3 rounded-3 border border-start border-info border-3 shadow-xs">
-                            <small class="text-uppercase text-muted fw-bold d-block mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">Folio de Control PCR</small>
-                            <span class="fw-bold text-dark fs-6"><i class="bi bi-hash me-1 text-info"></i>@tech.NumeroPCR</span>
-                        </div>
-                    }
+                        <!-- FORMULARIO DE ACCIÓN PARA GUARDAR/FIRMAR DIGITALMENTE -->
+                        <form asp-action="FirmarSolicitud" method="post">
 
-                    <!-- 3. Galería de Evidencias Visuales (Imagen Antes y Después) -->
-                    @if (!string.IsNullOrEmpty(tech.ImagenAntes) || !string.IsNullOrEmpty(tech.ImagenDespues))
-                    {
-                        <div class="divider-dashed my-3"></div>
-                        <small class="text-uppercase text-muted fw-bold d-block mb-3" style="font-size: 0.65rem; letter-spacing: 0.5px;">Evidencias de la Infraestructura</small>
+                            <!-- Genera el token de seguridad obligatorio para solicitudes POST de ASP.NET Core -->
+                            @Html.AntiForgeryToken()
 
-                        <div class="row g-3">
-                            <!-- Imagen Antes -->
-                            <div class="col-12 col-sm-6">
-                                <div class="card h-100 bg-light border border-light p-2 rounded-3 text-center">
-                                    <span class="text-uppercase text-secondary fw-bold d-block mb-2" style="font-size: 0.6rem;">Estado Inicial (Antes)</span>
-                                    @if (!string.IsNullOrEmpty(tech.ImagenAntes))
-                                    {
-                                        <a href="@tech.ImagenAntes" target="_blank" title="Ver imagen original">
-                                            <img src="@tech.ImagenAntes" class="img-fluid rounded-2 shadow-xs" style="max-height: 160px; object-fit: cover;" alt="Antes" />
-                                        </a>
-                                    }
-                                    else
-                                    {
-                                        <div class="py-4 text-muted small italic"><i class="bi bi-image text-muted opacity-50 d-block mb-1 fs-4"></i>Sin evidencia inicial</div>
-                                    }
-                                </div>
+                            <!-- Enviamos el ID de la SolicitudFirma oculto -->
+                            <input type="hidden" name="id" value="@Model.Id" />
+
+                            <!-- Validación opcional mediante Checkbox antes de liberar el botón -->
+                            <div class="form-check mb-4 text-start">
+                                <input class="form-check-input" type="checkbox" id="chkAcepto" required />
+                                <label class="form-check-label text-secondary small fw-medium" for="chkAcepto">
+                                    Confirmo que revisé la descripción, justificación y el layout adjunto de este movimiento.
+                                </label>
                             </div>
 
-                            <!-- Imagen Después -->
-                            <div class="col-12 col-sm-6">
-                                <div class="card h-100 bg-light border border-light p-2 rounded-3 text-center">
-                                    <span class="text-uppercase text-secondary fw-bold d-block mb-2" style="font-size: 0.6rem;">Estado Final (Después)</span>
-                                    @if (!string.IsNullOrEmpty(tech.ImagenDespues))
-                                    {
-                                        <a href="@tech.ImagenDespues" target="_blank" title="Ver imagen original">
-                                            <img src="@tech.ImagenDespues" class="img-fluid rounded-2 shadow-xs" style="max-height: 160px; object-fit: cover;" alt="Después" />
-                                        </a>
-                                    }
-                                    else
-                                    {
-                                        <div class="py-4 text-muted small italic"><i class="bi bi-image text-muted opacity-50 d-block mb-1 fs-4"></i>Sin evidencia final</div>
-                                    }
+                            <!-- Botonera Interactiva -->
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-success rounded-pill fw-semibold py-2 shadow-sm">
+                                    <i class="bi bi-pen me-1.5"></i>Aceptar
+                                </button>
+
+                                <a asp-action="Pendientes" class="btn btn-outline-secondary rounded-pill fw-semibold py-2">
+                                    Regresar a la Lista
+                                </a>
+                            </div>
+
+                        </form>
+                    }
+                    else
+                    {
+                        <!-- PANEL PREMIUM: REGISTRO EXITOSO HISTÓRICO -->
+                        <div class="alert alert-success border-0 shadow-sm rounded-3 mb-4 p-3 bg-success-subtle text-success">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-check-circle-fill fs-3 me-3"></i>
+                                <div>
+                                    <div class="fw-bold fs-6">Firma registrada correctamente</div>
+                                    <small class="text-secondary d-block mt-0.5">
+                                        Esta solicitud fue firmada por ti el:
+                                        <strong class="text-dark">
+                                            @Model.FechaFirma?.ToString("dd/MM/yyyy HH:mm")
+                                        </strong>
+                                    </small>
                                 </div>
                             </div>
                         </div>
-                    }
-                </div>
 
-            </div>
-
-
-
-        }
-
-        @if (ViewBag.Firmas != null)
-        {
-            <div class="card shadow-sm border-0 rounded-3 mb-4">
-
-                <div class="card-header bg-white">
-                    <h5 class="fw-bold text-secondary mb-0">
-                        <i class="bi bi-pen-fill text-primary me-2"></i>
-                        Estado de Firmas
-                    </h5>
-                </div>
-
-                <div class="card-body">
-
-                    @foreach (var firma in (IEnumerable<SolicitudFirma>)ViewBag.Firmas)
-                    {
-                        <div class="border rounded-3 p-3 mb-2">
-
-                            @if (firma.Firmada)
-                            {
-                                <span class="badge bg-success mb-2">
-                                    <i class="bi bi-check-circle me-1"></i>
-                                    Firmada
-                                </span>
-
-                                <div class="fw-bold">
-                                    @firma.TipoFirma?.Nombre
-                                </div>
-
-                                <div class="text-muted">
-                                    @firma.UsuarioFirmante?.NombreCompleto
-                                </div>
-
-                                <small class="text-muted">
-                                    @firma.FechaFirma?.ToString("dd/MM/yyyy HH:mm")
-                                </small>
-                            }
-                            else
-                            {
-                                <span class="badge bg-warning text-dark mb-2">
-                                    <i class="bi bi-hourglass-split me-1"></i>
-                                    Pendiente
-                                </span>
-
-                                <div class="fw-bold">
-                                    @firma.TipoFirma?.Nombre
-                                </div>
-
-                                <div class="text-muted">
-                                    @firma.UsuarioRequerido?.NombreCompleto
-                                </div>
-                            }
-
-                        </div>
-                    }
-
-                </div>
-
-            </div>
-        }
-
-    </div>
-
-
-
-    <!-- COLUMNA DERECHA: Firma Digital del Usuario -->
-    <div class="col-12 col-lg-4">
-        <div class="card shadow-sm border-0 rounded-3 position-sticky" style="top: 20px;">
-            <div class="card-header bg-white border-bottom-0 pt-3">
-                <h5 class="fw-bold text-secondary mb-0">
-                    <i class="bi bi-fingerprint text-success me-2"></i>Firma de Conformidad
-                </h5>
-            </div>
-            
-            <div class="card-body">
-                <p class="text-muted small">
-                    Estás por validar este movimiento bajo el cargo o rol de: 
-                    <strong class="text-dark">@(Model.TipoFirma?.Nombre ?? "Validación General")</strong>.
-                </p>
-
-                <!-- Vista de la Firma Previamente Cargada del Sistema -->
-                <div class="signature-preview-box mb-4 shadow-xs">
-                    <div class="text-uppercase text-muted fw-bold mb-2" style="font-size: 0.65rem; letter-spacing: 1px;">Firma Digital Vinculada</div>
-                    
-                    <!-- Iconografía simuladora de firma en el backend -->
-                    <i class="bi bi-shield-lock-fill fs-2 text-success d-block mb-1"></i>
-                    <span class="font-monospace text-dark d-block fw-bold small text-truncate">@User.Identity?.Name</span>
-                    <small class="text-muted italic" style="font-size: 0.75rem;">Token de seguridad generado en sesión</small>
-                </div>
-
-                <!-- Formulario de Acción para Guardar/Firmar -->
-                @if (!Model.Firmada)
-                {
-                    <!-- FORMULARIO DE ACCIÓN PARA GUARDAR/FIRMAR DIGITALMENTE -->
-                    <form asp-action="FirmarSolicitud" method="post">
-
-                        <!-- Genera el token de seguridad obligatorio para solicitudes POST de ASP.NET Core -->
-                        @Html.AntiForgeryToken()
-
-                        <!-- Enviamos el ID de la SolicitudFirma oculto -->
-                        <input type="hidden" name="id" value="@Model.Id" />
-
-                        <!-- Validación opcional mediante Checkbox antes de liberar el botón -->
-                        <div class="form-check mb-4 text-start">
-                            <input class="form-check-input" type="checkbox" id="chkAcepto" required />
-                            <label class="form-check-label text-secondary small fw-medium" for="chkAcepto">
-                                Confirmo que revisé la descripción, justificación y el layout adjunto de este movimiento.
-                            </label>
-                        </div>
-
-                        <!-- Botonera Interactiva -->
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-success rounded-pill fw-semibold py-2 shadow-sm">
-                                <i class="bi bi-pen me-1.5"></i>Estampar Firma Digital
-                            </button>
-
+                        <!-- Botonera de Escape para registros ya firmados -->
+                        <div class="d-grid">
                             <a asp-action="Pendientes" class="btn btn-outline-secondary rounded-pill fw-semibold py-2">
-                                Regresar a la Lista
+                                Regresar a Mis Firmas
                             </a>
                         </div>
-
-                    </form>
-                }
-                else
-                {
-                    <!-- PANEL PREMIUM: REGISTRO EXITOSO HISTÓRICO -->
-                    <div class="alert alert-success border-0 shadow-sm rounded-3 mb-4 p-3 bg-success-subtle text-success">
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-check-circle-fill fs-3 me-3"></i>
-                            <div>
-                                <div class="fw-bold fs-6">Firma registrada correctamente</div>
-                                <small class="text-secondary d-block mt-0.5">
-                                    Esta solicitud fue firmada por ti el:
-                                    <strong class="text-dark">
-                                        @Model.FechaFirma?.ToString("dd/MM/yyyy HH:mm")
-                                    </strong>
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Botonera de Escape para registros ya firmados -->
-                    <div class="d-grid">
-                        <a asp-action="Pendientes" class="btn btn-outline-secondary rounded-pill fw-semibold py-2">
-                            Regresar a Mis Firmas
-                        </a>
-                    </div>
-                }
-            </div>
-        </div>  
+                    }
+                </div>
+            </div>  
+        </div>
     </div>
-</div>

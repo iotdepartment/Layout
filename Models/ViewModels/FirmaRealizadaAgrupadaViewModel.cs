@@ -14,5 +14,6 @@
 
         public List<string> TiposFirma { get; set; }
             = new();
+        public string? NumeroValidacion { get; set; }
     }
 }

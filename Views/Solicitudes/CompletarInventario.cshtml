@@ -20,7 +20,7 @@
        value="@Model.SolicitudId" />
 <div class="card shadow-sm border-0 rounded-3 mb-4">
     <div class="card-body p-4">
-        <form asp-action="CompletarInventario" method="post" novalidate>
+        <form asp-action="CompletarInventario" method="post" enctype="multipart/form-data" novalidate>
             @Html.AntiForgeryToken()
             <input type="hidden" asp-for="SolicitudId" />
 
@@ -103,61 +103,116 @@
 
             <hr />
 
-            <h5 class="mb-4">
-                Evidencia de Movimiento
-            </h5>
+            <div class="card border-0 shadow-sm mb-4">
 
-            <div class="row">
+                <div class="card-header bg-light">
 
-                <!-- IMAGEN ANTES -->
-                <div class="col-md-6">
-
-                    <label asp-for="ImagenAntes" class="form-label fw-semibold">
-                        Layout Antes
-                    </label>
-
-                    <input asp-for="ImagenAntes"
-                           type="file"
-                           class="form-control"
-                           accept="image/*"
-                           id="imgAntesInput" />
-
-                    <div class="mt-3 text-center d-none"
-                         id="previewAntesContainer">
-
-                        <img id="previewAntes"
-                             class="img-fluid rounded shadow-sm border"
-                             style="max-height:300px; width:100%; object-fit:contain;" />
-
-                    </div>
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-images me-2 text-primary"></i>
+                        Evidencia del Movimiento
+                    </h5>
 
                 </div>
 
-                <!-- IMAGEN DESPUÉS -->
-                <div class="col-md-6">
+                <div class="card-body">
 
-                    <label asp-for="ImagenDespues" class="form-label fw-semibold">
-                        Layout Después
-                    </label>
+                    <div class="row g-4">
 
-                    <input asp-for="ImagenDespues"
-                           type="file"
-                           class="form-control"
-                           accept="image/*"
-                           id="imgDespuesInput" />
+                        <!-- ANTES -->
+                        <div class="col-md-6">
 
-                    <div class="mt-3 text-center d-none"
-                         id="previewDespuesContainer">
+                            <label asp-for="ImagenAntes"
+                                   class="form-label fw-semibold">
 
-                        <img id="previewDespues"
-                             class="img-fluid rounded shadow-sm border"
-                             style="max-height:300px; width:100%; object-fit:contain;" />
+                                Estado Inicial (Antes)
+
+                            </label>
+
+                            <input asp-for="ImagenAntes"
+                                   type="file"
+                                   accept="image/*"
+                                   class="form-control"
+                                   id="imgAntesInput" />
+
+                            <div id="previewAntesContainer"
+                                 class="mt-3 d-none">
+
+                                <div class="card border-warning">
+
+                                    <div class="card-header bg-warning-subtle">
+
+                                        <strong>
+                                            <i class="bi bi-camera me-1"></i>
+                                            ANTES
+                                        </strong>
+
+                                    </div>
+
+                                    <div class="card-body text-center">
+
+                                        <img id="previewAntes"
+                                             class="img-fluid rounded shadow-sm"
+                                             style="max-height:300px; object-fit:contain;" />
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- DESPUÉS -->
+                        <div class="col-md-6">
+
+                            <label asp-for="ImagenDespues"
+                                   class="form-label fw-semibold">
+
+                                Estado Final (Después)
+
+                            </label>
+
+                            <input asp-for="ImagenDespues"
+                                   type="file"
+                                   accept="image/*"
+                                   class="form-control"
+                                   id="imgDespuesInput" />
+
+                            <div id="previewDespuesContainer"
+                                 class="mt-3 d-none">
+
+                                <div class="card border-success">
+
+                                    <div class="card-header bg-success-subtle">
+
+                                        <strong>
+                                            <i class="bi bi-check-circle me-1"></i>
+                                            DESPUÉS
+                                        </strong>
+
+                                    </div>
+
+                                    <div class="card-body text-center">
+
+                                        <img id="previewDespues"
+                                             class="img-fluid rounded shadow-sm"
+                                             style="max-height:300px; object-fit:contain;" />
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
 
                     </div>
 
                 </div>
 
             </div>
+
+            <hr />
 
             <hr />
 

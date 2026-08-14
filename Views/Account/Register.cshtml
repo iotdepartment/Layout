@@ -15,7 +15,7 @@
 
 <p class="text-center text-muted small mb-4">
     Complete la información para solicitar una cuenta dentro del sistema.
-    Su acceso deberá ser autorizado por un Administrador o Aprobador.
+    Su acceso deberá ser autorizado por un Administrador.
 </p>
 
 <!-- CORRECCIÓN: Se añade la etiqueta de apertura <form> con sus Tag Helpers correspondientes -->
@@ -33,7 +33,7 @@
     <!-- Correo -->
     <div class="mb-3">
         <label asp-for="Email" class="form-label fw-semibold text-muted"></label>
-        <input asp-for="Email" class="form-control form-control-lg" placeholder="ejemplo@empresa.com" />
+        <input asp-for="Email" class="form-control form-control-lg" placeholder="ejemplo@toyodagosei.com" />
         <span asp-validation-for="Email" class="text-danger small mt-1 d-block"></span>
     </div>
 
@@ -53,7 +53,7 @@
 
     <div class="alert alert-info small mb-4">
         <i class="bi bi-info-circle me-2"></i>
-        Una vez enviada la solicitud, un Administrador o Aprobador
+        Una vez enviada la solicitud, un Administrador
         revisará la información, asignará los permisos correspondientes
         y autorizará el acceso al sistema.
     </div>

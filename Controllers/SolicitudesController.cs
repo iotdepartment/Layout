@@ -17,10 +17,12 @@ namespace Layout.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _env;
 
+
         public SolicitudesController(AppDbContext context,
                                      UserManager<ApplicationUser> userManager,
                                      IWebHostEnvironment env)
         {
+
             _context = context;
             _userManager = userManager;
             _env = env;
@@ -173,6 +175,7 @@ namespace Layout.Controllers
         }
 
         [Authorize(Roles = "Aprobador,Administrador")]
+        [HttpGet]
         public async Task<IActionResult> CompletarInventario(int id)
         {
             var solicitud = await _context.SolicitudesMovimiento
@@ -213,6 +216,162 @@ namespace Layout.Controllers
             }
 
             return View(vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CompletarInventario(SolicitudInventarioViewModel model)
+        {
+           
+            if (!ModelState.IsValid)
+            {
+                var errores = ModelState
+                    .Where(x => x.Value.Errors.Any())
+                    .Select(x => new
+                    {
+                        Campo = x.Key,
+                        Errores = x.Value.Errors
+                            .Select(e => e.ErrorMessage)
+                            .ToList()
+                    })
+                    .ToList();
+
+                ViewBag.TiposFirma = await _context.TiposFirma
+                    .OrderBy(x => x.Nombre)
+                    .ToListAsync();
+
+                ViewBag.Usuarios = await _userManager.Users
+                    .OrderBy(x => x.NombreCompleto)
+                    .ToListAsync();
+
+                return Json(errores);
+            }
+
+            // Buscar registro existente
+            var movimiento = await _context.SolicitudesMovimientosTecnicos
+                .FirstOrDefaultAsync(x =>
+                    x.SolicitudId == model.SolicitudId);
+
+            if (movimiento == null)
+            {
+                movimiento = new SolicitudMovimientosTecnicos
+                {
+                    SolicitudId = model.SolicitudId
+                };
+
+                _context.SolicitudesMovimientosTecnicos.Add(movimiento);
+            }
+
+            // Actualizar información
+            movimiento.MovimientoITIoT = model.MovimientoITIoT;
+            movimiento.MovimientoProgramacion = model.MovimientoProgramacion;
+            movimiento.MovimientoElectrico = model.MovimientoElectrico;
+            movimiento.MovimientoEHS = model.MovimientoEHS;
+            movimiento.CambioNomenclatura = model.CambioNomenclatura;
+           
+            if (model.ImagenAntes != null)
+            {
+                var folder = Path.Combine(
+                    _env.WebRootPath,
+                    "uploads");
+
+                if (!Directory.Exists(folder))
+                    Directory.CreateDirectory(folder);
+
+                var fileName =
+                    Guid.NewGuid().ToString() +
+                    Path.GetExtension(
+                        model.ImagenAntes.FileName);
+
+                var fullPath =
+                    Path.Combine(folder, fileName);
+
+                using (var stream = new FileStream(
+                    fullPath,
+                    FileMode.Create))
+                {
+                    await model.ImagenAntes.CopyToAsync(stream);
+                }
+
+                movimiento.ImagenAntes =
+                    "/uploads/" + fileName;
+            }
+
+            movimiento.RequierePCR = model.RequierePCR;
+            movimiento.NumeroPCR = model.NumeroPCR;
+            
+            if (model.ImagenDespues != null)
+            {
+                var folder = Path.Combine(
+                    _env.WebRootPath,
+                    "uploads");
+
+                if (!Directory.Exists(folder))
+                    Directory.CreateDirectory(folder);
+
+                var fileName =
+                    Guid.NewGuid().ToString() +
+                    Path.GetExtension(
+                        model.ImagenDespues.FileName);
+
+                var fullPath =
+                    Path.Combine(folder, fileName);
+
+                using (var stream = new FileStream(
+                    fullPath,
+                    FileMode.Create))
+                {
+                    await model.ImagenDespues.CopyToAsync(stream);
+                }
+
+                movimiento.ImagenDespues =
+                    "/uploads/" + fileName;
+            }
+
+            // Eliminar firmas existentes
+            var firmasExistentes = await _context.SolicitudesFirma
+                .Where(x => x.SolicitudId == model.SolicitudId)
+                .ToListAsync();
+
+            _context.SolicitudesFirma.RemoveRange(firmasExistentes);
+
+            // Guardar nuevas firmas
+            if (model.Firmas != null)
+            {
+                foreach (var firma in model.Firmas)
+                {
+                    if (
+                        firma.TipoFirmaId.HasValue &&
+                        !string.IsNullOrWhiteSpace(firma.UsuarioRequeridoId)
+                    )
+                    {
+                        _context.SolicitudesFirma.Add(
+                            new SolicitudFirma
+                            {
+                                SolicitudId = model.SolicitudId,
+                                TipoFirmaId = firma.TipoFirmaId.Value,
+                                UsuarioRequeridoId = firma.UsuarioRequeridoId,
+                                Firmada = false
+                            });
+                    }
+                }
+            }
+
+            // Cambiar estatus
+            var solicitud = await _context.SolicitudesMovimiento
+                .FirstOrDefaultAsync(x => x.Id == model.SolicitudId);
+
+            if (solicitud != null)
+            {
+                solicitud.Estatus = EstatusSolicitud.PendienteFirmas;
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                "Información técnica y firmas guardadas correctamente.";
+
+            return RedirectToAction(nameof(Index));
         }
 
         // VALIDA SI LA SOLICITUD ES ACEPTADA O RECHAZADA POR EL USUARIO APROBADOR O ADMINISTRADOR
@@ -278,106 +437,6 @@ namespace Layout.Controllers
                     ? "Solicitud rechazada correctamente."
                     : "Solicitud procesada correctamente."
             });
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CompletarInventario(SolicitudInventarioViewModel model)
-        {
-           
-            if (!ModelState.IsValid)
-            {
-                var errores = ModelState
-                    .Where(x => x.Value.Errors.Any())
-                    .Select(x => new
-                    {
-                        Campo = x.Key,
-                        Errores = x.Value.Errors
-                            .Select(e => e.ErrorMessage)
-                            .ToList()
-                    })
-                    .ToList();
-
-                ViewBag.TiposFirma = await _context.TiposFirma
-                    .OrderBy(x => x.Nombre)
-                    .ToListAsync();
-
-                ViewBag.Usuarios = await _userManager.Users
-                    .OrderBy(x => x.NombreCompleto)
-                    .ToListAsync();
-
-                return Json(errores);
-            }
-
-            // Buscar registro existente
-            var movimiento = await _context.SolicitudesMovimientosTecnicos
-                .FirstOrDefaultAsync(x =>
-                    x.SolicitudId == model.SolicitudId);
-
-            if (movimiento == null)
-            {
-                movimiento = new SolicitudMovimientosTecnicos
-                {
-                    SolicitudId = model.SolicitudId
-                };
-
-                _context.SolicitudesMovimientosTecnicos.Add(movimiento);
-            }
-
-            // Actualizar información
-            movimiento.MovimientoITIoT = model.MovimientoITIoT;
-            movimiento.MovimientoProgramacion = model.MovimientoProgramacion;
-            movimiento.MovimientoElectrico = model.MovimientoElectrico;
-            movimiento.MovimientoEHS = model.MovimientoEHS;
-            movimiento.CambioNomenclatura = model.CambioNomenclatura;
-
-            movimiento.RequierePCR = model.RequierePCR;
-            movimiento.NumeroPCR = model.NumeroPCR;
-
-            // Eliminar firmas existentes
-            var firmasExistentes = await _context.SolicitudesFirma
-                .Where(x => x.SolicitudId == model.SolicitudId)
-                .ToListAsync();
-
-            _context.SolicitudesFirma.RemoveRange(firmasExistentes);
-
-            // Guardar nuevas firmas
-            if (model.Firmas != null)
-            {
-                foreach (var firma in model.Firmas)
-                {
-                    if (
-                        firma.TipoFirmaId.HasValue &&
-                        !string.IsNullOrWhiteSpace(firma.UsuarioRequeridoId)
-                    )
-                    {
-                        _context.SolicitudesFirma.Add(
-                            new SolicitudFirma
-                            {
-                                SolicitudId = model.SolicitudId,
-                                TipoFirmaId = firma.TipoFirmaId.Value,
-                                UsuarioRequeridoId = firma.UsuarioRequeridoId,
-                                Firmada = false
-                            });
-                    }
-                }
-            }
-
-            // Cambiar estatus
-            var solicitud = await _context.SolicitudesMovimiento
-                .FirstOrDefaultAsync(x => x.Id == model.SolicitudId);
-
-            if (solicitud != null)
-            {
-                solicitud.Estatus = EstatusSolicitud.PendienteFirmas;
-            }
-
-            await _context.SaveChangesAsync();
-
-            TempData["Success"] =
-                "Información técnica y firmas guardadas correctamente.";
-
-            return RedirectToAction(nameof(Index));
         }
 
         private async Task<List<ApplicationUser>> ObtenerUsuariosPorRolYArea(string rol, int areaId)

@@ -41,25 +41,27 @@ namespace Layout.Controllers
              .ToListAsync();
 
             vm.PendientesAgrupadas = pendientes
-               .GroupBy(x => x.SolicitudId)
-               .Select(g => new PendienteFirmaAgrupadaViewModel
-               {
-                   FirmaIdReferencia = g.First().Id,
+    .GroupBy(x => x.SolicitudId)
+    .Select(g => new PendienteFirmaAgrupadaViewModel
+    {
+        FirmaIdReferencia = g.First().Id,
 
-                   SolicitudId = g.Key,
+        SolicitudId = g.Key,
 
-                   Folio = g.First().Solicitud.Folio,
+        Folio = g.First().Solicitud.Folio,
 
-                   Area = g.First().Solicitud.Area.Nombre,
+        NumeroValidacion =
+            g.First().Solicitud.NumeroValidacion,
 
-                   FechaCreacion = g.First().Solicitud.FechaCreacion,
+        Area = g.First().Solicitud.Area.Nombre,
 
-                   TiposFirma = g
-                       .Select(x => x.TipoFirma.Nombre)
-                       .ToList()
-               })
-               .ToList();
+        FechaCreacion = g.First().Solicitud.FechaCreacion,
 
+        TiposFirma = g
+            .Select(x => x.TipoFirma.Nombre)
+            .ToList()
+    })
+    .ToList();
 
 
             var realizadas = await _context.SolicitudesFirma
@@ -154,9 +156,7 @@ namespace Layout.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Firmar(
-       int firmaId,
-       string? comentarios)
+        public async Task<IActionResult> Firmar(int firmaId, string? comentarios)
         {
             var usuario = await _userManager.GetUserAsync(User);
 

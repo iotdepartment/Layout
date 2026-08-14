@@ -126,7 +126,7 @@
                         <table id="tablaPendientes" class="table table-hover table-firmas align-middle mb-0 w-100">
                             <thead>
                                 <tr>
-                                    <th>Solicitud</th>
+                                    <th>No. Validacion</th>
                                     <th>Área</th>
                                     <th>Firmas Requeridas</th>
                                     <th>Estatus</th>
@@ -138,8 +138,10 @@
 
                                 {
                                     <tr>
-                                        <td class="fw-bold text-primary ps-3">
-                                            @item.Folio
+                                        <td class="fw-bold text-primary">
+                                            
+                                            @item.NumeroValidacion
+                                            
                                         </td>
 
                                         <td class="fw-medium text-dark">
