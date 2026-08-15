@@ -5,8 +5,8 @@ namespace Layout.Models
     public class SolicitudMovimiento
     {
         public int Id { get; set; }
-        public string Folio { get; set; }
 
+        public string Folio { get; set; }
 
         public int AreaId { get; set; }
         public Area Area { get; set; }
@@ -20,6 +20,7 @@ namespace Layout.Models
 
         public string? NumeroValidacion { get; set; }
         public DateTime? FechaValidacion { get; set; }
+
         public string UsuarioSolicitanteId { get; set; }
         public ApplicationUser UsuarioSolicitante { get; set; }
 
@@ -34,10 +35,8 @@ namespace Layout.Models
 
         public string? ComentariosRevision { get; set; }
 
-        // ✅ NUEVO
         public DateTime? FechaInicioMovimiento { get; set; }
 
-        // ✅ NUEVO
         public DateTime? FechaFinMovimiento { get; set; }
 
         public SolicitudAprobacionDetalle? DetalleAprobacion { get; set; }
@@ -47,5 +46,9 @@ namespace Layout.Models
         public SolicitudMovimientosTecnicos? MovimientosTecnicos { get; set; }
 
         public ICollection<SolicitudHistorial>? Historial { get; set; }
+
+        public ICollection<SolicitudFirma> SolicitudesFirma { get; set; }
+     = new List<SolicitudFirma>();
+
     }
 }

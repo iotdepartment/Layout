@@ -155,10 +155,10 @@ namespace Layout.Data
             // =====================================================
 
             builder.Entity<SolicitudFirma>()
-                .HasOne(s => s.Solicitud)
-                .WithMany()
-                .HasForeignKey(s => s.SolicitudId)
-                .OnDelete(DeleteBehavior.Cascade);
+    .HasOne(s => s.Solicitud)
+    .WithMany(s => s.SolicitudesFirma)
+    .HasForeignKey(s => s.SolicitudId)
+    .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<SolicitudFirma>()
                 .HasOne(x => x.UsuarioRequerido)

@@ -164,11 +164,40 @@ namespace Layout.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var solicitudes = await _context.SolicitudesMovimiento
-                .Include(s => s.Area)
-                .Include(s => s.InventarioTemporal)
-                .Include(s => s.UsuarioAprobador)
-                .OrderByDescending(s => s.FechaCreacion)
+            var usuarioActual =
+                await _userManager.GetUserAsync(User);
+
+            IQueryable<SolicitudMovimiento> query =
+                _context.SolicitudesMovimiento
+                    .Include(s => s.Area)
+                    .Include(s => s.InventarioTemporal)
+                    .Include(s => s.UsuarioAprobador);
+
+            // Administrador y Aprobador ven todo
+            if (!User.IsInRole("Administrador") &&
+                !User.IsInRole("Aprobador"))
+            {
+                var solicitudesAsignadas =
+                    _context.SolicitudesFirma
+                        .Where(f =>
+                            f.UsuarioRequeridoId ==
+                            usuarioActual.Id)
+                        .Select(f =>
+                            f.SolicitudId);
+
+                query = query.Where(s =>
+                    s.UsuarioSolicitanteId ==
+                        usuarioActual.Id
+
+                    ||
+
+                    solicitudesAsignadas
+                        .Contains(s.Id));
+            }
+
+            var solicitudes = await query
+                .OrderByDescending(s =>
+                    s.FechaCreacion)
                 .ToListAsync();
 
             return View(solicitudes);
@@ -523,6 +552,30 @@ namespace Layout.Controllers
                 .ToListAsync();
 
             return Json(firmas);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Finalizar(int id)
+        {
+            var solicitud = await _context.SolicitudesMovimiento
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (solicitud == null)
+            {
+                return Json(new
+                {
+                    success = false
+                });
+            }
+
+            solicitud.Estatus = EstatusSolicitud.Finalizado;
+
+            await _context.SaveChangesAsync();
+
+            return Json(new
+            {
+                success = true
+            });
         }
 
 

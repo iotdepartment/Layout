@@ -65,7 +65,7 @@
         `;
             });
         }
-
+    const bloqueFinalizar = document.getElementById('bloqueFinalizar');
     const modalElement = document.getElementById('modalDetalle');
     const bsModal = new bootstrap.Modal(modalElement);
 
@@ -195,7 +195,9 @@
             // ============================================
             // LIMPIEZA GENERAL
             // ============================================
-
+            if (bloqueFinalizar) {
+                bloqueFinalizar.classList.add("d-none");
+            }
             if (bloqueAdmin) {
                 bloqueAdmin.classList.add("d-none");
             }
@@ -204,7 +206,9 @@
                 bloquePendiente.classList.add("d-none");
             }
 
-            formRevision.classList.add("d-none");
+            if (formRevision) {
+                formRevision.classList.add("d-none");
+            }
             seccionFirmas.classList.add("d-none");
 
             // ============================================
@@ -223,9 +227,16 @@
                     bloquePendiente.classList.remove("d-none");
                 }
 
-                formRevision.classList.remove("d-none");
+                if (formRevision) {
+                    formRevision.classList.remove("d-none");
+                }
 
-                document.getElementById('txtComentariosRevision').value = '';
+                const txtRevision =
+                    document.getElementById('txtComentariosRevision');
+
+                if (txtRevision) {
+                    txtRevision.value = '';
+                }
 
                 seccionRevision.classList.add("d-none");
             }
@@ -266,6 +277,23 @@
                 cargarFirmas(solicitudIdActual);
             }
 
+            // ============================================
+            // APROBADO
+            // ============================================
+            else if (estatus === "Aprobado") {
+
+                badge.classList.add("bg-success", "text-white");
+
+                document.getElementById('modalAprobador').innerText = aprobador;
+                document.getElementById('modalFechaRevision').innerText = fechaRevision;
+                document.getElementById('modalComentarios').innerText = comentarios;
+
+                seccionRevision.classList.remove("d-none");
+
+                if (bloqueFinalizar) {
+                    bloqueFinalizar.classList.remove("d-none");
+                }
+            }
 
             // ============================================
             // FINALIZADO
@@ -390,8 +418,77 @@
                 }
             }
 
+    async function finalizarSolicitud() {
+
+        const token =
+            document.querySelector(
+                'input[name="__RequestVerificationToken"]'
+            )?.value;
+
+        const formData =
+            new FormData();
+
+        formData.append(
+            "id",
+            solicitudIdActual
+        );
+
+        if (token) {
+            formData.append(
+                "__RequestVerificationToken",
+                token
+            );
+        }
+
+        try {
+
+            const response =
+                await fetch(
+                    '/Solicitudes/Finalizar',
+                    {
+                        method: 'POST',
+                        body: formData
+                    });
+
+            const result =
+                await response.json();
+
+            if (result.success) {
+
+                bsModal.hide();
+
+                location.reload();
+            }
+            else {
+
+                alert(
+                    result.message ||
+                    "No se pudo finalizar la solicitud"
+                );
+            }
+
+        }
+        catch (err) {
+
+            console.error(err);
+
+            alert(
+                "Error al finalizar la solicitud"
+            );
+        }
+        }
+    
     const btnAprobar = document.getElementById('btnAprobar');
     const btnRechazar = document.getElementById('btnRechazar');
+
+    if (btnFinalizar) {
+
+        btnFinalizar.addEventListener(
+            'click',
+            finalizarSolicitud
+        );
+
+    }
 
     if (btnAprobar) {
         btnAprobar.addEventListener('click', () =>

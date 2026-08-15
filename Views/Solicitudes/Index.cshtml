@@ -197,15 +197,119 @@
         transition: border-color 0.15s ease-in-out;
     }
 
-        #modalDetalle .textarea-dictamen:focus {
-            border-color: #4e73df;
-            box-shadow: 0 0 0 0.2rem rgba(78,115,223,0.1);
-        }
+    #modalDetalle .textarea-dictamen:focus {
+        border-color: #4e73df;
+        box-shadow: 0 0 0 0.2rem rgba(78,115,223,0.1);
+    }
 
     /* Pie de página limpio */
     #modalDetalle .modal-footer {
         background-color: #fcfcfc;
         border-top: 1px solid rgba(0, 0, 0, 0.04) !important;
+    }
+    /* --- SEGMENTED CONTROL ESTILO VERCEL / LINEAR --- */
+    .custom-segmented-track {
+        border: none !important;
+    }
+
+    /* Ocultar scrollbars horizontales en la barra contenedora */
+    .custom-saas-scroll {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+        .custom-saas-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+    /* Estado de los botones (Inactivos) */
+    .custom-segmented-track .nav-link {
+        background: transparent !important;
+        border: none !important;
+        color: #475569 !important; /* Gris intermedio muy limpio */
+        font-size: 0.88rem;
+        font-weight: 500;
+        transition: color 0.15s ease, background-color 0.15s ease;
+        white-space: text-nowrap;
+    }
+
+        /* Hover sutil sobre botones inactivos */
+        .custom-segmented-track .nav-link:hover {
+            color: #0f172a !important; /* Texto casi negro */
+        }
+
+        /* Estado Activo: Se levanta como un botón físico blanco flotante */
+        .custom-segmented-track .nav-link.active {
+            background-color: #ffffff !important; /* Fondo blanco sólido */
+            color: #0f172a !important; /* Texto oscuro principal */
+            font-weight: 600;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06) !important; /* Sombra fina de profundidad */
+        }
+
+        /* --- ESTILO DE CONTADORES COMPACTOS INTERNOS --- */
+        .custom-segmented-track .tab-num {
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 1px 6px;
+            background-color: rgba(0, 0, 0, 0.04);
+            border-radius: 4px;
+            color: #64748b;
+            font-family: var(--bs-font-monospace);
+        }
+
+        /* Al estar activo el botón, el contador se vuelve un poco más nítido */
+        .custom-segmented-track .nav-link.active .tab-num {
+            background-color: #f1f5f9;
+            color: #334155;
+        }
+
+        /* Micro-indicadores de color condicionales en el texto del número (Opcional, muy sutil) */
+        .custom-segmented-track .tab-num.dot-warning {
+            border-left: 2px solid #fbbf24;
+        }
+
+        .custom-segmented-track .tab-num.dot-info {
+            border-left: 2px solid #0ea5e9;
+        }
+
+        .custom-segmented-track .tab-num.dot-primary {
+            border-left: 2px solid #4f46e5;
+        }
+
+        .custom-segmented-track .tab-num.dot-success {
+            border-left: 2px solid #22c55e;
+        }
+
+        .custom-segmented-track .tab-num.dot-danger {
+            border-left: 2px solid #ef4444;
+        }
+
+    /* --- COMPORTAMIENTO PREMIUM DE TARJETAS SAAS --- */
+    .saas-solicitud-card:hover {
+        transform: translateY(-2px);
+        border-color: #cbd5e1 !important; /* El borde se oscurece un poco al pasar el mouse */
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05) !important; /* Sombra suave y amplia */
+    }
+
+    /* Efecto Hover para el botón blanco de acción */
+    .btn-action-saas:hover {
+        background-color: #f8f9fa !important;
+        border-color: #94a3b8 !important;
+        color: #000000 !important;
+    }
+
+    /* Truncado elegante de párrafos a máximo 2 renglones (Reemplaza al carrusel lento) */
+    .text-truncate-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Espacio uniforme entre textos e iconos */
+    .gap-1.5 {
+        gap: 0.38rem !important;
     }
 
 
@@ -213,6 +317,60 @@
 
 <!-- Genera el token de seguridad necesario para las peticiones Fetch -->
 @Html.AntiForgeryToken()
+
+@functions {
+
+    string ObtenerEstadoGeneral(EstatusSolicitud estatus)
+    {
+        return estatus switch
+        {
+            EstatusSolicitud.Pendiente => "Pendiente",
+
+            EstatusSolicitud.EnProceso => "En Proceso",
+
+            EstatusSolicitud.PendienteFirmas => "En Proceso",
+
+            EstatusSolicitud.Aprobado => "En Proceso",
+
+            EstatusSolicitud.Rechazado => "Rechazada",
+
+            EstatusSolicitud.Finalizado => "Finalizada",
+
+            _ => ""
+        };
+    }
+
+}
+
+@functions {
+
+    string ObtenerEtapaActual(EstatusSolicitud estatus)
+    {
+        return estatus switch
+        {
+            EstatusSolicitud.Pendiente =>
+                "Esperando revisión",
+
+            EstatusSolicitud.EnProceso =>
+                "Captura información técnica",
+
+            EstatusSolicitud.PendienteFirmas =>
+                "Esperando firmas",
+
+            EstatusSolicitud.Aprobado =>
+                "Pendiente ejecución",
+
+            EstatusSolicitud.Finalizado =>
+                "Movimiento completado",
+
+            EstatusSolicitud.Rechazado =>
+                "Solicitud rechazada",
+
+            _ => ""
+        };
+    }
+
+}
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -235,11 +393,66 @@
     }
     else
     {
+        <!-- CONTENEDOR TIPO CONTROLLER SEGMENTADO -->
+        <div class="d-flex mb-4 overflow-x-auto pb-2 custom-saas-scroll">
+            <!-- Una pista limpia, gris y estilizada que une a todas las pestañas -->
+            <ul class="nav p-1 bg-secondary bg-opacity-10 rounded-3 flex-nowrap gap-1 custom-segmented-track" id="tabsSolicitudes" role="tablist">
+
+                <!-- TODAS -->
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active px-3 py-1.5 rounded-2 d-flex align-items-center gap-2" data-estatus="Todas" type="button">
+                        <span class="tab-text"><i class="bi bi-collection me-1"></i>Todas</span>
+                        <span class="tab-num">@Model.Count()</span>
+                    </button>
+                </li>
+
+                <!-- PENDIENTES -->
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link px-3 py-1.5 rounded-2 d-flex align-items-center gap-2" data-grupo="Pendiente" type="button">
+                        <span class="tab-text"><i class="bi bi-clock-history me-1 text-warning"></i>Pendientes</span>
+                        <span class="tab-num dot-warning">@Model.Count(x => x.Estatus == EstatusSolicitud.Pendiente)</span>
+                    </button>
+                </li>
+
+                <!-- EN PROCESO -->
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link px-3 py-1.5 rounded-2 d-flex align-items-center gap-2" data-grupo="EnProceso" type="button">
+                        <span class="tab-text"><i class="bi bi-arrow-repeat me-1 text-info"></i>En Proceso</span>
+                        <span class="tab-num dot-info">
+                            @Model.Count(x =>
+                            x.Estatus == EstatusSolicitud.EnProceso ||
+                            x.Estatus == EstatusSolicitud.PendienteFirmas ||
+                            x.Estatus == EstatusSolicitud.Aprobado)
+                    </span>
+                    </button>
+                </li>
+
+                <!-- RECHAZADAS -->
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link px-3 py-1.5 rounded-2 d-flex align-items-center gap-2" data-grupo="Rechazado" type="button">
+                        <span class="tab-text"><i class="bi bi-x-circle me-1 text-danger"></i>Rechazadas</span>
+                        <span class="tab-num dot-danger">@Model.Count(x => x.Estatus == EstatusSolicitud.Rechazado)</span>
+                    </button>
+                </li>
+
+                <!-- FINALIZADAS -->
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link px-3 py-1.5 rounded-2 d-flex align-items-center gap-2" data-grupo="Finalizado" type="button">
+                        <span class="tab-text"><i class="bi bi-archive me-1 text-secondary"></i>Finalizadas</span>
+                        <span class="tab-num">@Model.Count(x => x.Estatus == EstatusSolicitud.Finalizado)</span>
+                    </button>
+                </li>
+
+            </ul>
+        </div>
+
         <div class="row g-3">
             @foreach (var item in Model)
             {
-                <div class="col-12 col-md-6 col-xl-4">
-                    <div class="card h-100 shadow-sm border btn-detalle-solicitud dynamic-card"
+                <div class="col-12 col-md-6 col-xl-4 solicitud-card mb-4 d-flex">
+                    <!-- Mantenemos todos tus data attributes intactos para que tu JavaScript actual siga abriendo el detalle sin problemas -->
+                    <div class="card btn-detalle-solicitud dynamic-card w-100 border border-light-subtle rounded-3 bg-white shadow-sm position-relative overflow-hidden saas-solicitud-card"
+                         style="transition: all 0.2s ease-in-out; cursor: pointer;"
                          data-id="@item.Id"
                          data-area="@(item.Area?.Nombre ?? "Sin Área")"
                          data-estatus="@item.Estatus.ToString()"
@@ -262,120 +475,191 @@
                          data-aplica-pallets="@item.InventarioTemporal?.AplicaPallets"
                          data-aplica-razon="@item.InventarioTemporal?.AplicaRazon">
 
-
-                        <!-- Encabezado de la Tarjeta -->
-                        <div class="card-header card-header-gradient border-bottom-0 pt-3 pb-2 d-flex justify-content-between align-items-center">
-                            <span class="badge bg-light text-secondary border px-2.5 py-1.5 fw-semibold rounded-pill">
-                                <i class="bi bi-geo-alt me-1 text-primary"></i>@(item.Area?.Nombre ?? "Sin Área")
+                        <!-- 🔹 ENCABEZADO ESTILO SAAS (Minimalista con punto indicador) -->
+                        <div class="card-header bg-transparent border-0 pt-3 pb-2 px-3.5 d-flex justify-content-between align-items-center">
+                            <!-- Área con icono refinado -->
+                            <span class="text-secondary fw-medium d-inline-flex align-items-center gap-1.5" style="font-size: 0.82rem; color: #475569 !important;">
+                                <i class="bi bi-geo-alt-fill text-muted opacity-60 me-1" style="font-size: 0.85rem;"></i> @(item.Area?.Nombre ?? "Sin Área")
                             </span>
 
-                            @switch (item.Estatus)
-                            {
-                                case EstatusSolicitud.Pendiente:
-                                    <span class="badge bg-warning text-dark px-2.5 py-1.5 fw-semibold rounded-pill">Pendiente de Aprobación</span>
-                                    break;
-                                case EstatusSolicitud.EnProceso:
-                                    <span class="badge bg-info text-dark px-2.5 py-1.5 fw-semibold rounded-pill">En Proceso</span>
-                                    break;
-                                case EstatusSolicitud.Rechazado:
-                                    <span class="badge bg-danger px-2.5 py-1.5 fw-semibold rounded-pill">Rechazada</span>
-                                    break;
-                                case EstatusSolicitud.Aprobado:
-                                    <span class="badge bg-success px-2.5 py-1.5 fw-semibold rounded-pill">Aprobado</span>
-                                    break;
-                                case EstatusSolicitud.PendienteFirmas:
-                                    <span class="badge bg-primary px-2.5 py-1.5 fw-semibold rounded-pill">
-                                        Pendiente Firmas
-                                    </span>
-                                    break;
-                            }
+                                                    @switch (item.Estatus)
+                                                    {
+                                                        case EstatusSolicitud.Pendiente:
+
+                                                            <span class="badge bg-warning bg-opacity-10 text-warning border border-warning-subtle px-2.5 py-1 rounded-pill font-monospace"
+                                                                  style="font-size: 0.72rem;">
+                                                                <span class="p-1 bg-warning rounded-circle d-inline-block me-1 animate-pulse" style="width:4px; height:4px; vertical-align:middle;"></span>Pendiente
+                                                            </span>
+
+                                                            break;
+
+                                                        case EstatusSolicitud.EnProceso:
+
+                                                        case EstatusSolicitud.PendienteFirmas:
+
+                                                        case EstatusSolicitud.Aprobado:
+
+                                                            <span class="badge bg-info bg-opacity-10 text-info border border-info-subtle px-2.5 py-1 rounded-pill font-monospace"
+                                                                  style="font-size: 0.72rem;">
+                                                                <span class="p-1 bg-info rounded-circle d-inline-block me-1" style="width:4px; height:4px; vertical-align:middle;"></span>En Proceso
+                                                            </span>
+
+                                                            break;
+
+                                                        case EstatusSolicitud.Rechazado:
+
+                                                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger-subtle px-2.5 py-1 rounded-pill font-monospace"
+                                                                  style="font-size: 0.72rem;">
+                                                                <span class="p-1 bg-danger rounded-circle d-inline-block me-1" style="width:4px; height:4px; vertical-align:middle;"></span>Rechazada
+                                                            </span>
+
+                                                            break;
+
+                                                        case EstatusSolicitud.Finalizado:
+
+                                                            <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary-subtle px-2.5 py-1 rounded-pill font-monospace"
+                                                                  style="font-size: 0.72rem;">
+                                                                <span class="p-1 bg-secondary rounded-circle d-inline-block me-1" style="width:4px; height:4px; vertical-align:middle;"></span>Finalizada
+                                                            </span>
+
+                                                            break;
+                                                    }
+
+
+                          
                         </div>
 
-                        <!-- Cuerpo de la Tarjeta -->
-                        <div class="card-body py-2">
-                            <h5 class="card-title fw-bold text-primary mb-3 d-flex align-items-center">
-                                <i class="bi bi-arrow-right-circle me-2 fs-6"></i>@item.TipoMovimiento.ToString()
-                            </h5>
+                        <!-- 🔹 CUERPO DE LA TARJETA (Estilo SaaS Ultra-Limpio) -->
+                        <div class="card-body py-2 px-3.5">
+    
+                            <!-- TÍTULO IDENTIFICADOR POR TIPO DE MOVIMIENTO -->
+                            <div class="mb-3">
+                                <div class="d-flex flex-column">
 
+                                    <h5 class="fw-bold m-0"
+                                        style="font-size:1.05rem;color:#0f172a;">
+                                        @item.TipoMovimiento
+                                    </h5>
 
-                            <!-- Fila de Descripción en modo Carrusel/Truncado -->
-                            <div class="mb-2">
-                                <small class="text-uppercase text-muted fw-bold d-block" style="font-size: 0.65rem; letter-spacing: 0.5px;">Descripción</small>
-                                <div class="marquee-container text-secondary small">
-                                    <span class="marquee-text">@item.Descripcion</span>
+                                    <small class="mt-1">
+
+                                        @if (item.TipoMovimiento.ToString() == "Temporal")
+                                        {
+                                            <span class="text-warning fw-semibold">
+                                                <i class="bi bi-clock-history me-1"></i>
+                                                Movimiento Temporal
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-primary fw-semibold">
+                                                <i class="bi bi-pin-map me-1"></i>
+                                                Movimiento Permanente
+                                            </span>
+                                        }
+
+                                    </small>
+
+                                </div>
+
+                                <!-- Micro-indicador de Etapa Actual con Identificador de Progreso -->
+                                <div class="d-flex align-items-center flex-wrap gap-1.5 mt-2" style="font-size: 0.78rem;">
+                                    <!-- Prefijo identificador en formato limpio SaaS -->
+                                    <span class="text-muted fw-medium me-1">Etapa de la Solicitud:</span>
+
+                                    @switch (item.Estatus)
+                                    {
+                                        case EstatusSolicitud.Pendiente:
+                                            <span class="text-warning fw-semibold"><i class="bi bi-clock-history me-1"></i>Esperando Revisión</span>
+                                            break;
+
+                                        case EstatusSolicitud.EnProceso:
+                                            <span class="text-info fw-semibold"><i class="bi bi-pencil-square me-1"></i>Captura Información Técnica</span>
+                                            break;
+
+                                        case EstatusSolicitud.PendienteFirmas:
+                                            <span class="text-primary fw-semibold"><i class="bi bi-vector-pen me-1"></i>Esperando Firmas</span>
+                                            break;
+
+                                        case EstatusSolicitud.Aprobado:
+                                            <span class="text-success fw-semibold"><i class="bi bi-play-circle me-1"></i>Lista para Ejecución</span>
+                                            break;
+
+                                        case EstatusSolicitud.Finalizado:
+                                            <span class="text-secondary fw-semibold"><i class="bi bi-archive me-1"></i>Movimiento Completado</span>
+                                            break;
+
+                                        case EstatusSolicitud.Rechazado:
+                                            <span class="text-danger fw-semibold"><i class="bi bi-slash-circle me-1"></i>Solicitud Rechazada</span>
+                                            break;
+                                    }
+                                </div>
+
+                            </div>
+
+                            <div class="divider-light mb-3" style="height: 1px; background-color: #f1f5f9;"></div>
+
+                            <!-- CONTENEDOR DE CAMPOS (Distribución limpia mediante bordes guía) -->
+                            <div class="d-flex flex-column gap-3">
+                                <!-- Bloque Descripción -->
+                                <div class="ps-2 border-start border-light-subtle" style="border-width: 2px !important;">
+                                    <small class="text-uppercase text-muted fw-bold d-block mb-1" style="font-size: 0.62rem; letter-spacing: 0.06em; color: #94a3b8 !important;">Descripción del Movimiento</small>
+                                    <p class="text-secondary small mb-0 text-truncate-2" style="color: #475569 !important; line-height: 1.45;">
+                                        @item.Descripcion
+                                    </p>
+                                </div>
+
+                                <!-- Bloque Justificación -->
+                                <div class="ps-2 border-start border-light-subtle" style="border-width: 2px !important;">
+                                    <small class="text-uppercase text-muted fw-bold d-block mb-1" style="font-size: 0.62rem; letter-spacing: 0.06em; color: #94a3b8 !important;">Justificación / Razón</small>
+                                    <p class="text-muted small mb-0 text-truncate-2" style="color: #64748b !important; line-height: 1.45;">
+                                        @item.Razon
+                                    </p>
                                 </div>
                             </div>
 
-                            <div class="divider-dashed"></div>
-
-                            <!-- Fila de Justificación en modo Carrusel/Truncado -->
-                            <div class="mb-2">
-                                <small class="text-uppercase text-muted fw-bold d-block" style="font-size: 0.65rem; letter-spacing: 0.5px;">Justificación</small>
-                                <div class="marquee-container text-muted small">
-                                    <span class="marquee-text">@item.Razon</span>
-                                </div>
-                            </div>
                         </div>
 
-                        <!-- Pie de la Tarjeta -->
-                        <div class="card-footer card-footer-clean border-top-0 d-flex justify-content-between align-items-center py-2.5">
-                            <small class="text-muted fw-medium small">
-                                <i class="bi bi-calendar3 me-1 text-secondary"></i>@item.FechaCreacion.ToString("dd/MM/yyyy HH:mm")
-                            </small>
+
+
+                        <!-- 🔹 PIE DE LA TARJETA: Dividido por una línea milimétrica limpia -->
+                        <div class="card-footer bg-transparent border-top border-light-subtle d-flex justify-content-between align-items-center py-2.5 mt-2">
+                            <!-- Fecha en formato discreto -->
+                            <span class="text-muted font-monospace" style="font-size: 0.75rem; color: #64748b !important;">
+                                <i class="bi bi-calendar3 me-1 opacity-70"></i> @item.FechaCreacion.ToString("dd/MM/yyyy HH:mm")
+                            </span>
 
                             <div class="prevent-modal-trigger d-flex gap-2 align-items-center">
-                                @* ==========================================================================
-                                   CONTROL DE ACCIONES, ROLES Y BADGES EN EL FOOTER DE LA TARJETA
-                                   ========================================================================== *@
                                 @if (item.Estatus == EstatusSolicitud.EnProceso)
                                 {
-                                    @if (User.IsInRole("Administrador") || User.IsInRole("Aprobador"))
+                                    if (User.IsInRole("Administrador") || User.IsInRole("Aprobador"))
                                     {
-                                        <!-- CORRECCIÓN: Botón interactivo estructurado con sus etiquetas correctas (Apertura y Cierre) -->
+                                        <!-- Botón Aprobador: Estilo SaaS blanco con borde fino o azul minimalista -->
                                         <a asp-action="CompletarInventario"
                                            asp-controller="Solicitudes"
                                            asp-route-id="@item.Id"
-                                           class="btn btn-sm btn-primary px-2.5 py-1 shadow-sm fw-semibold d-inline-flex align-items-center rounded-pill"
+                                           class="btn btn-sm btn-white border border-light-subtle px-3 py-1 fw-semibold d-inline-flex align-items-center rounded-2 btn-action-saas shadow-sm"
                                            onclick="event.stopPropagation();"
-                                           title="Llenar datos de inventario y movimientos técnicos">
-                                            <i class="bi bi-pencil-square me-1"></i>Completar Info
+                                           style="font-size: 0.78rem; background-color: #ffffff; color: #0f172a;">
+                                            <i class="bi bi-pencil-square me-1.5 text-primary"></i>Completar Info
                                         </a>
                                     }
-                                    else
-                                    {
-                                        <!-- MEJORA UX: Si un usuario común ve la tarjeta, se le muestra un Badge estático en lugar de un botón -->
-                                        <span class="badge bg-light text-secondary border px-2.5 py-1.5 small fw-semibold d-inline-flex align-items-center rounded-pill"
-                                              title="Un administrador o aprobador está completando los datos técnicos">
-                                            <i class="bi bi-hourglass-split me-1 text-warning"></i>Pendiente Info. Técnica
-                                        </span>
-                                    }
                                 }
-                                else if (item.Estatus == EstatusSolicitud.PendienteFirmas)
-                                {
-                                    <!-- BADGE COMPLETADO: PENDIENTE FIRMAS -->
-                                    <span class="badge bg-light text-primary border px-2.5 py-1.5 small fw-semibold d-inline-flex align-items-center rounded-pill"
-                                          title="La solicitud se encuentra en espera de firmas digitales">
-                                        <i class="bi bi-pen-fill me-1"></i>Pendiente Firmas
-                                    </span>
-                                }
-                                else if (item.Estatus == EstatusSolicitud.Aprobado)
-                                {
-                                    <!-- BADGE COMPLETADO: FINALIZADO / COMPLETADO -->
-                                    <span class="badge bg-light text-success border px-2.5 py-1.5 small fw-semibold d-inline-flex align-items-center rounded-pill"
-                                          title="El flujo de la solicitud ha concluido con éxito">
-                                        <i class="bi bi-check-circle-fill me-1"></i>Aprobado
-                                    </span>
-                                }
-
+                               
                             </div>
                         </div>
+
                     </div>
                 </div>
+
             }
         
         </div>
+
+
     }
 </div>
+
 
 <!-- MODAL DE DETALLES DE LA SOLICITUD - DISEÑO REDISEÑADO -->
 <div class="modal fade" id="modalDetalle" tabindex="-1" aria-labelledby="modalDetalleLabel" aria-hidden="true">
@@ -438,8 +722,8 @@
                         </div>
 
                     </div>
-                    
-                    
+
+
 
                     <div class="col-12 my-1">
                         <hr class="text-muted opacity-25 m-0">
@@ -471,7 +755,7 @@
                         <div class="content-panel-box p-3 bg-light border-0">
                             <div class="inventory-grid">
 
-                               
+
                                 <!-- 2. Responsable -->
                                 <div class="inventory-cell shadow-xs">
                                     <div class="d-flex justify-content-between align-items-start">
@@ -508,7 +792,7 @@
                                     <span id="modalRazonInv" class="inventory-cell-value text-secondary">—</span>
                                 </div>
 
-                              
+
                             </div>
                         </div>
                     </div>
@@ -572,15 +856,28 @@
                             <img id="modalImagen" src="" class="img-fluid rounded-3 shadow-sm img-preview-layout" alt="Layout de movimiento" />
                         </div>
                     </div>
+                    @if (User.IsInRole("Administrador") ||
+                                        User.IsInRole("Aprobador"))
+                    {
+                        <div id="seccionFormularioRevision"
+                             class="col-12 d-none">
 
-                    <!-- Panel de Dictamen (Para Administradores en solicitudes Pendientes) -->
-                    <div id="seccionFormularioRevision" class="col-12 d-none">
-                        <div class="my-1">
-                            <hr class="text-muted opacity-25 m-0">
+                            <div class="my-1">
+                                <hr class="text-muted opacity-25 m-0">
+                            </div>
+
+                            <span class="modal-label-caps text-danger mb-2">
+                                Panel de Dictamen (Uso Administrativo)
+                            </span>
+
+                            <textarea id="txtComentariosRevision"
+                                  class="form-control textarea-dictamen"
+                                  rows="2"
+                                  placeholder="Escribe aquí de manera detallada los motivos de la aprobación o rechazo técnico...">
+        </textarea>
+
                         </div>
-                        <span class="modal-label-caps text-danger mb-2">Panel de Dictamen (Uso Administrativo)</span>
-                        <textarea id="txtComentariosRevision" class="form-control textarea-dictamen" rows="2" placeholder="Escribe aquí de manera detallada los motivos de la aprobación o rechazo técnico..."></textarea>
-                    </div>
+                    }
                 </div>
             </div>
 
@@ -628,12 +925,29 @@
                     </div>
                 }
 
+                @if (User.IsInRole("Administrador") || User.IsInRole("Aprobador"))
+                {
+                    <div id="bloqueFinalizar" class="d-none">
+
+                        <button type="button"
+                                id="btnFinalizar"
+                                class="btn btn-primary rounded-pill px-4 fw-semibold btn-sm shadow-sm">
+
+                            <i class="bi bi-flag-fill me-1"></i>
+                            Finalizar Movimiento
+
+                        </button>
+
+                    </div>
+                }
+
                 <button type="button" class="btn btn-secondary rounded-pill px-4 fw-semibold btn-sm shadow-xs" data-bs-dismiss="modal">Cerrar</button>
             </div>
 
         </div>
     </div>
 </div>
+
 
 <!-- LIGHTBOX -->
 <div id="imageLightbox" style="
@@ -672,6 +986,73 @@
 
 
 @section Scripts {
+
+    <script>
+        document.querySelectorAll('#tabsSolicitudes .nav-link')
+        .forEach(tab => {
+
+            tab.addEventListener('click', function () {
+
+                document
+                    .querySelectorAll('#tabsSolicitudes .nav-link')
+                    .forEach(x => x.classList.remove('active'));
+
+                this.classList.add('active');
+
+                const grupo =
+                    this.dataset.grupo;
+
+                document
+                    .querySelectorAll('.solicitud-card')
+                    .forEach(card => {
+
+                        const estatus =
+                            card
+                            .querySelector('.dynamic-card')
+                            .dataset
+                            .estatus;
+
+                        let mostrar = false;
+
+                        if (!grupo)
+                        {
+                            mostrar = true;
+                        }
+                        else if (grupo === "Pendiente")
+                        {
+                            mostrar =
+                                estatus === "Pendiente";
+                        }
+                        else if (grupo === "EnProceso")
+                        {
+                            mostrar =
+                                estatus === "EnProceso" ||
+                                estatus === "PendienteFirmas" ||
+                                estatus === "Aprobado";
+                        }
+                        else if (grupo === "Rechazado")
+                        {
+                            mostrar =
+                                estatus === "Rechazado";
+                        }
+                        else if (grupo === "Finalizado")
+                        {
+                            mostrar =
+                                estatus === "Finalizado";
+                        }
+
+                        card.classList.toggle(
+                            'd-none',
+                            !mostrar
+                        );
+
+                    });
+
+            });
+
+        });
+    </script>
+
     <script asp-append-version="true" src="~/js/solicitud_index.js"></script>
 }
 

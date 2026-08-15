@@ -41,27 +41,27 @@ namespace Layout.Controllers
              .ToListAsync();
 
             vm.PendientesAgrupadas = pendientes
-    .GroupBy(x => x.SolicitudId)
-    .Select(g => new PendienteFirmaAgrupadaViewModel
-    {
-        FirmaIdReferencia = g.First().Id,
+            .GroupBy(x => x.SolicitudId)
+            .Select(g => new PendienteFirmaAgrupadaViewModel
+            {
+                FirmaIdReferencia = g.First().Id,
 
-        SolicitudId = g.Key,
+                SolicitudId = g.Key,
 
-        Folio = g.First().Solicitud.Folio,
+                Folio = g.First().Solicitud.Folio,
 
-        NumeroValidacion =
-            g.First().Solicitud.NumeroValidacion,
+                NumeroValidacion =
+                    g.First().Solicitud.NumeroValidacion,
 
-        Area = g.First().Solicitud.Area.Nombre,
+                Area = g.First().Solicitud.Area.Nombre,
 
-        FechaCreacion = g.First().Solicitud.FechaCreacion,
+                FechaCreacion = g.First().Solicitud.FechaCreacion,
 
-        TiposFirma = g
-            .Select(x => x.TipoFirma.Nombre)
-            .ToList()
-    })
-    .ToList();
+                TiposFirma = g
+                    .Select(x => x.TipoFirma.Nombre)
+                    .ToList()
+            })
+            .ToList();
 
 
             var realizadas = await _context.SolicitudesFirma

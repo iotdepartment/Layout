@@ -116,8 +116,9 @@
                     </div>
 
                     <!-- Imagen -->
-                    <small class="bg-danger-subtle text-danger fw-bold">En revision</small>
-                    <div class="mb-4 border-3 border-dark border" disabled>
+                    @* <small class="bg-danger-subtle text-danger fw-bold">En revision</small> *@
+
+                    <div class="mb-4 ">
                        
                         <label asp-for="Imagen" class="form-label fw-bold small text-secondary" >Dibujo o Layout (Imagen)</label>
                         <input  type="file" asp-for="Imagen" class="form-control form-control-modern" accept="image/*" />
@@ -155,33 +156,16 @@
                     <div class="form-inventory-card shadow-sm">
 
                         <h5 class="text-primary fw-bold mb-4 d-flex align-items-center">
-                            <i class="bi bi-box-seam me-2 fs-4"></i>Información Técnica de Inventario
+                            <i class="bi bi-box-seam me-2 fs-4"></i>Inventarios
                         </h5>
 
                         <div class="row g-3">
-
-                           @*  <!-- 1. NÚMERO DE VALIDACIÓN -->
-                            <div class="col-12">
-                                <div class="form-inventory-row" id="rowValidacion">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <label class="form-inventory-label" for="chkValidacion">
-                                            <i class="bi bi-hash text-muted me-1.5"></i>Número de Validación
-                                        </label>
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input inventory-switch" type="checkbox" id="chkValidacion" asp-for="AplicaValidacion" data-target="txtValidacion" data-row="rowValidacion" />
-                                        </div>
-                                    </div>
-                                    <input id="txtValidacion" asp-for="NumeroValidacion" class="form-control form-inventory-control" placeholder="Ingrese el folio de validación..." readonly />
-                                    <span asp-validation-for="NumeroValidacion" class="text-danger small mt-1 d-block"></span>
-                                </div>
-                            </div> *@
-
                             <!-- 2. RESPONSABLE INVENTARIO -->
                             <div class="col-12">
                                 <div class="form-inventory-row" id="rowResponsable">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <label class="form-inventory-label" for="chkResponsable">
-                                            <i class="bi bi-person text-muted me-1.5"></i>Responsable de Inventario
+                                            <i class="bi bi-person text-muted me-1"></i>Responsable
                                         </label>
                                         <div class="form-check form-switch">
                                             <input class="form-check-input inventory-switch" type="checkbox" id="chkResponsable" asp-for="AplicaResponsable" data-target="txtResponsable" data-row="rowResponsable" />
@@ -197,7 +181,7 @@
                                 <div class="form-inventory-row" id="rowMandril">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <label class="form-inventory-label" for="chkMandril">
-                                            <i class="bi bi-tag text-muted me-1.5"></i>Mandril / Kanban / Número Parte
+                                            <i class="bi bi-tag text-muted me-1"></i>Mandril / Kanban / Número Parte
                                         </label>
                                         <div class="form-check form-switch">
                                             <input class="form-check-input inventory-switch" type="checkbox" id="chkMandril" asp-for="AplicaMandril" data-target="txtMandril" data-row="rowMandril" />
@@ -213,7 +197,7 @@
                                 <div class="form-inventory-row" id="rowPallets">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <label class="form-inventory-label" for="chkPallets">
-                                            <i class="bi bi-layers text-muted me-1.5"></i>Cantidad de Pallets
+                                            <i class="bi bi-layers text-muted me-1"></i>Cantidad de Pallets
                                         </label>
                                         <div class="form-check form-switch">
                                             <input class="form-check-input inventory-switch" type="checkbox" id="chkPallets" asp-for="AplicaPallets" data-target="txtPallets" data-row="rowPallets" />
@@ -229,7 +213,7 @@
                                 <div class="form-inventory-row" id="rowRazonInv">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <label class="form-inventory-label" for="chkRazonInv">
-                                            <i class="bi bi-chat-left-text text-muted me-1.5"></i>Razón de Inventario
+                                            <i class="bi bi-chat-left-text text-muted me-1"></i>Motivo
                                         </label>
                                         <div class="form-check form-switch">
                                             <!-- Nota: Corregido asp-for a 'AplicaRazon' según tu controlador HttpPost de C# -->
