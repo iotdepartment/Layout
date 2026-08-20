@@ -31,14 +31,43 @@ namespace Layout.Controllers
 
             var vm = new MisFirmasViewModel();
 
+            var tiposPA = await _context.FirmasPA
+                .Where(x =>
+                    x.UsuarioPAId == usuario.Id &&
+                    x.Activo)
+                .Select(x => x.TipoFirmaId)
+                .ToListAsync();
+
             var pendientes = await _context.SolicitudesFirma
-             .Include(x => x.Solicitud)
-                .ThenInclude(x => x.Area)
-             .Include(x => x.TipoFirma)
-             .Where(x =>
-                 x.UsuarioRequeridoId == usuario.Id &&
-                 !x.Firmada)
-             .ToListAsync();
+                 .Include(x => x.Solicitud)
+                     .ThenInclude(x => x.Area)
+                 .Include(x => x.TipoFirma)
+                 .Where(x =>
+                     !x.Firmada &&
+                     (
+                         x.UsuarioRequeridoId == usuario.Id
+                         ||
+                         tiposPA.Contains(x.TipoFirmaId)
+                     ))
+                 .ToListAsync();
+
+            vm.PuedeAsignarPA = await _context.UsuarioTiposFirma
+                .AnyAsync(x => x.UsuarioId == usuario.Id);
+
+
+            vm.SoyPADe = await _context.FirmasPA
+                .Include(x => x.TipoFirma)
+                .Include(x => x.UsuarioTitular)
+                .Where(x =>
+                    x.UsuarioPAId == usuario.Id &&
+                    x.Activo)
+                .Select(x => new FirmaPAViewModel
+                {
+                    TipoFirma = x.TipoFirma.Nombre,
+                    UsuarioPA = x.UsuarioTitular.NombreCompleto,
+                    Activo = x.Activo
+                })
+                .ToListAsync();
 
             vm.PendientesAgrupadas = pendientes
             .GroupBy(x => x.SolicitudId)
@@ -69,8 +98,15 @@ namespace Layout.Controllers
                     .ThenInclude(x => x.Area)
                 .Include(x => x.TipoFirma)
                 .Where(x =>
-                    x.UsuarioRequeridoId == usuario.Id &&
-                    x.Firmada)
+
+                    x.Firmada &&
+
+                    (
+                        x.UsuarioFirmanteId == usuario.Id
+                        ||
+                        x.UsuarioPAId == usuario.Id
+                    )
+                )
                 .ToListAsync();
 
             vm.RealizadasAgrupadas = realizadas
@@ -95,6 +131,20 @@ namespace Layout.Controllers
                 .OrderByDescending(x => x.FechaFirma)
                 .ToList();
 
+            vm.FirmasPA = await _context.FirmasPA
+                .Include(x => x.TipoFirma)
+                .Include(x => x.UsuarioPA)
+                .Where(x => x.UsuarioTitularId == usuario.Id)
+                .Select(x => new FirmaPAViewModel
+                {
+                    TipoFirmaId = x.TipoFirmaId,
+                    TipoFirma = x.TipoFirma.Nombre,
+                    UsuarioPAId = x.UsuarioPAId,
+                    UsuarioPA = x.UsuarioPA.UserName,
+                    Activo = x.Activo
+                })
+                .ToListAsync(); 
+
             return View(vm);
         }
 
@@ -116,8 +166,34 @@ namespace Layout.Controllers
             if (firma == null)
                 return NotFound();
 
-            if (firma.UsuarioRequeridoId != usuario.Id)
+            bool esPA = await _context.FirmasPA
+                .AnyAsync(x =>
+                    x.UsuarioPAId == usuario.Id &&
+                    x.TipoFirmaId == firma.TipoFirmaId &&
+                    x.Activo);
+
+            if (firma.UsuarioRequeridoId != usuario.Id && !esPA)
                 return Forbid();
+
+            ViewBag.EsPA = esPA;
+
+            FirmaPA? registroPA = null;
+
+            if (esPA)
+            {
+                registroPA = await _context.FirmasPA
+                    .Include(x => x.UsuarioTitular)
+                    .FirstOrDefaultAsync(x =>
+                        x.UsuarioPAId == usuario.Id &&
+                        x.TipoFirmaId == firma.TipoFirmaId &&
+                        x.Activo);
+
+                ViewBag.NombreTitular =
+                    registroPA?.UsuarioTitular?.NombreCompleto;
+
+                ViewBag.MotivoAsignacionPA =
+                    registroPA?.MotivoAsignacion;
+            }
 
             ViewBag.Firmas = await _context.SolicitudesFirma
                 .Include(x => x.TipoFirma)
@@ -156,35 +232,59 @@ namespace Layout.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Firmar(int firmaId, string? comentarios)
+        [Authorize]
+        public async Task<IActionResult> FirmarSolicitud(int id, string? motivoPA)
         {
-            var usuario = await _userManager.GetUserAsync(User);
+            var usuario =
+                await _userManager.GetUserAsync(User);
 
-            var firmaBase = await _context.SolicitudesFirma
-                .FirstOrDefaultAsync(x => x.Id == firmaId);
+            var firmaBase =
+                await _context.SolicitudesFirma
+                    .FirstOrDefaultAsync(x => x.Id == id);
 
             if (firmaBase == null)
                 return NotFound();
 
-            if (firmaBase.UsuarioRequeridoId != usuario.Id)
-                return Forbid();
+            bool esPA = await _context.FirmasPA
+                .AnyAsync(x =>
+                    x.UsuarioPAId == usuario.Id &&
+                    x.TipoFirmaId == firmaBase.TipoFirmaId &&
+                    x.Activo);
 
-            var firmasPendientes = await _context.SolicitudesFirma
-                .Where(x =>
-                    x.SolicitudId == firmaBase.SolicitudId &&
-                    x.UsuarioRequeridoId == usuario.Id &&
-                    !x.Firmada)
-                .ToListAsync();
+            if (firmaBase.UsuarioRequeridoId != usuario.Id &&
+                !esPA)
+            {
+                return Forbid();
+            }
+
+            var firmasPendientes =
+                await _context.SolicitudesFirma
+                    .Where(x =>
+                        x.SolicitudId == firmaBase.SolicitudId &&
+                        x.TipoFirmaId == firmaBase.TipoFirmaId &&
+                        !x.Firmada)
+                    .ToListAsync();
 
             foreach (var firma in firmasPendientes)
             {
                 firma.Firmada = true;
 
-                firma.UsuarioFirmanteId = usuario.Id;
+                firma.UsuarioFirmanteId =
+                    usuario.Id;
 
-                firma.FechaFirma = DateTime.Now;
+                firma.FechaFirma =
+                    DateTime.Now;
 
-                firma.Comentarios = comentarios;
+                if (esPA)
+                {
+                    firma.EsFirmaPA = true;
+
+                    firma.UsuarioPAId =
+                        usuario.Id;
+
+                    firma.MotivoFirmaPA =
+                        motivoPA;
+                }
             }
 
             await _context.SaveChangesAsync();
@@ -193,50 +293,86 @@ namespace Layout.Controllers
                 firmaBase.SolicitudId);
 
             TempData["Success"] =
-                $"Se registraron {firmasPendientes.Count} firma(s).";
+                esPA
+                ? $"Se registraron {firmasPendientes.Count} firma(s) como PA."
+                : $"Se registraron {firmasPendientes.Count} firma(s).";
 
             return RedirectToAction(nameof(Pendientes));
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize]
-        public async Task<IActionResult> FirmarSolicitud(int id)
+        public async Task<IActionResult> AsignarPA(int tipoFirmaId, string usuarioPAId, string motivo)
         {
-            var usuario = await _userManager.GetUserAsync(User);
+            var usuarioActual =
+                await _userManager.GetUserAsync(User);
 
-            var firmaBase = await _context.SolicitudesFirma
-                .FirstOrDefaultAsync(x => x.Id == id);
+            var existente = await _context.FirmasPA
+                .FirstOrDefaultAsync(x =>
+                    x.UsuarioTitularId == usuarioActual.Id &&
+                    x.TipoFirmaId == tipoFirmaId);
 
-            if (firmaBase == null)
-                return NotFound();
-
-            if (firmaBase.UsuarioRequeridoId != usuario.Id)
-                return Forbid();
-
-            var firmasPendientes = await _context.SolicitudesFirma
-                .Where(x =>
-                    x.SolicitudId == firmaBase.SolicitudId &&
-                    x.UsuarioRequeridoId == usuario.Id &&
-                    !x.Firmada)
-                .ToListAsync();
-
-            foreach (var firma in firmasPendientes)
+            if (existente != null)
             {
-                firma.Firmada = true;
-                firma.UsuarioFirmanteId = usuario.Id;
-                firma.FechaFirma = DateTime.Now;
+                existente.UsuarioPAId = usuarioPAId;
+                existente.MotivoAsignacion = motivo;
+                existente.Activo = true;
+                existente.FechaAsignacion = DateTime.Now;
+            }
+            else
+            {
+                _context.FirmasPA.Add(
+                    new FirmaPA
+                    {
+                        UsuarioTitularId = usuarioActual.Id,
+                        UsuarioPAId = usuarioPAId,
+                        TipoFirmaId = tipoFirmaId,
+                        MotivoAsignacion = motivo,
+                        Activo = true,
+                        FechaAsignacion = DateTime.Now
+                    });
             }
 
             await _context.SaveChangesAsync();
 
-            await ValidarFinalizacionSolicitud(
-                firmaBase.SolicitudId);
-
-            TempData["Success"] =
-                $"Se registraron {firmasPendientes.Count} firma(s).";
-
-            return RedirectToAction(nameof(Pendientes));
+            return Json(new
+            {
+                success = true
+            });
         }
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerDatosPA()
+        {
+            var usuario =
+                await _userManager.GetUserAsync(User);
+
+            var tiposFirma =
+                await _context.UsuarioTiposFirma
+                .Include(x => x.TipoFirma)
+                .Where(x => x.UsuarioId == usuario.Id)
+                .Select(x => new
+                {
+                    id = x.TipoFirmaId,
+                    texto = x.TipoFirma.Nombre
+                })
+                .ToListAsync();
+
+            var usuarios =
+                await _userManager.Users
+                .OrderBy(x => x.UserName)
+                .Select(x => new
+                {
+                    id = x.Id,
+                    texto = x.UserName
+                })
+                .ToListAsync();
+
+            return Json(new
+            {
+                tiposFirma,
+                usuarios
+            });
+        }
+
     }
 }

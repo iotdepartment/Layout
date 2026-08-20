@@ -17,5 +17,8 @@
 
         public List<string> TiposFirma { get; set; }
             = new();
+
+        public IEnumerable<string> Firmas { get; set; }
+    = new List<string>();
     }
 }

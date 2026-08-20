@@ -97,6 +97,11 @@ namespace Layout.Controllers
                                 .Select(x => x.Area.Nombre)
                                 .ToList(),
 
+                        Firmas = await _context.UsuarioTiposFirma
+                                .Where(f => f.UsuarioId == usuario.Id)
+                                .Select(f => f.TipoFirma.Nombre)
+                                .ToListAsync(),
+                        
                         TiposFirma =
                             usuario.TiposFirma
                                 .Select(x => x.TipoFirma.Nombre)

@@ -34,6 +34,8 @@ namespace Layout.Data
 
         public DbSet<SolicitudMovimientosTecnicos> SolicitudesMovimientosTecnicos { get; set; }
 
+        public DbSet<FirmaPA> FirmasPA { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -155,10 +157,10 @@ namespace Layout.Data
             // =====================================================
 
             builder.Entity<SolicitudFirma>()
-    .HasOne(s => s.Solicitud)
-    .WithMany(s => s.SolicitudesFirma)
-    .HasForeignKey(s => s.SolicitudId)
-    .OnDelete(DeleteBehavior.Cascade);
+                .HasOne(s => s.Solicitud)
+                .WithMany(s => s.SolicitudesFirma)
+                .HasForeignKey(s => s.SolicitudId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<SolicitudFirma>()
                 .HasOne(x => x.UsuarioRequerido)
@@ -176,6 +178,32 @@ namespace Layout.Data
                 .HasOne(s => s.UsuarioFirmante)
                 .WithMany()
                 .HasForeignKey(s => s.UsuarioFirmanteId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            builder.Entity<SolicitudFirma>()
+                .HasOne(x => x.UsuarioPA)
+                .WithMany()
+                .HasForeignKey(x => x.UsuarioPAId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //FIRMA PA 
+
+            builder.Entity<FirmaPA>()
+                .HasOne(x => x.UsuarioTitular)
+                .WithMany()
+                .HasForeignKey(x => x.UsuarioTitularId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<FirmaPA>()
+                .HasOne(x => x.UsuarioPA)
+                .WithMany()
+                .HasForeignKey(x => x.UsuarioPAId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<FirmaPA>()
+                .HasOne(x => x.TipoFirma)
+                .WithMany()
+                .HasForeignKey(x => x.TipoFirmaId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

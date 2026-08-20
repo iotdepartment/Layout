@@ -140,6 +140,7 @@
                                 <th>Correo Electrónico</th>
                                 <th class="text-center">Rol</th>
                                 <th>Áreas Asignadas</th>
+                                <th>Firmas</th>
                                 <th class="pe-3 text-center">Estado</th>
                             </tr>
                         </thead>
@@ -244,7 +245,48 @@
                                         }
 
                                     </td>
+                                    <td style="max-width:320px;">
 
+                                        @if (usuario.Firmas != null && usuario.Firmas.Any())
+                                        {
+                                            var firmasPrincipales = usuario.Firmas.Take(3);
+                                            var firmasOcultas = usuario.Firmas.Skip(3);
+                                            var cantidadOcultas = usuario.Firmas.Count() - 3;
+
+                                            @foreach (var firma in firmasPrincipales)
+                                            {
+                                                <span class="badge bg-primary-subtle text-primary border rounded-pill px-2 py-1 fw-semibold me-1 mb-1">
+
+                                                    <i class="bi bi-vector-pen me-1"></i>
+
+                                                    @firma
+
+                                                </span>
+                                            }
+
+                                            @if (cantidadOcultas > 0)
+                                            {
+                                                var tooltipFirmas =
+                                                string.Join("<br>", firmasOcultas);
+
+                                                <span class="badge bg-info-subtle text-primary border rounded-pill px-2 py-1 fw-semibold"
+                                                      data-bs-toggle="tooltip"
+                                                      data-bs-html="true"
+                                                      title="@tooltipFirmas">
+
+                                                    +@cantidadOcultas más
+
+                                                </span>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-light text-muted border rounded-pill">
+                                                Sin firmas
+                                            </span>
+                                        }
+
+                                    </td>
 
 
                                         <td class="pe-3 text-center">

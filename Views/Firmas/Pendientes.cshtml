@@ -29,7 +29,7 @@
 
 </style>
 
-<div class="card shadow-sm border-0">
+<div class="card shadow-sm border-0">   
 
     <div class="card-header bg-white">
 
@@ -47,7 +47,7 @@
 
             <div class="d-flex gap-2">
 
-                <span class="badge bg-warning text-dark counter-badge">
+                <span class="badge bg-warning text-dark counter-badge rounded-pill">
 
                     <i class="bi bi-hourglass-split me-1"></i>
 
@@ -55,11 +55,11 @@
 
                 </span>
 
-                <span class="badge bg-success counter-badge">
+                <span class="badge bg-success counter-badge rounded-pill">
 
                     <i class="bi bi-check-circle me-1"></i>
 
-                    @Model.Realizadas.Count Realizadas
+                    @Model.RealizadasAgrupadas.Count Realizadas
 
                 </span>
 
@@ -72,7 +72,8 @@
     <div class="card-body">
 
         <ul class="nav nav-tabs mb-4">
-
+            
+            @* PESTAÑA PARA PENDIENTES *@
             <li class="nav-item">
 
                 <button class="nav-link active"
@@ -81,7 +82,7 @@
 
                     Pendientes
 
-                    <span class="badge bg-warning text-dark ms-1">
+                    <span class="badge bg-warning text-dark ms-1 rounded-pill">
                         @Model.PendientesAgrupadas.Count
                     </span>
 
@@ -89,6 +90,7 @@
 
             </li>
 
+            @* PESTAÑA PARA REALIZADAS *@
             <li class="nav-item">
 
                 <button class="nav-link"
@@ -97,9 +99,22 @@
 
                     Realizadas
 
-                    <span class="badge bg-success ms-1">
+                    <span class="badge bg-success ms-1 rounded-pill">
                         @Model.RealizadasAgrupadas.Count
                     </span>
+
+                </button>
+
+            </li>
+
+            @* PESTAÑA PARA FIRMAS PA*@
+            <li class="nav-item">
+
+                <button class="nav-link"
+                        data-bs-toggle="tab"
+                        data-bs-target="#tabPA">
+
+                    Firmas PA
 
                 </button>
 
@@ -262,12 +277,239 @@
                 }
             </div>
 
+            <!-- TAB FIRMAS PA -->
+            <div class="tab-pane fade" id="tabPA" role="tabpanel">
+
+                <div class="d-flex justify-content-between mb-3">
+
+                    <h6 class="mb-0">
+                        Usuarios autorizados como PA
+                    </h6>
+
+                    @if (Model.PuedeAsignarPA)
+                    {
+                        <button class="btn btn-primary btn-sm rounded-pill"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalAsignarPA">
+
+                            <i class="bi bi-person-plus"></i>
+                            Asignar PA
+
+                        </button>
+                    }
+
+                </div>
+
+            @if (Model.FirmasPA.Any())
+                {
+                <div class="table-responsive">
+
+                    <table class="table table-hover">
+
+                        <thead>
+
+                            <tr>
+                                <th>Tipo Firma</th>
+                                <th>PA Asignado</th>
+                                <th>Estatus</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            
+                                @foreach (var pa in Model.FirmasPA)
+                                {
+                                    <tr>
+
+                                        <td>
+                                            @pa.TipoFirma
+                                        </td>
+
+                                        <td>
+                                            @(pa.UsuarioPA ?? "Sin Firmas PA")
+                                        </td>
+
+                                        <td>
+
+                                            @if (pa.Activo)
+                                            {
+                                                <span class="badge bg-success">
+                                                    Activo
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">
+                                                    Inactivo
+                                                </span>
+                                            }
+
+                                        </td>
+
+                                    </tr>
+                                }
+                            
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+                }
+                else
+                {
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-vector-pen text-muted fs-1 d-block mb-3 opacity-50"></i>
+                        <h5 class="fw-bold text-secondary">
+                           No tienes asignado a ningún usuario para firmar Por Ausencia
+                        </h5>
+                        <p class="mb-0 small italic">
+                            Los usuarios que asignes aparecerán en este panel.
+                        </p>
+                    </div>
+                }
+                @if (Model.SoyPADe.Any())
+                {
+                    <hr />
+
+                    <h6 class="mb-3">
+                        Firmas donde actúo como PA
+                    </h6>
+
+                    <div class="table-responsive">
+
+                        <table class="table table-hover">
+
+                            <thead>
+                                <tr>
+                                    <th>Firma</th>
+                                    <th>Titular</th>
+                                    <th>Estatus</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @foreach (var item in Model.SoyPADe)
+                                {
+                                    <tr>
+
+                                        <td>
+                                            @item.TipoFirma
+                                        </td>
+
+                                        <td>
+                                            @item.UsuarioPA
+                                        </td>
+
+                                        <td>
+                                            <span class="badge bg-info">
+                                                PA Activo
+                                            </span>
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                }
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="modal fade"
+     id="modalAsignarPA">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+                    Asignar Firma PA
+                </h5>
+
+            </div>
+
+            <div class="modal-body">
+
+                <div class="mb-3">
+
+                    <label class="form-label fw-bold">
+
+                        Tipo de Firma
+
+                    </label>
+
+                    <select id="tipoFirmaPA"
+                            class="form-select">
+                    </select>
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label class="form-label fw-bold">
+
+                        Usuario PA
+
+                    </label>
+
+                    <select id="usuarioPA"
+                            class="form-select">
+                    </select>
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label class="form-label fw-bold">
+
+                        Motivo
+
+                    </label>
+
+                    <textarea id="motivoPA"class="form-control" placeholder="Escribe un motivo por el cual asignas a este usuario como PA"></textarea>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+
+                    Cancelar
+
+                </button>
+
+                <button id="btnGuardarPA"
+                        class="btn btn-primary">
+
+                    Guardar
+
+                </button>
+
+            </div>
 
         </div>
 
     </div>
 
 </div>
+
 
 @section Scripts {
     <script src="https://cdn.datatables.net/2.3.8/js/dataTables.js"></script>
@@ -291,6 +533,109 @@
             });
 
         });
+
+    </script>
+
+    <script>
+
+        document
+            .getElementById('modalAsignarPA')
+            .addEventListener('show.bs.modal',
+            async function () {
+
+                const response =
+                    await fetch('/Firmas/ObtenerDatosPA');
+
+                const data =
+                    await response.json();
+
+                const tipoFirma =
+                    document.getElementById('tipoFirmaPA');
+
+                const usuarioPA =
+                    document.getElementById('usuarioPA');
+
+                tipoFirma.innerHTML = '';
+                usuarioPA.innerHTML = '';
+
+                data.tiposFirma.forEach(x => {
+
+                    tipoFirma.innerHTML += `
+                        <option value="${x.id}">
+                            ${x.texto}
+                        </option>
+                    `;
+
+                });
+
+                data.usuarios.forEach(x => {
+
+                    usuarioPA.innerHTML += `
+                        <option value="${x.id}">
+                            ${x.texto}
+                        </option>
+                    `;
+
+                });
+
+            });
+
+    </script>
+
+    <script>
+
+        document
+            .getElementById('btnGuardarPA')
+            .addEventListener('click',
+            async function () {
+
+                const tipoFirmaId =
+                    document.getElementById('tipoFirmaPA').value;
+
+                const usuarioPAId =
+                    document.getElementById('usuarioPA').value;
+
+                const motivo =
+                    document.getElementById('motivoPA').value;
+
+                const formData = new FormData();
+
+                formData.append(
+                    'tipoFirmaId',
+                    tipoFirmaId);
+
+                formData.append(
+                    'usuarioPAId',
+                    usuarioPAId);
+
+                formData.append(
+                    'motivo',
+                    motivo);
+
+                const response =
+                    await fetch(
+                        '/Firmas/AsignarPA',
+                        {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                const result =
+                    await response.json();
+
+                if (result.success) {
+
+                    location.reload();
+
+                } else {
+
+                    alert(
+                        'No fue posible guardar el PA.'
+                    );
+
+                }
+
+            });
 
     </script>
 

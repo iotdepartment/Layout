@@ -23,5 +23,13 @@
         public DateTime? FechaFirma { get; set; }
 
         public string? Comentarios { get; set; }
+
+        public bool EsFirmaPA { get; set; }
+
+        public string? UsuarioPAId { get; set; }
+
+        public string? MotivoFirmaPA { get; set; }
+
+        public ApplicationUser? UsuarioPA { get; set; }
     }
 }

@@ -301,9 +301,35 @@
                                     <!-- Información del Usuario Asignado -->
                                     <div class="mb-2 ps-1">
                                         <span class="text-secondary small d-flex align-items-center gap-1.5 text-truncate" style="color: #475569 !important; font-size: 0.82rem;">
-                                            <i class="bi bi-person text-muted" style="font-size: 0.9rem;"></i>
-                                            @(firma.Firmada? firma.UsuarioFirmante?.NombreCompleto : firma.UsuarioRequerido?.NombreCompleto)
+                                           
+                                          
                                         </span>
+
+                                        @if (firma.Firmada)
+                                        {
+                                            <div>
+
+                                                <i class="bi bi-person text-muted me-1" style="font-size: 0.9rem;"></i> @firma.UsuarioFirmante?.NombreCompleto
+
+                                                @if (firma.EsFirmaPA)
+                                                {
+                                                    <small class="text-muted d-block mt-1">
+
+                                                        Firmó por ausencia de:
+
+                                                        <strong>
+                                                            @firma.UsuarioRequerido?.NombreCompleto
+                                                        </strong>
+
+                                                    </small>
+                                                }
+
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            @firma.UsuarioRequerido?.NombreCompleto
+                                        }
                                     </div>
 
                                     <!-- Espacio final reservado para el Estatus e Historial de Tiempo -->
@@ -311,7 +337,7 @@
                                         @if (firma.Firmada)
                                         {
                                             <span class="badge bg-success bg-opacity-10 text-success border border-success-subtle px-2 py-0.5 rounded font-monospace" style="font-size: 0.65rem; font-weight: 600;">
-                                                FIRMED
+                                                FIRMADO
                                             </span>
                                             <small class="text-muted font-monospace" style="font-size: 0.7rem; color: #94a3b8 !important;">
                                                 <i class="bi bi-calendar3 me-1"></i>@firma.FechaFirma?.ToString("dd/MM/yyyy HH:mm")
@@ -320,7 +346,7 @@
                                         else
                                         {
                                             <span class="badge bg-warning bg-opacity-10 text-warning border border-warning-subtle px-2 py-0.5 rounded font-monospace" style="font-size: 0.65rem; font-weight: 600;">
-                                                PENDING
+                                                PENDIENTE
                                             </span>
                                             <small class="text-muted font-monospace italic" style="font-size: 0.7rem; color: #94a3b8 !important;">
                                                 En espera...
@@ -355,6 +381,42 @@
                 </div>
             
                 <div class="card-body">
+                @if (ViewBag.EsPA == true)
+                {
+                    <div class="alert alert-warning border-0 shadow-sm">
+
+                        <div class="d-flex align-items-start">
+
+                            <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+
+                            <div>
+
+                                <strong>Firma por Ausencia (PA)</strong>
+
+                                <div class="mt-1">
+
+                                    Estás firmando esta solicitud en representación de:
+
+                                    <strong>
+                                        @ViewBag.NombreTitular
+                                    </strong>
+
+                                </div>
+
+                                <div class="small text-muted mt-2">
+
+                                    Motivo de asignación:
+
+                                    @ViewBag.MotivoAsignacionPA
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                }
                     <p class="text-muted small">
                         Estás por validar este movimiento como: 
                         <strong class="text-dark">@(Model.TipoFirma?.Nombre ?? "Validación General")</strong>.
@@ -381,6 +443,25 @@
 
                             <!-- Enviamos el ID de la SolicitudFirma oculto -->
                             <input type="hidden" name="id" value="@Model.Id" />
+
+                        @if (ViewBag.EsPA == true)
+                        {
+                            <div class="mb-3">
+
+                                <label class="form-label fw-semibold">
+
+                                    Motivo de la firma por ausencia
+
+                                </label>
+
+                                <textarea name="motivoPA"
+                                  class="form-control"
+                                  rows="3"
+                                  required
+                                  placeholder="Indique por qué se está realizando la firma como PA"></textarea>
+
+                            </div>
+                        }
 
                             <!-- Validación opcional mediante Checkbox antes de liberar el botón -->
                             <div class="form-check mb-4 text-start">
@@ -429,6 +510,7 @@
                         </div>
                     }
                 </div>
+
             </div>  
         </div>
     </div>

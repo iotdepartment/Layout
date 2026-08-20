@@ -4,6 +4,7 @@ using Layout.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Layout.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260819050839_AgregarFirmaPA")]
+    partial class AgregarFirmaPA
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -274,17 +277,11 @@ namespace Layout.Migrations
                     b.Property<string>("Comentarios")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("EsFirmaPA")
-                        .HasColumnType("bit");
-
                     b.Property<DateTime?>("FechaFirma")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("Firmada")
                         .HasColumnType("bit");
-
-                    b.Property<string>("MotivoFirmaPA")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("SolicitudId")
                         .HasColumnType("int");
@@ -293,9 +290,6 @@ namespace Layout.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("UsuarioFirmanteId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("UsuarioPAId")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("UsuarioRequeridoId")
@@ -309,8 +303,6 @@ namespace Layout.Migrations
                     b.HasIndex("TipoFirmaId");
 
                     b.HasIndex("UsuarioFirmanteId");
-
-                    b.HasIndex("UsuarioPAId");
 
                     b.HasIndex("UsuarioRequeridoId");
 
@@ -808,11 +800,6 @@ namespace Layout.Migrations
                         .HasForeignKey("UsuarioFirmanteId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("Layout.Models.ApplicationUser", "UsuarioPA")
-                        .WithMany()
-                        .HasForeignKey("UsuarioPAId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("Layout.Models.ApplicationUser", "UsuarioRequerido")
                         .WithMany()
                         .HasForeignKey("UsuarioRequeridoId")
@@ -824,8 +811,6 @@ namespace Layout.Migrations
                     b.Navigation("TipoFirma");
 
                     b.Navigation("UsuarioFirmante");
-
-                    b.Navigation("UsuarioPA");
 
                     b.Navigation("UsuarioRequerido");
                 });
