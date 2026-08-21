@@ -2,6 +2,8 @@
 {
     public class FirmaPAViewModel
     {
+        public int Id { get; set; }
+
         public int TipoFirmaId { get; set; }
 
         public string TipoFirma { get; set; }
@@ -11,5 +13,7 @@
         public string? UsuarioPA { get; set; }
 
         public bool Activo { get; set; }
+
+        public string? Motivo { get; set; }
     }
 }

@@ -13,5 +13,9 @@
         public bool PuedeAsignarPA { get; set; }
 
         public List<FirmaPAViewModel> SoyPADe { get; set; } = new();
+
+        public List<FirmaPAViewModel> PendientesPA { get; set; }
+    = new();
+
     }
 }

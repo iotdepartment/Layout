@@ -27,6 +27,122 @@
         padding: 6px 10px;
     }
 
+    /* ==========================================================================
+       ESTILOS PREMIUM PARA PESTAÑAS DE NAVEGACIÓN (TABS)
+       ========================================================================== */
+
+    /* Contenedor de la pestaña con comportamiento elástico */
+    .nav-custom-tab .nav-item {
+        margin-right: 6px;
+    }
+
+    /* El botón de la pestaña en su estado normal */
+    .nav-custom-tab .nav-link {
+        color: #64748b;
+        font-weight: 600;
+        font-size: 0.9rem;
+        padding: 10px 20px;
+        border-radius: 10px !important;
+        border: 1px solid transparent;
+        background-color: transparent;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Comportamiento al pasar el cursor (Hover) */
+    .nav-custom-tab .nav-link:hover {
+        color: #334155;
+        background-color: #f1f5f9;
+        border-color: #e2e8f0;
+    }
+
+    /* Estado Activo: Cuando el usuario está dentro de esa pestaña */
+    .nav-custom-tab .nav-link.active {
+        color: #4e73df !important;
+        background-color: #edf2ff !important;
+        border-color: #cbd5e1 !important;
+        box-shadow: 0 4px 12px rgba(78, 115, 223, 0.06);
+    }
+
+    /* Animación de pulso para el contador de notificaciones de firmas pendientes */
+    .badge-pulse-alert {
+        background-color: #e11d48;
+        color: #ffffff;
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 3px 7px;
+        border-radius: 20px;
+        box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.4);
+        animation: pulse-ring 2s infinite;
+    }
+
+    @@keyframes pulse-ring {
+        0%
+
+    {
+        box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.5);
+    }
+
+    70% {
+        box-shadow: 0 0 0 6px rgba(225, 29, 72, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(225, 29, 72, 0);
+    }
+
+    }
+
+    /* Contenedor en cuadrícula para las tarjetas de perfil */
+    .pa-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+        gap: 16px;
+    }
+
+    /* Tarjeta premium de perfil PA */
+    .pa-profile-card {
+        background: #ffffff;
+        border: 1px solid #eef1f6;
+        border-radius: 14px;
+        padding: 16px;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+    }
+
+        .pa-profile-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05) !important;
+            border-color: #d1dff8;
+        }
+
+    /* Círculo del avatar simulado */
+    .pa-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.95rem;
+        flex-shrink: 0;
+    }
+
+    /* Variaciones de color según la dirección de la responsabilidad */
+    .bg-cover-me {
+        background-color: #e0f2fe;
+        color: #0369a1;
+    }
+    /* Azul claro */
+    .bg-i-cover {
+        background-color: #ecfdf5;
+        color: #047857;
+    }
+    /* Verde claro */
+
 </style>
 
 <div class="card shadow-sm border-0">   
@@ -70,55 +186,85 @@
     </div>
 
     <div class="card-body">
+    <!-- Asegúrate de que tu contenedor principal <ul> tenga la clase 'nav-custom-tab' -->
+            <ul class="nav nav-tabs border-bottom-0 nav-custom-tab" role="tablist">
 
-        <ul class="nav nav-tabs mb-4">
-            
-            @* PESTAÑA PARA PENDIENTES *@
-            <li class="nav-item">
+                @* PESTAÑA PARA PENDIENTES - DISEÑO PREMIUM *@
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active"
+                            id="tabPendientes-button"
+                            data-bs-toggle="tab"
+                            data-bs-target="#tabPendientes"
+                            type="button"
+                            role="tab"
+                            aria-controls="tabPendientes"
+                            aria-selected="true"
+                            title="Firmas pendientes de validación">
 
-                <button class="nav-link active"
-                        data-bs-toggle="tab"
-                        data-bs-target="#tabPendientes">
+                        <!-- Ícono descriptivo integrado -->
+                        <i class="bi bi-clock-history fs-5"></i>
 
-                    Pendientes
+                        <span>Pendientes</span>
 
-                    <span class="badge bg-warning text-dark ms-1 rounded-pill">
-                        @Model.PendientesAgrupadas.Count
-                    </span>
+                        <!-- CONTADOR DINÁMICO CON PULSO: Solo si realmente hay firmas pendientes -->
+                        @if (Model.PendientesAgrupadas != null && Model.PendientesAgrupadas.Count > 0)
+                        {
+                            <span class="badge badge-pulse-alert ms-1">
+                                @Model.PendientesAgrupadas.Count
+                            </span>
+                        }
+                    </button>
+                </li>
 
-                </button>
+                @* PESTAÑA PARA REALIZADAS - DISEÑO PREMIUM *@
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link"
+                            id="tabRealizadas-button"
+                            data-bs-toggle="tab"
+                            data-bs-target="#tabRealizadas"
+                            type="button"
+                            role="tab"
+                            aria-controls="tabRealizadas"
+                            aria-selected="false"
+                            title="Historial de firmas realizadas">
 
-            </li>
+                        <!-- Ícono descriptivo integrado -->
+                        <i class="bi bi-check-circle-fill text-success fs-5"></i>
 
-            @* PESTAÑA PARA REALIZADAS *@
-            <li class="nav-item">
+                        <span>Realizadas</span>
 
-                <button class="nav-link"
-                        data-bs-toggle="tab"
-                        data-bs-target="#tabRealizadas">
+                        <!-- CONTADOR ESTÁTICO NEUTRO: Al ser historial, no requiere animación de alerta -->
+                        @if (Model.RealizadasAgrupadas != null && Model.RealizadasAgrupadas.Count > 0)
+                        {
+                            <span class="badge bg-light text-secondary border rounded-pill ms-1 fw-bold" style="font-size: 0.72rem; padding: 3px 7px;">
+                                @Model.RealizadasAgrupadas.Count
+                            </span>
+                        }
+                    </button>
+                </li>
 
-                    Realizadas
+           
+                @* PESTAÑA PARA FIRMAS PA*@
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link"
+                            id="tabPA-button"
+                            data-bs-toggle="tab"
+                            data-bs-target="#tabPA"
+                            type="button"
+                            role="tab"
+                            aria-controls="tabPA"
+                            aria-selected="false"
+                            title="Firmas de Autorización de Planta">
 
-                    <span class="badge bg-success ms-1 rounded-pill">
-                        @Model.RealizadasAgrupadas.Count
-                    </span>
+                        <!-- Ícono descriptivo integrado -->
+                        <i class="bi bi-fingerprint fs-5"></i>
 
-                </button>
+                        <span>Firmas PA</span>
 
-            </li>
+                     
+                    </button>
+                </li>
 
-            @* PESTAÑA PARA FIRMAS PA*@
-            <li class="nav-item">
-
-                <button class="nav-link"
-                        data-bs-toggle="tab"
-                        data-bs-target="#tabPA">
-
-                    Firmas PA
-
-                </button>
-
-            </li>
 
         </ul>
 
@@ -277,158 +423,232 @@
                 }
             </div>
 
-            <!-- TAB FIRMAS PA -->
+            <!-- TAB FIRMAS PA - DISEÑO PREMIUM -->
             <div class="tab-pane fade" id="tabPA" role="tabpanel">
 
-                <div class="d-flex justify-content-between mb-3">
-
-                    <h6 class="mb-0">
-                        Usuarios autorizados como PA
-                    </h6>
+                <!-- ==========================================
+                BLOQUE 1: MIS SUSTITUTOS (Quién firma por mí)
+                ========================================== -->
+                <div class="d-flex justify-content-between align-items-center mb-3 mt-2">
+                    <div>
+                        <h5 class="fw-bold text-secondary mb-1" style="font-size: 1.1rem;">
+                            <i class="bi bi-shield-check text-primary me-2"></i>Mis Sustitutos Autorizados
+                        </h5>
+                        <p class="text-muted small mb-0 fst-italic">Usuarios que tienen permitido firmar bajo tu nombre por ausencia (PA)</p>
+                    </div>
 
                     @if (Model.PuedeAsignarPA)
                     {
-                        <button class="btn btn-primary btn-sm rounded-pill"
+                        <button class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm fw-semibold d-inline-flex align-items-center"
                                 data-bs-toggle="modal"
                                 data-bs-target="#modalAsignarPA">
-
-                            <i class="bi bi-person-plus"></i>
-                            Asignar PA
-
+                            <i class="bi bi-person-plus me-1.5"></i>Asignar Usuario PA
                         </button>
                     }
-
                 </div>
 
-            @if (Model.FirmasPA.Any())
+                @if (Model.FirmasPA != null && Model.FirmasPA.Any())
                 {
-                <div class="table-responsive">
+                    <div class="pa-grid mb-4">
+                        @foreach (var pa in Model.FirmasPA)
+                        {
+                            <div class="pa-profile-card shadow-xs border">
+                                <div class="d-flex align-items-center gap-3">
+                                    <!-- Avatar dinámico con la inicial -->
+                                    <div class="pa-avatar bg-cover-me">
+                                        @(string.IsNullOrEmpty(pa.UsuarioPA) ? "X" : pa.UsuarioPA.Substring(0, 1).ToUpper())
+                                    </div>
 
-                    <table class="table table-hover">
+                                  
+                                    <div class="flex-grow-1 text-truncate">
 
-                        <thead>
+                                        <span class="text-uppercase text-muted fw-bold d-block"
+                                              style="font-size: 0.62rem; letter-spacing: 0.5px;">
 
-                            <tr>
-                                <th>Tipo Firma</th>
-                                <th>PA Asignado</th>
-                                <th>Estatus</th>
-                            </tr>
-
-                        </thead>
-
-                        <tbody>
-
-                            
-                                @foreach (var pa in Model.FirmasPA)
-                                {
-                                    <tr>
-
-                                        <td>
                                             @pa.TipoFirma
-                                        </td>
 
-                                        <td>
-                                            @(pa.UsuarioPA ?? "Sin Firmas PA")
-                                        </td>
+                                        </span>
 
-                                        <td>
+                                        <strong class="text-dark d-block text-truncate fs-6">
+                                            @(pa.UsuarioPA ?? "Sin asignar")
+                                        </strong>
 
+                                        @if (pa.Activo)
+                                        {
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill mt-1">
+
+                                                <i class="bi bi-check-circle-fill me-1"></i>
+
+                                                Activo
+
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill mt-1">
+
+                                                <i class="bi bi-pause-circle-fill me-1"></i>
+
+                                                Inactivo
+
+                                            </span>
+                                        }
+
+                                        @if (!string.IsNullOrEmpty(pa.Motivo))
+                                        {
+                                            <small class="text-muted d-block text-truncate mt-2"
+                                                   title="@pa.Motivo">
+
+                                                <strong>Motivo:</strong>
+
+                                                @pa.Motivo
+
+                                            </small>
+                                        }
+
+                                    </div>
+
+                                    <!-- Bloque de Acciones Lateral Derecha -->
+                                    <div>
+                                        <div class="d-flex flex-column align-items-end gap-2 prevent-modal-trigger">
                                             @if (pa.Activo)
                                             {
-                                                <span class="badge bg-success">
-                                                    Activo
-                                                </span>
+                                                <button class="btn btn-sm btn-outline-danger rounded-pill"
+                                                        onclick="quitarPA(@pa.Id)">
+
+                                                    <i class="bi bi-person-dash"></i>
+
+                                                </button>
                                             }
                                             else
                                             {
-                                                <span class="badge bg-secondary">
-                                                    Inactivo
-                                                </span>
+                                                <button class="btn btn-sm btn-outline-success rounded-pill"
+                                                        onclick="reactivarPA(@pa.Id)">
+
+                                                    <i class="bi bi-arrow-clockwise"></i>
+
+                                                </button>
                                             }
-
-                                        </td>
-
-                                    </tr>
-                                }
-                            
-
-                        </tbody>
-
-                    </table>
-
-                </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
                 }
                 else
                 {
-                    <div class="text-center py-5 text-muted">
-                        <i class="bi bi-vector-pen text-muted fs-1 d-block mb-3 opacity-50"></i>
-                        <h5 class="fw-bold text-secondary">
-                           No tienes asignado a ningún usuario para firmar Por Ausencia
-                        </h5>
-                        <p class="mb-0 small italic">
-                            Los usuarios que asignes aparecerán en este panel.
-                        </p>
+                    <div class="text-center py-5 text-muted bg-light rounded-3 border border-light mb-4 px-3">
+                        <i class="bi bi-person-x text-muted fs-1 d-block mb-3 opacity-50"></i>
+                        <h6 class="fw-bold text-secondary">No tienes usuarios asignados</h6>
+                        <p class="mb-0 small text-muted fst-italic">Si no estás disponible, nadie podrá firmar tus solicitudes pendientes.</p>
                     </div>
                 }
-                @if (Model.SoyPADe.Any())
+
+
+
+                <!-- ==========================================
+                   BLOQUE 2: MIS COBERTURAS (Por quién firmo yo)
+                   ========================================== -->
+                @if (Model.SoyPADe != null && Model.SoyPADe.Any())
                 {
-                    <hr />
+                    <div class="divider-dashed my-4"></div>
 
-                    <h6 class="mb-3">
-                        Firmas donde actúo como PA
-                    </h6>
+                    <div class="mb-3">
+                        <h5 class="fw-bold text-secondary mb-1" style="font-size: 1.1rem;">
+                            <i class="bi bi-fingerprint text-success me-2"></i>Usuarios por los que puedo firmar Por Ausencia
+                        @if (Model.PendientesPA != null && Model.PendientesPA.Any())
+                        {
+                            <span class="badge badge-pulse-alert ms-1">
+                                @Model.PendientesPA.Count()
+                            </span>
+                        }
+                        </h5>
+                        
+                        <p class="text-muted small mb-0 fst-italic ">Listado de titulares a los que tienes la facultad de firmarles por ausencia (PA)</p>
+                    </div>
 
-                    <div class="table-responsive">
-
-                        <table class="table table-hover">
-
-                            <thead>
-                                <tr>
-                                    <th>Firma</th>
-                                    <th>Titular</th>
-                                    <th>Estatus</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-
-                                @foreach (var item in Model.SoyPADe)
-                                {
-                                    <tr>
-
-                                        <td>
-                                            @item.TipoFirma
-                                        </td>
-
-                                        <td>
-                                            @item.UsuarioPA
-                                        </td>
-
-                                        <td>
-                                            <span class="badge bg-info">
-                                                PA Activo
-                                            </span>
-                                        </td>
-
-                                    </tr>
-                                }
-
-                            </tbody>
-
-                        </table>
-
+                    <div class="pa-grid">
+                        @foreach (var item in Model.SoyPADe)
+                        {
+                            <div class="pa-profile-card shadow-xs border" style="border-left: 4px solid #10b981 !important;">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="pa-avatar bg-i-cover">
+                                        @item.UsuarioPA.Substring(0, 1).ToUpper()
+                                    </div>
+                                    <div class="flex-grow-1 text-truncate">
+                                        <span class="text-uppercase text-muted fw-bold d-block" style="font-size: 0.62rem; letter-spacing: 0.5px;">@item.TipoFirma</span>
+                                        <strong class="text-dark d-block text-truncate fs-6">@item.UsuarioPA</strong>
+                                    </div>
+                                    <div>
+                                        <span class="badge bg-success-subtle text-success rounded-pill px-2 py-1 small fw-semibold" title="Facultad de firma activa">
+                                            <i class="bi bi-lightning-fill"></i> PA
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
                     </div>
                 }
+
 
             </div>
+
         </div>
 
     </div>
 
 </div>
 
-<div class="modal fade"
-     id="modalAsignarPA">
+@if (TempData["Success"] != null)
+{
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+
+            toast.fire({
+                icon: 'success',
+                title: '@Html.Raw(TempData["Success"])'
+            });
+
+        });
+
+    </script>
+}
+
+@if (TempData["Error"] != null)
+{
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 4000,
+                timerProgressBar: true
+            });
+
+            toast.fire({
+                icon: 'error',
+                title: '@Html.Raw(TempData["Error"])'
+            });
+
+        });
+
+    </script>
+}
+@* MODAL PARA ASIGNAR UN USUARIO PARA FIRMAR POR AUSENCIA *@
+<div class="modal fade" id="modalAsignarPA">
 
     <div class="modal-dialog">
 
@@ -514,7 +734,95 @@
 @section Scripts {
     <script src="https://cdn.datatables.net/2.3.8/js/dataTables.js"></script>
     <script src="https://cdn.datatables.net/2.3.8/js/dataTables.bootstrap5.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
 
+        async function quitarPA(id)
+        {
+            const result = await Swal.fire({
+                title: '¿Desactivar usuario PA?',
+                text: 'El registro permanecerá para auditoría y podrás reactivarlo después.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, desactivar',
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (!result.isConfirmed)
+                return;
+
+            const formData = new FormData();
+
+            formData.append('id', id);
+
+            const response = await fetch('/Firmas/QuitarPA', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success)
+            {
+                location.reload();
+            }
+            else
+            {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'No fue posible desactivar la asignación.',
+                    icon: 'error',
+                    confirmButtonColor: '#dc3545'
+                });
+            }
+        }
+
+        async function reactivarPA(id)
+        {
+            const result = await Swal.fire({
+                title: '¿Reactivar usuario PA?',
+                text: 'El usuario volverá a tener facultad para firmar por ausencia.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#198754',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, reactivar',
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (!result.isConfirmed)
+                return;
+
+            const formData = new FormData();
+
+            formData.append('id', id);
+
+            const response = await fetch('/Firmas/ReactivarPA', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success)
+            {
+                location.reload();
+            }
+            else
+            {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'No fue posible reactivar la asignación.',
+                    icon: 'error',
+                    confirmButtonColor: '#dc3545'
+                });
+            }
+        }
+
+    </script>
 
     <script>
 
@@ -639,4 +947,5 @@
 
     </script>
 
+   
 }

@@ -92,6 +92,21 @@ namespace Layout.Controllers
             })
             .ToList();
 
+            vm.PendientesPA = await _context.FirmasPA
+                .Include(x => x.UsuarioTitular)
+                .Include(x => x.TipoFirma)
+                .Where(x =>
+                    x.UsuarioPAId == usuario.Id &&
+                    x.Activo)
+                .Select(x => new FirmaPAViewModel
+                {
+                    TipoFirmaId = x.TipoFirmaId,
+                    TipoFirma = x.TipoFirma.Nombre,
+                    UsuarioPAId = x.UsuarioPAId,
+                    UsuarioPA = x.UsuarioTitular.NombreCompleto,
+                    Activo = x.Activo
+                })
+                .ToListAsync();
 
             var realizadas = await _context.SolicitudesFirma
                 .Include(x => x.Solicitud)
@@ -137,11 +152,13 @@ namespace Layout.Controllers
                 .Where(x => x.UsuarioTitularId == usuario.Id)
                 .Select(x => new FirmaPAViewModel
                 {
+                    Id = x.Id,
                     TipoFirmaId = x.TipoFirmaId,
                     TipoFirma = x.TipoFirma.Nombre,
                     UsuarioPAId = x.UsuarioPAId,
-                    UsuarioPA = x.UsuarioPA.UserName,
+                    UsuarioPA = x.UsuarioPA.NombreCompleto,
                     Activo = x.Activo
+
                 })
                 .ToListAsync(); 
 
@@ -371,6 +388,78 @@ namespace Layout.Controllers
             {
                 tiposFirma,
                 usuarios
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> QuitarPA(int id)
+        {
+            var usuarioActual =
+                await _userManager.GetUserAsync(User);
+
+            var pa = await _context.FirmasPA
+                .FirstOrDefaultAsync(x =>
+                    x.Id == id &&
+                    x.UsuarioTitularId == usuarioActual.Id);
+
+            if (pa == null)
+            {
+                TempData["Error"] =
+                    "No fue posible localizar la asignación PA.";
+
+                return Json(new
+                {
+                    success = false
+                });
+            }
+
+            pa.Activo = false;
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                "Usuario PA desactivado correctamente.";
+
+            return Json(new
+            {
+                success = true
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ReactivarPA(int id)
+        {
+            var usuarioActual =
+                await _userManager.GetUserAsync(User);
+
+            var pa = await _context.FirmasPA
+                .FirstOrDefaultAsync(x =>
+                    x.Id == id &&
+                    x.UsuarioTitularId == usuarioActual.Id);
+
+            if (pa == null)
+            {
+                TempData["Error"] =
+                    "No fue posible localizar la asignación PA.";
+
+                return Json(new
+                {
+                    success = false
+                });
+            }
+
+            pa.Activo = true;
+
+            pa.FechaAsignacion = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                "Usuario PA reactivado correctamente.";
+
+            return Json(new
+            {
+                success = true
             });
         }
 
