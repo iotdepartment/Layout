@@ -5,69 +5,101 @@
     ViewData["Title"] = "Iniciar Sesión";
 }
 
+<div class="d-flex justify-content-center align-items-center" style="min-height: 85vh;">
 
+    <div class="card shadow-lg border-0 rounded-4" style="width: 380px;">
 
-<!-- Título simplificado sin márgenes excesivos -->
-<h2 class="text-center mb-4 fw-bold text-secondary">@ViewData["Title"]</h2>
+        <div class="card-body p-4 text-center">
 
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">
+            <!-- CORRECCIÓN: Etiqueta de Imagen reconstruida con la ruta web correcta de Toyoda Gosei -->
+            <div class="bg-white rounded-3 border p-2 mb-3 d-inline-block shadow-sm" style="background-color: #f1f5f9 !important;">
+                <img src="/image/toyoda-gosei-logo.png" alt="Toyoda Gosei" class="img-fluid" style="max-height: 34px; object-fit: contain;" />
+            </div>
 
-        @TempData["Success"]
+            <!-- Título Corporativo -->
+            <h4 class="fw-bold mb-1 text-secondary">
+                Layout System
+            </h4>
+
+            <p class="text-muted small mb-4">
+                Solicitudes de Movimientos de Layout
+
+            </p>
+
+            <!-- Alerta para mensajes externos de redirección exitosa -->
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show border-0 small rounded-3 mb-3 text-start" role="alert">
+                    <i class="bi bi-check-circle-fill me-1"></i> @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <!-- CORRECCIÓN: Formulario abierto correctamente con Action POST y Tag Helpers -->
+            <form asp-action="Login" method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger p-2 small mb-3 text-center border-0 rounded-3"></div>
+
+                <!-- Campo: Correo Electrónico -->
+                <div class="mb-3 text-start">
+                    <label asp-for="Email" class="form-label fw-semibold small text-secondary">
+                        Correo Electrónico
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted">
+                            <i class="bi bi-envelope"></i>
+                        </span>
+                        <input asp-for="Email" class="form-control border-start-0 py-2" placeholder="correo@toyodagosei.com" required />
+                    </div>
+                    <span asp-validation-for="Email" class="text-danger small mt-1 d-block"></span>
+                </div>
+
+                <!-- Campo: Contraseña -->
+                <div class="mb-4 text-start">
+                    <label asp-for="Password" class="form-label fw-semibold small text-secondary">
+                        Contraseña
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted">
+                            <i class="bi bi-lock"></i>
+                        </span>
+                        <input asp-for="Password" type="password" class="form-control border-start-0 py-2" placeholder="••••••••" required />
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger small mt-1 d-block"></span>
+                </div>
+
+                <!-- Botón de Envío Estilizado -->
+                <button type="submit" class="btn btn-primary w-100 rounded-pill fw-semibold py-2 shadow-sm">
+                    <i class="bi bi-box-arrow-in-right me-1.5"></i>Ingresar al Sistema
+                </button>
+
+            </form>
+
+            <hr class="my-4 text-muted opacity-25" />
+
+            <!-- Sección de Registro Externo -->
+            <div class="text-center">
+                <span class="text-muted small">¿No tienes una cuenta activa?</span>
+                <br />
+                <!-- CORRECCIÓN: Enlace de registro estructurado y cerrado limpiamente -->
+                <a asp-action="Register" class="btn btn-link text-decoration-none fw-bold small p-0 mt-1">
+                    <i class="bi bi-person-plus me-1"></i>Regístrate aquí
+                </a>
+            </div>
+
+        </div>
+
+        <!-- Pie de la Tarjeta del Login -->
+        <div class="card-footer text-muted text-center small py-2.5 bg-light border-top-0">
+            &copy; @DateTime.Now.Year - Layout System By IoT
+        </div>
 
     </div>
-}
-
-<form asp-controller="Account" asp-action="Login" method="post">
-
-    <!-- Resumen de errores de validación del lado del servidor -->
-    <div asp-validation-summary="ModelOnly" class="alert alert-danger p-2 small mb-3 text-center" role="alert"></div>
-
-    <!-- Campo Email -->
-    <div class="mb-3">
-        <label asp-for="Email" class="form-label fw-semibold text-muted">Correo Electrónico</label>
-        <input asp-for="Email" class="form-control form-control-lg" placeholder="ejemplo@correo.com" />
-        <span asp-validation-for="Email" class="text-danger small mt-1 d-block"></span>
-    </div>
-
-    <!-- Campo Password -->
-    <div class="mb-4">
-        <label asp-for="Password" class="form-label fw-semibold text-muted">Contraseña</label>
-        <input asp-for="Password" type="password" class="form-control form-control-lg" placeholder="••••••••" />
-        <span asp-validation-for="Password" class="text-danger small mt-1 d-block"></span>
-    </div>
-
-    <!-- Botón de Envío -->
-    <div class="d-grid">
-        <button type="submit"
-                class="btn btn-primary btn-lg shadow-sm">
-            Entrar
-        </button>
-    </div>
-
-    <hr class="my-4" />
-
-    <div class="text-center">
-
-        <span class="text-muted">
-            ¿No tienes una cuenta?
-        </span>
-
-        <br />
-
-        <!-- ✅ ENLACE COMPLETADO -->
-        <a asp-controller="Account"
-           asp-action="Register"
-           class="text-decoration-none fw-semibold text-primary">
-            <i class="bi bi-person-plus me-1"></i>Regístrate aquí
-        </a>
-
-    </div>
-
-</form>
+</div>
 
 @section Scripts {
-    <!-- Validación del lado del cliente sin recargar la página -->
+    <!-- CORRECCIÓN: Scripts de validación inyectados una sola vez sin duplicaciones de código -->
     <partial name="_ValidationScriptsPartial" />
 }

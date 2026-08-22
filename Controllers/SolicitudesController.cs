@@ -13,7 +13,7 @@ using System.Reflection;
 
 namespace Layout.Controllers
 {
-    //[Authorize(Roles = "Usuario")]
+    [Authorize]
     public class SolicitudesController : Controller
     {
         private readonly IEmailService _emailService;
@@ -23,10 +23,10 @@ namespace Layout.Controllers
 
 
         public SolicitudesController(
-    AppDbContext context,
-    UserManager<ApplicationUser> userManager,
-    IWebHostEnvironment env,
-    IEmailService emailService)
+                AppDbContext context,
+                UserManager<ApplicationUser> userManager,
+                IWebHostEnvironment env,
+                IEmailService emailService)
         {
             _context = context;
             _userManager = userManager;
@@ -41,7 +41,10 @@ namespace Layout.Controllers
         {
             var usuarioActual =
                 await _userManager.GetUserAsync(User);
-
+            if (usuarioActual == null)
+            {
+                return Content("Usuario actual es NULL");
+            }
             IQueryable<SolicitudMovimiento> query =
                 _context.SolicitudesMovimiento
                     .Include(s => s.Area)
@@ -163,54 +166,55 @@ namespace Layout.Controllers
                 solicitud.Folio = $"NM-{solicitud.Id:D6}";
 
                 await _context.SaveChangesAsync();
+                //PARTE CON LA LOGIA DE ENVÍO DE CORREOS
 
-                var tipoMovimientoTexto =
-                    solicitud.TipoMovimiento
-                        .GetType()
-                        .GetField(solicitud.TipoMovimiento.ToString())
-                        ?.GetCustomAttribute<DisplayAttribute>()
-                        ?.Name ?? solicitud.TipoMovimiento.ToString();
+                //var tipoMovimientoTexto =
+                //    solicitud.TipoMovimiento
+                //        .GetType()
+                //        .GetField(solicitud.TipoMovimiento.ToString())
+                //        ?.GetCustomAttribute<DisplayAttribute>()
+                //        ?.Name ?? solicitud.TipoMovimiento.ToString();
 
-                var area = await _context.Areas
-                    .FirstOrDefaultAsync(x => x.Id == solicitud.AreaId);
+                //var area = await _context.Areas
+                //    .FirstOrDefaultAsync(x => x.Id == solicitud.AreaId);
 
-                var html =
-                    _emailService.ObtenerPlantilla(
-                        "NuevaSolicitud.html");
+                //var html =
+                //    _emailService.ObtenerPlantilla(
+                //        "NuevaSolicitud.html");
 
-                html =
-                    _emailService.ReemplazarVariables(
-                        html,
-                        new Dictionary<string, string>
-                        {
-                            { "FOLIO", solicitud.Folio },
-                            { "SOLICITANTE", user.NombreCompleto ?? "" },
-                            { "AREA", area?.Nombre ?? "" },
-                            { "TIPOMOVIMIENTO", tipoMovimientoTexto},
-                            { "RAZON", solicitud.Razon ?? "" },
-                            { "DESCRIPCION", solicitud.Descripcion ?? "" },
-                            { "FECHAINICIO", solicitud.FechaInicioMovimiento?.ToString("dd/MM/yyyy") ?? "" },
-                            { "FECHAFIN", solicitud.FechaFinMovimiento?.ToString("dd/MM/yyyy") ?? "" }
-                        });
+                //html =
+                //    _emailService.ReemplazarVariables(
+                //        html,
+                //        new Dictionary<string, string>
+                //        {
+                //            { "FOLIO", solicitud.Folio },
+                //            { "SOLICITANTE", user.NombreCompleto ?? "" },
+                //            { "AREA", area?.Nombre ?? "" },
+                //            { "TIPOMOVIMIENTO", tipoMovimientoTexto},
+                //            { "RAZON", solicitud.Razon ?? "" },
+                //            { "DESCRIPCION", solicitud.Descripcion ?? "" },
+                //            { "FECHAINICIO", solicitud.FechaInicioMovimiento?.ToString("dd/MM/yyyy") ?? "" },
+                //            { "FECHAFIN", solicitud.FechaFinMovimiento?.ToString("dd/MM/yyyy") ?? "" }
+                //        });
 
-                var asunto =
-                    $"Nueva Solicitud de movimiento {solicitud.Folio}";
+                //var asunto =
+                //    $"Nueva Solicitud de movimiento {solicitud.Folio}";
 
-                var aprobadores = await _userManager.GetUsersInRoleAsync("Aprobador");
+                //var aprobadores = await _userManager.GetUsersInRoleAsync("Aprobador");
 
-                var correosAprobadores = aprobadores
-                    .Where(x => !string.IsNullOrWhiteSpace(x.Email))
-                    .Select(x => x.Email!)
-                    .Distinct()
-                    .ToList();
+                //var correosAprobadores = aprobadores
+                //    .Where(x => !string.IsNullOrWhiteSpace(x.Email))
+                //    .Select(x => x.Email!)
+                //    .Distinct()
+                //    .ToList();
 
-                if (correosAprobadores.Any())
-                {
-                    await _emailService.EnviarCorreoAsync(
-                        correosAprobadores,
-                        asunto,
-                        html);
-                }
+                //if (correosAprobadores.Any())
+                //{
+                //    await _emailService.EnviarCorreoAsync(
+                //        correosAprobadores,
+                //        asunto,
+                //        html);
+                //}
 
                 // GUARDAR INVENTARIO
                 var inventario = new SolicitudInventarioTemporal
@@ -239,7 +243,7 @@ namespace Layout.Controllers
                 {
                     success = true,
                     message = "Solicitud guardada con éxito",
-                    redirectUrl = Url.Action("Index", "Home")
+                    redirectUrl = Url.Action("Index", "Solicitudes")
                 });
             }
             catch (Exception ex)

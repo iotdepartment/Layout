@@ -53,7 +53,7 @@ namespace Layout.Controllers
 
                 if (result.Succeeded)
                 {
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Solicitudes");
                 }
             }
 
