@@ -73,21 +73,20 @@ namespace Layout.Services
             await smtp.SendMailAsync(mensaje);
         }
 
-        public string ObtenerPlantilla(
-            string nombrePlantilla)
+        public string ObtenerPlantilla(string nombrePlantilla)
         {
             var ruta = Path.Combine(
                 Directory.GetCurrentDirectory(),
                 "EmailTemplates",
                 nombrePlantilla);
 
-            if (!File.Exists(ruta))
+            if (!System.IO.File.Exists(ruta))
             {
                 throw new FileNotFoundException(
                     $"No se encontró la plantilla: {ruta}");
             }
 
-            return File.ReadAllText(ruta);
+            return System.IO.File.ReadAllText(ruta);
         }
 
         public string ReemplazarVariables(
