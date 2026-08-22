@@ -2,30 +2,80 @@
 using Layout.Models;
 using Layout.Models.Enums;
 using Layout.Models.ViewModels;
+using Layout.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 
 namespace Layout.Controllers
 {
     //[Authorize(Roles = "Usuario")]
     public class SolicitudesController : Controller
     {
+        private readonly IEmailService _emailService;
         private readonly AppDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _env;
 
 
-        public SolicitudesController(AppDbContext context,
-                                     UserManager<ApplicationUser> userManager,
-                                     IWebHostEnvironment env)
+        public SolicitudesController(
+    AppDbContext context,
+    UserManager<ApplicationUser> userManager,
+    IWebHostEnvironment env,
+    IEmailService emailService)
         {
-
             _context = context;
             _userManager = userManager;
             _env = env;
+            _emailService = emailService;
+        }
+
+
+        // METODO PARA MOSTRAR LA LISTA DE LAS SOLICITUDES REALIZADAS
+        [HttpGet]
+        public async Task<IActionResult> Index()
+        {
+            var usuarioActual =
+                await _userManager.GetUserAsync(User);
+
+            IQueryable<SolicitudMovimiento> query =
+                _context.SolicitudesMovimiento
+                    .Include(s => s.Area)
+                    .Include(s => s.InventarioTemporal)
+                    .Include(s => s.UsuarioAprobador);
+
+            // Administrador y Aprobador ven todo
+            if (!User.IsInRole("Administrador") &&
+                !User.IsInRole("Aprobador"))
+            {
+                var solicitudesAsignadas =
+                    _context.SolicitudesFirma
+                        .Where(f =>
+                            f.UsuarioRequeridoId ==
+                            usuarioActual.Id)
+                        .Select(f =>
+                            f.SolicitudId);
+
+                query = query.Where(s =>
+                    s.UsuarioSolicitanteId ==
+                        usuarioActual.Id
+
+                    ||
+
+                    solicitudesAsignadas
+                        .Contains(s.Id));
+            }
+
+            var solicitudes = await query
+                .OrderByDescending(s =>
+                    s.FechaCreacion)
+                .ToListAsync();
+
+            return View(solicitudes);
         }
 
         // METODO PARA LA VISTA DE CREAR
@@ -100,10 +150,8 @@ namespace Layout.Controllers
                     Razon = model.Razon,
                     ImagenLayout = imagePath,
                     UsuarioSolicitanteId = user.Id,
-
                     FechaInicioMovimiento = model.FechaInicioMovimiento,
                     FechaFinMovimiento = model.FechaFinMovimiento,
-
                     Estatus = EstatusSolicitud.Pendiente,
                     FechaCreacion = DateTime.Now,
                     Folio = $"NM-TEMP-{Guid.NewGuid()}"
@@ -112,15 +160,59 @@ namespace Layout.Controllers
                 _context.SolicitudesMovimiento.Add(solicitud);
                 await _context.SaveChangesAsync();
 
-                // ✅ generar folio real
-                solicitud.Folio = $"NM-{solicitud.Id.ToString("D6")}";
+                solicitud.Folio = $"NM-{solicitud.Id:D6}";
 
                 await _context.SaveChangesAsync();
 
-                // =============================
-                // ✅ GUARDAR INVENTARIO
-                // =============================
+                var tipoMovimientoTexto =
+                    solicitud.TipoMovimiento
+                        .GetType()
+                        .GetField(solicitud.TipoMovimiento.ToString())
+                        ?.GetCustomAttribute<DisplayAttribute>()
+                        ?.Name ?? solicitud.TipoMovimiento.ToString();
 
+                var area = await _context.Areas
+                    .FirstOrDefaultAsync(x => x.Id == solicitud.AreaId);
+
+                var html =
+                    _emailService.ObtenerPlantilla(
+                        "NuevaSolicitud.html");
+
+                html =
+                    _emailService.ReemplazarVariables(
+                        html,
+                        new Dictionary<string, string>
+                        {
+                            { "FOLIO", solicitud.Folio },
+                            { "SOLICITANTE", user.NombreCompleto ?? "" },
+                            { "AREA", area?.Nombre ?? "" },
+                            { "TIPOMOVIMIENTO", tipoMovimientoTexto},
+                            { "RAZON", solicitud.Razon ?? "" },
+                            { "DESCRIPCION", solicitud.Descripcion ?? "" },
+                            { "FECHAINICIO", solicitud.FechaInicioMovimiento?.ToString("dd/MM/yyyy") ?? "" },
+                            { "FECHAFIN", solicitud.FechaFinMovimiento?.ToString("dd/MM/yyyy") ?? "" }
+                        });
+
+                var asunto =
+                    $"Nueva Solicitud de movimiento {solicitud.Folio}";
+
+                var aprobadores = await _userManager.GetUsersInRoleAsync("Aprobador");
+
+                var correosAprobadores = aprobadores
+                    .Where(x => !string.IsNullOrWhiteSpace(x.Email))
+                    .Select(x => x.Email!)
+                    .Distinct()
+                    .ToList();
+
+                if (correosAprobadores.Any())
+                {
+                    await _emailService.EnviarCorreoAsync(
+                        correosAprobadores,
+                        asunto,
+                        html);
+                }
+
+                // GUARDAR INVENTARIO
                 var inventario = new SolicitudInventarioTemporal
                 {
                     SolicitudId = solicitud.Id, 
@@ -158,49 +250,6 @@ namespace Layout.Controllers
                     message = ex.InnerException?.Message ?? ex.Message
                 });
             }
-        }
-
-        // METODO PARA MOSTRAR LA LISTA DE LAS SOLICITUDES REALIZADAS
-        [HttpGet]
-        public async Task<IActionResult> Index()
-        {
-            var usuarioActual =
-                await _userManager.GetUserAsync(User);
-
-            IQueryable<SolicitudMovimiento> query =
-                _context.SolicitudesMovimiento
-                    .Include(s => s.Area)
-                    .Include(s => s.InventarioTemporal)
-                    .Include(s => s.UsuarioAprobador);
-
-            // Administrador y Aprobador ven todo
-            if (!User.IsInRole("Administrador") &&
-                !User.IsInRole("Aprobador"))
-            {
-                var solicitudesAsignadas =
-                    _context.SolicitudesFirma
-                        .Where(f =>
-                            f.UsuarioRequeridoId ==
-                            usuarioActual.Id)
-                        .Select(f =>
-                            f.SolicitudId);
-
-                query = query.Where(s =>
-                    s.UsuarioSolicitanteId ==
-                        usuarioActual.Id
-
-                    ||
-
-                    solicitudesAsignadas
-                        .Contains(s.Id));
-            }
-
-            var solicitudes = await query
-                .OrderByDescending(s =>
-                    s.FechaCreacion)
-                .ToListAsync();
-
-            return View(solicitudes);
         }
 
         [Authorize(Roles = "Aprobador,Administrador")]
@@ -364,6 +413,15 @@ namespace Layout.Controllers
 
             _context.SolicitudesFirma.RemoveRange(firmasExistentes);
 
+            var solicitudCorreo = await _context.SolicitudesMovimiento
+     .Include(x => x.Area)
+     .Include(x => x.UsuarioSolicitante)
+     .FirstOrDefaultAsync(x => x.Id == model.SolicitudId);
+
+            // Ruta que abrirá el usuario desde el correo
+            var urlSistema =
+                $"{Request.Scheme}://{Request.Host}/Firmas/Pendientes";
+
             // Guardar nuevas firmas
             if (model.Firmas != null)
             {
@@ -382,6 +440,65 @@ namespace Layout.Controllers
                                 UsuarioRequeridoId = firma.UsuarioRequeridoId,
                                 Firmada = false
                             });
+
+                        // =============================
+                        // CORREO DE FIRMA PENDIENTE
+                        // =============================
+
+                        var usuarioFirmante =
+                            await _userManager.FindByIdAsync(
+                                firma.UsuarioRequeridoId);
+
+                        var tipoFirma =
+                            await _context.TiposFirma
+                                .FirstOrDefaultAsync(x =>
+                                    x.Id == firma.TipoFirmaId.Value);
+
+                        if (
+                            usuarioFirmante != null &&
+                            !string.IsNullOrWhiteSpace(
+                                usuarioFirmante.Email))
+                        {
+                            var html =
+                                _emailService.ObtenerPlantilla(
+                                    "FirmaPendiente.html");
+
+                            html =
+                                _emailService.ReemplazarVariables(
+                                    html,
+                                    new Dictionary<string, string>
+                                    {
+                            {
+                                "FOLIO",
+                                solicitudCorreo?.Folio ?? ""
+                            },
+                            {
+                                "SOLICITANTE",
+                                solicitudCorreo?.UsuarioSolicitante?.NombreCompleto ?? ""
+                            },
+                            {
+                                "AREA",
+                                solicitudCorreo?.Area?.Nombre ?? ""
+                            },
+                            {
+                                "TIPOFIRMA",
+                                tipoFirma?.Nombre ?? ""
+                            },
+                            {
+                                "NUMEROVALIDACION",
+                                solicitudCorreo?.NumeroValidacion ?? ""
+                            },
+                            {
+                                "URLSISTEMA",
+                                urlSistema
+                            }
+                                    });
+
+                            await _emailService.EnviarCorreoAsync(
+                                usuarioFirmante.Email,
+                                $"✍️ Firma requerida - {solicitudCorreo?.Folio}",
+                                html);
+                        }
                     }
                 }
             }
@@ -424,9 +541,7 @@ namespace Layout.Controllers
             var user = await _userManager.GetUserAsync(User);
 
             solicitud.Estatus = nuevoEstatus;
-
             solicitud.UsuarioAprobadorId = user.Id;
-
             solicitud.FechaRevision = DateTime.Now;
 
             solicitud.ComentariosRevision =
@@ -445,6 +560,84 @@ namespace Layout.Controllers
             }
 
             await _context.SaveChangesAsync();
+
+            // =============================
+            // ENVÍO DE CORREO
+            // =============================
+
+            var solicitante = await _userManager
+                .FindByIdAsync(solicitud.UsuarioSolicitanteId);
+
+            var area = await _context.Areas
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == solicitud.AreaId);
+
+            if (solicitante != null &&
+                !string.IsNullOrWhiteSpace(solicitante.Email))
+            {
+                string nombrePlantilla = null;
+                string asunto = null;
+
+                if (nuevoEstatus == EstatusSolicitud.EnProceso)
+                {
+                    nombrePlantilla = "SolicitudAprobada.html";
+                    asunto = $"✅ Solicitud aprobada {solicitud.Folio}";
+                }
+                else if (nuevoEstatus == EstatusSolicitud.Rechazado)
+                {
+                    nombrePlantilla = "SolicitudRechazada.html";
+                    asunto = $"❌ Solicitud rechazada {solicitud.Folio}";
+                }
+
+                if (!string.IsNullOrEmpty(nombrePlantilla))
+                {
+                    var html =
+                        _emailService.ObtenerPlantilla(
+                            nombrePlantilla);
+
+                    var reemplazos =
+                        new Dictionary<string, string>
+                        {
+                    { "FOLIO", solicitud.Folio },
+                    { "AREA", area?.Nombre ?? "" },
+                    { "TIPOMOVIMIENTO", solicitud.TipoMovimiento.ToString() },
+
+                    {
+                        "NUMEROVALIDACION",
+                        solicitud.NumeroValidacion ?? ""
+                    },
+
+                    {
+                        "FECHAAPROBACION",
+                        solicitud.FechaRevision?.ToString(
+                            "dd/MM/yyyy HH:mm")
+                        ?? ""
+                    },
+
+                    {
+                        "FECHARECHAZO",
+                        solicitud.FechaRevision?.ToString(
+                            "dd/MM/yyyy HH:mm")
+                        ?? ""
+                    },
+
+                    {
+                        "COMENTARIOS",
+                        solicitud.ComentariosRevision
+                        ?? "Sin comentarios"
+                    }
+                        };
+
+                    html = _emailService.ReemplazarVariables(
+                        html,
+                        reemplazos);
+
+                    await _emailService.EnviarCorreoAsync(
+                        solicitante.Email,
+                        asunto,
+                        html);
+                }
+            }
 
             // ✅ Redirigir a completar información técnica
             if (nuevoEstatus == EstatusSolicitud.EnProceso)
@@ -578,7 +771,15 @@ namespace Layout.Controllers
             });
         }
 
+        public async Task<IActionResult> PruebaCorreo()
+        {
+            await _emailService.EnviarCorreoAsync(
+                "luis.villarreal@toyodagosei.com",
+                "Prueba PMU",
+                "<h2>Correo enviado desde PMU</h2>");
 
+            return Content("OK");
+        }
 
     }
 }

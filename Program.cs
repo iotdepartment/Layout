@@ -2,9 +2,11 @@
 using Layout.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Layout.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Services.AddScoped<IEmailService,
+    EmailService>();
 // DB
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

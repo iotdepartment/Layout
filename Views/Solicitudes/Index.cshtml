@@ -312,6 +312,22 @@
         gap: 0.38rem !important;
     }
 
+    /* Bloques contenedores con auto-estiramiento vertical para textos largos */
+    #modalDetalle .content-panel-box {
+        background-color: #fcfcfc;
+        border: 1px solid #f1f3f9;
+        padding: 16px;
+        border-radius: 12px;
+        color: #495057;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        /* PROPIEDADES CLAVE PARA UX: */
+        height: auto !important; /* Permite que crezca verticalmente según el texto */
+        min-height: 60px; /* Altura mínima estética por si el texto es corto */
+        white-space: pre-wrap; /* Respeta los saltos de línea e intros del usuario */
+        word-break: break-word; /* Rompe palabras masivas de forma segura sin desbordar */
+        overflow: visible !important; /* Asegura que no se oculte nada de texto */
+    }
 
 </style>
 
@@ -393,6 +409,7 @@
     }
     else
     {
+
         <!-- CONTENEDOR TIPO CONTROLLER SEGMENTADO -->
         <div class="d-flex mb-4 overflow-x-auto pb-2 custom-saas-scroll">
             <!-- Una pista limpia, gris y estilizada que une a todas las pestañas -->
@@ -656,7 +673,6 @@
         
         </div>
 
-
     }
 </div>
 
@@ -729,17 +745,18 @@
                         <hr class="text-muted opacity-25 m-0">
                     </div>
 
-                    <!-- Descripción de la Solicitud -->
+                    <!-- Descripción de la Solicitud (Auto-adaptable a múltiples líneas) -->
                     <div class="col-12">
-                        <span class="modal-label-caps">Motivos para solicitar el movimiento de Layout:</span>
+                        <span class="modal-label-caps mb-2">Motivos para solicitar el movimiento de Layout:</span>
                         <p id="modalDescripcion" class="content-panel-box border-start border-primary border-4 mb-0"></p>
                     </div>
 
-                    <!-- Justificación / Razón -->
-                    <div class="col-12">
-                        <span class="modal-label-caps">Detallar el movimiento requerido:</span>
+                    <!-- Justificación / Razón (Auto-adaptable a múltiples líneas) -->
+                    <div class="col-12 mt-3">
+                        <span class="modal-label-caps mb-2">Detallar el movimiento requerido:</span>
                         <p id="modalRazon" class="content-panel-box mb-0"></p>
                     </div>
+
 
                     <!-- SECCIÓN DE INVENTARIO PREMIUM -->
                     <div id="seccionInventario" class="col-12 d-none">
@@ -873,8 +890,7 @@
                             <textarea id="txtComentariosRevision"
                                   class="form-control textarea-dictamen"
                                   rows="2"
-                                  placeholder="Escribe aquí de manera detallada los motivos de la aprobación o rechazo técnico...">
-        </textarea>
+                                  placeholder="Escribe aquí de manera detallada los motivos de la aprobación o rechazo técnico..."></textarea>
 
                         </div>
                     }

@@ -103,17 +103,46 @@
 
                     <!-- Razón -->
                     <div class="mb-3">
-                        <label asp-for="Razon" class="form-label fw-bold small text-secondary">Motivos para solicitar el movimiento de Layout:</></label>
-                        <textarea asp-for="Razon" class="form-control form-control-modern" rows="3" placeholder="¿Por qué se requiere este movimiento?"></textarea>
-                        <span asp-validation-for="Razon" class="text-danger small"></span>
+                        <label asp-for="Razon"
+                               class="form-label fw-bold small text-secondary">
+                            Motivos para solicitar el movimiento de Layout:
+                        </label>
+
+                        <textarea asp-for="Razon"
+                                  class="form-control form-control-modern"
+                                  rows="3"
+                                  maxlength="255"
+                                  placeholder="¿Por qué se requiere este movimiento?"></textarea>
+
+                        <small class="text-muted">
+                            <span id="contadorRazon">0</span>/255 caracteres
+                        </small>
+
+                        <span asp-validation-for="Razon"
+                              class="text-danger small"></span>
                     </div>
 
                     <!-- Descripción -->
                     <div class="mb-3">
-                        <label asp-for="Descripcion" class="form-label fw-bold small text-secondary">Detallar el movimiento requerido:</label>
-                        <textarea asp-for="Descripcion" class="form-control form-control-modern" rows="3" placeholder="Detalla brevemente la solicitud..."></textarea>
-                        <span asp-validation-for="Descripcion" class="text-danger small"></span>
+                        <label asp-for="Descripcion"
+                               class="form-label fw-bold small text-secondary">
+                            Detallar el movimiento requerido:
+                        </label>
+
+                        <textarea asp-for="Descripcion"
+                                  class="form-control form-control-modern"
+                                  rows="3"
+                                  maxlength="255"
+                                  placeholder="Detalla brevemente la solicitud..."></textarea>
+
+                        <small class="text-muted">
+                            <span id="contadorDescripcion">0</span>/255 caracteres
+                        </small>
+
+                        <span asp-validation-for="Descripcion"
+                              class="text-danger small"></span>
                     </div>
+
 
                     <!-- Imagen -->
                     @* <small class="bg-danger-subtle text-danger fw-bold">En revision</small> *@
@@ -246,7 +275,35 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
 
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const razon =
+                document.getElementById('Razon');
+
+            const descripcion =
+                document.getElementById('Descripcion');
+
+            razon.addEventListener('input', () => {
+
+                document.getElementById(
+                    'contadorRazon'
+                ).textContent = razon.value.length;
+
+            });
+
+            descripcion.addEventListener('input', () => {
+
+                document.getElementById(
+                    'contadorDescripcion'
+                ).textContent = descripcion.value.length;
+
+            });
+
+        });
+
+    </script>
     <script>
             document
         .getElementById("fechaInicio")

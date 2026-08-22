@@ -20,9 +20,11 @@ namespace Layout.Models.ViewModels
         [Required]
         public TipoMovimiento TipoMovimiento { get; set; }
 
+        [StringLength(255, ErrorMessage = "Máximo 255 caracteres.")]
         [Required]
         public string Descripcion { get; set; } = string.Empty;
-
+        
+        [StringLength(255, ErrorMessage = "Máximo 255 caracteres.")]
         [Required]
         public string Razon { get; set; } = string.Empty;
 

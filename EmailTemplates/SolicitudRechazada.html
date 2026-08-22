@@ -1,0 +1,137 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Solicitud Rechazada</title>
+</head>
+
+<body style="margin:0;padding:0;background-color:#f4f6f9;font-family:Segoe UI,Arial,sans-serif;">
+
+    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+            <td align="center">
+
+                <table width="800"
+                       cellpadding="0"
+                       cellspacing="0"
+                       border="0"
+                       style="
+                            background:#ffffff;
+                            margin:20px auto;
+                            border-radius:12px;
+                            overflow:hidden;
+                            box-shadow:0 4px 12px rgba(0,0,0,.08);">
+
+                    <!-- HEADER -->
+                    <tr>
+                        <td style="background:#dc3545;padding:24px;color:white;">
+
+                            <h1 style="margin:0;font-size:24px;">
+                                ❌ Solicitud Rechazada
+                            </h1>
+
+                            <p style="margin-top:8px;font-size:14px;opacity:.95;">
+                                Tu solicitud fue rechazada y requiere atención.
+                            </p>
+
+                        </td>
+                    </tr>
+
+                    <!-- BODY -->
+                    <tr>
+                        <td style="padding:25px;">
+
+                            <div style="
+                                background:#f8f9fa;
+                                border-left:5px solid #dc3545;
+                                padding:15px;
+                                border-radius:8px;
+                                margin-bottom:20px;">
+
+                                <h3 style="margin:0;color:#dc3545;">
+                                    Folio: {{FOLIO}}
+                                </h3>
+
+                            </div>
+
+                            <table width="100%"
+                                   cellpadding="10"
+                                   cellspacing="0"
+                                   style="border-collapse:collapse;">
+
+                                <tr style="background:#f8f9fa;">
+                                    <td width="220">
+                                        <strong>Área</strong>
+                                    </td>
+                                    <td>
+                                        {{AREA}}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <strong>Tipo de Movimiento</strong>
+                                    </td>
+                                    <td>
+                                        {{TIPOMOVIMIENTO}}
+                                    </td>
+                                </tr>
+
+                                <tr style="background:#f8f9fa;">
+                                    <td>
+                                        <strong>Fecha de Rechazo</strong>
+                                    </td>
+                                    <td>
+                                        {{FECHARECHAZO}}
+                                    </td>
+                                </tr>
+
+                            </table>
+
+                            <br>
+
+                            <div style="
+                                background:#fff5f5;
+                                border:1px solid #f5c2c7;
+                                border-radius:8px;
+                                padding:15px;">
+
+                                <strong style="color:#dc3545;">
+                                    Comentarios del Aprobador
+                                </strong>
+
+                                <p style="margin-top:10px;margin-bottom:0;line-height:1.6;">
+                                    {{COMENTARIOS}}
+                                </p>
+
+                            </div>
+
+                        </td>
+                    </tr>
+
+                    <!-- FOOTER -->
+                    <tr>
+                        <td style="
+                            background:#343a40;
+                            color:#ffffff;
+                            font-size:12px;
+                            text-align:center;
+                            padding:15px;">
+
+                            <strong>Layouts System | Toyoda Gosei Rubber Mexico</strong>
+                            <br>
+                            Este es un correo generado automáticamente. Favor de no responder.
+
+                        </td>
+                    </tr>
+
+                </table>
+
+            </td>
+        </tr>
+    </table>
+
+</body>
+
+</html>
